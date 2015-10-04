@@ -16,6 +16,7 @@
 <%@ page import="com.address.OrganDAO" %>
 <%@ page import="com.address.GeoUtil" %>
 <%@ page import="com.address.PdfDAO" %>
+<%@ page import="com.address.EtcDAO" %>
 <%@ page import="java.security.MessageDigest" %>
 <%@ page import="java.security.NoSuchAlgorithmException" %>
 
@@ -1018,14 +1019,6 @@
 				System.out.println("adm_cd1:"+adm_cd1);
 				System.out.println("adm_cd2:"+adm_cd2);
 				
-				sql = "SELECT ADM_CD, PDF_CODE, PDF_PAGE, PDF_ETC FROM ( "
-					+ " SELECT * FROM PDFINFO WHERE ADM_CD = ? "
-					+ "	UNION ALL "
-					+ "	SELECT * FROM PDFINFO WHERE ADM_CD = ? "
-					+ "	AND pdf_code NOT IN (SELECT pdf_code FROM PDFINFO WHERE ADM_CD = ? ) "
-					+ "	) A "
-					+ "	ORDER BY pdf_code ";
-				
 				sql = " SELECT ADM_CD, PDF_CODE, PDF_PAGE, PDF_ETC FROM ( "
 					+ "		SELECT * FROM PDFINFO WHERE ADM_CD = ? AND pdf_etc = 'M' "
 					+ "		UNION ALL  "
@@ -1066,6 +1059,41 @@
 				System.out.println("al5:"+al5.size());
 				obj_re.put("PDF", al5);
 				
+				System.out.println("ETCSEARCH");
+				
+				sql = " SELECT A.ADM_CD, SUM(A.POPULATION) AS POPULATION, SUM(A.FAMILY) AS FAMILY, A.TUPYOGU_ADDR "
+					+ " ,SUM(C.ELECTOR_CNT) AS ELECTOR_CNT "
+					+ " ,CONCAT(CONCAT(CONCAT(CONCAT(CONCAT(CONCAT(B.SIDOTEXT, ' '), B.SIGUNGUTEXT), ' '), B.HAENGTEXT), ' '), B.ADM_TEXT) AS TUPYOGU_NAME "
+					+ " FROM ENVINFO A INNER JOIN ADM_CODE B "
+					+ " ON (A.ADM_CD=B.ADM_CD) "
+					+ " INNER JOIN (SELECT ADM_CD, SUM(ELECTOR_CNT) AS ELECTOR_CNT FROM VOTEINFO WHERE ADM_CD = ? GROUP BY ADM_CD) C "
+					+ " ON (A.ADM_CD=C.ADM_CD) "
+					+ " WHERE A.ADM_CD = ? "
+					+ " GROUP BY A.ADM_CD, A.TUPYOGU_ADDR, B.SIDOTEXT, B.SIGUNGUTEXT, B.HAENGTEXT ";
+				
+				pstmt = conn.prepareStatement(sql);
+				pstmt.setString(1, adm_cd3);
+				pstmt.setString(2, adm_cd3);
+				
+				rs = pstmt.executeQuery();
+				
+				EtcDAO etd = null;
+				
+				JSONArray al6 = new JSONArray();
+				
+				while(rs.next()){
+					etd = new EtcDAO();
+					etd.setAdm_cd(rs.getString("ADM_CD"));
+					etd.setElector_cnt(rs.getInt("ELECTOR_CNT"));
+					etd.setFamily(rs.getInt("FAMILY"));
+					etd.setPopulation(rs.getInt("POPULATION"));
+					etd.setTupyogu_addr(rs.getString("TUPYOGU_ADDR"));
+					etd.setTupyogu_name(rs.getString("TUPYOGU_NAME"));
+					al6.add(gson.toJson(etd));
+				}
+				
+				System.out.println("al6:"+al6.size());
+				obj_re.put("ETC", al6);
 				
 				obj_re.put("RESULT","SUCCESS");
 		     
@@ -1505,6 +1533,42 @@
 					
 					System.out.println("al5:"+al5.size());
 					obj_re.put("PDF", al5);
+					
+					System.out.println("ETCSEARCH");
+					
+					sql = " SELECT A.ADM_CD, SUM(A.POPULATION) AS POPULATION, SUM(A.FAMILY) AS FAMILY, A.TUPYOGU_ADDR "
+						+ " ,SUM(C.ELECTOR_CNT) AS ELECTOR_CNT "
+						+ " ,CONCAT(CONCAT(CONCAT(CONCAT(CONCAT(CONCAT(B.SIDOTEXT, ' '), B.SIGUNGUTEXT), ' '), B.HAENGTEXT), ' '), B.ADM_TEXT) AS TUPYOGU_NAME "
+						+ " FROM ENVINFO A INNER JOIN ADM_CODE B "
+						+ " ON (A.ADM_CD=B.ADM_CD) "
+						+ " INNER JOIN (SELECT ADM_CD, SUM(ELECTOR_CNT) AS ELECTOR_CNT FROM VOTEINFO WHERE ADM_CD = ? GROUP BY ADM_CD) C "
+						+ " ON (A.ADM_CD=C.ADM_CD) "
+						+ " WHERE A.ADM_CD = ? "
+						+ " GROUP BY A.ADM_CD, A.TUPYOGU_ADDR, B.SIDOTEXT, B.SIGUNGUTEXT, B.HAENGTEXT ";
+					
+					pstmt = conn.prepareStatement(sql);
+					pstmt.setString(1, adm_cd3);
+					pstmt.setString(2, adm_cd3);
+					
+					rs = pstmt.executeQuery();
+					
+					EtcDAO etd = null;
+					
+					JSONArray al6 = new JSONArray();
+					
+					while(rs.next()){
+						etd = new EtcDAO();
+						etd.setAdm_cd(rs.getString("ADM_CD"));
+						etd.setElector_cnt(rs.getInt("ELECTOR_CNT"));
+						etd.setFamily(rs.getInt("FAMILY"));
+						etd.setPopulation(rs.getInt("POPULATION"));
+						etd.setTupyogu_addr(rs.getString("TUPYOGU_ADDR"));
+						etd.setTupyogu_name(rs.getString("TUPYOGU_NAME"));
+						al6.add(gson.toJson(etd));
+					}
+					
+					System.out.println("al6:"+al6.size());
+					obj_re.put("ETC", al6);
 					
 					obj_re.put("RESULT","SUCCESS");
 
