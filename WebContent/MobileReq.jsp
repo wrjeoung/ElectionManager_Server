@@ -30,7 +30,9 @@
 	String clientMd5sum = null;
 	String serverMd5sum = null;
 	String mFileName = "final.pdf";
+	// wrjeoung mac path.
     //String mSaveFolder = "/Users/wrjeong";
+	// Woori research sever path.
     String mSaveFolder = "/usr/local/server/tomcat/webapps/Woori/data";
 	
 	request.setCharacterEncoding("UTF-8");		
@@ -296,15 +298,20 @@
 			
 			int iCnt = 0;
 			String pwd = "";
+			String pdfpath = null;
 			while(rs.next()){
 				iCnt++;
 				pwd = rs.getString(1);
+				pdfpath = rs.getString(4);
+				
 			}
+			System.out.println("pdfpath : "+pdfpath);
 			//iCnt가 0보다 크면 mac 중복 
 			if(iCnt>0){
 				System.out.println("[중복체크]서버에 동일한 mac 있음.:"+mac);
 				obj_re.put("RESULT",true);
 				obj_re.put("PWD",pwd);
+				obj_re.put("PDFPATH",pdfpath);
 
 			}else{
 				System.out.println("[중복체크]서버에 동일한 mac 없음.:"+mac);
