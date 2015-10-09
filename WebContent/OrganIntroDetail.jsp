@@ -84,7 +84,7 @@
 	if(conn!=null) conn.close();
 	
 %>
-<script type="text/javascript" src="https://sgisapi.kostat.go.kr/OpenAPI3/auth/javascriptAuth?consumer_key=f59544edd2be4a4f91dd"></script>
+<script type="text/javascript" src="https://sgisapi.kostat.go.kr/OpenAPI3/auth/javascriptAuth?consumer_key=d7b1e5c419cd4e9baebd"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
 <body>
 <div id="organ">
