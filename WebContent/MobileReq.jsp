@@ -284,7 +284,7 @@
 			String mac = (String) jre.get("IMEI");
 			//String sql = "select pwd from USERINFO where macaddress=?";
 			
-			String sql = "SELECT A.PWD, B.GROUPCD, B.ADM_CD, C.PDFPATH"
+			String sql = "SELECT A.PWD, B.GROUPCD, B.ADM_CD, C.PDFPATH, A.CLASSCD"
 				+ " FROM USERINFO A INNER JOIN GROUPINFO B "
 				+ " ON(A.GROUPCD=B.GROUPCD) "
 				+ " INNER JOIN ADM_CODE C "
@@ -299,10 +299,16 @@
 			int iCnt = 0;
 			String pwd = "";
 			String pdfpath = null;
+			String admcd = null;
+			String classcd = null;
+			
+			
 			while(rs.next()){
 				iCnt++;
-				pwd = rs.getString(1);
-				pdfpath = rs.getString(4);
+				pwd = rs.getString("PWD");
+				pdfpath = rs.getString("PDFPATH");
+				admcd = rs.getString("ADM_CD");
+				classcd = rs.getString("CLASSCD");
 				
 			}
 			System.out.println("pdfpath : "+pdfpath);
@@ -310,6 +316,8 @@
 			if(iCnt>0){
 				System.out.println("[중복체크]서버에 동일한 mac 있음.:"+mac);
 				obj_re.put("RESULT",true);
+				obj_re.put("ADM_CD",admcd);
+				obj_re.put("CLASSCD",classcd);				
 				obj_re.put("PWD",pwd);
 				obj_re.put("PDFPATH",pdfpath);
 
@@ -1585,7 +1593,29 @@
 			}
 			
 			System.out.println("obj_re = "+obj_re.toString()); 
-		}else{
+		} else if(sQuery.equals("MODIFYPASS")) {
+			System.out.println("TYPE is MODIFYPASS");
+			int update_pass;
+			
+			String pass = (String) jre.get("PASS");
+			String macadd = (String) jre.get("MACADD");
+			
+			System.out.println("MODIFYPASS pass : "+pass);
+			System.out.println("MODIFYPASS macadd : "+macadd);
+			
+			DBBean dbbean = new DBBean();
+			conn = dbbean.getConnection();
+			conn.setAutoCommit(false);
+			pstmt = null;
+			rs = null;
+			String sql = "update USERINFO set pwd=? where MACADDRESS=?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, pass);
+			pstmt.setString(2, macadd);
+			update_pass = pstmt.executeUpdate();
+			obj_re.put("UPDATEPASS",update_pass);
+			System.out.println("MODIFYPASS update_pass : "+update_pass);
+		} else {
 			
 		}
 		obj_re.put("TYPE",sQuery);
@@ -1598,6 +1628,7 @@
 		e.printStackTrace();
 	}finally{
 		try {
+			if (pstmt!=null) pstmt.close();
 			if (conn!=null) conn.commit();
 			if (conn!=null) conn.close();
 			out.print(obj_re);
