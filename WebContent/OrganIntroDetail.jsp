@@ -60,7 +60,7 @@
 		Organ_Con_Num = rs.getString("ORGAN_CON_NUM");
 		Organ_Img = rs.getString("ORGAN_IMG");
 		
-		Organ_Img = Organ_Img.replace("/", "//");
+		//Organ_Img = Organ_Img.replace("/", "//");
 		
 		Organ_Date = rs.getString("ORGAN_DATE");
 		Organ_Mem_Cman = rs.getString("ORGAN_MEM_CMAN");
