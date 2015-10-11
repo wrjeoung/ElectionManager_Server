@@ -1,12 +1,11 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="com.address.UserDAO" %>
+<%@ page import="com.address.GroupDAO"%>
 <%@ page import="com.address.DBBean" %>
-<%@ page import="com.address.ComboDAO" %>
 <%@ page import="com.google.gson.Gson" %>
 <%@ page import="com.google.gson.GsonBuilder"%>
-<%@page import="org.json.simple.JSONObject"%>
-<%@page import="java.sql.*" %>
-<%@page import="java.util.ArrayList"%>
+<%@ page import="org.json.simple.JSONObject"%>
+<%@ page import="java.sql.*" %>
+<%@ page import="java.util.ArrayList"%>
 <html>
 <head>
 
@@ -44,27 +43,53 @@
     <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
 	-->
 </head>
-<% 		
-	System.out.println("UserInfo.jsp"); 
+<% 
+	System.out.println("GroupInfo.jsp"); 
 
 	String userid = "";
-	String s_classcd = "";	
-		
-	userid = (String) session.getAttribute("userid");
-	s_classcd = (String) session.getAttribute("classcd");
+	String classcd = "";
+	String groupcd = "";
+	String groupname = "";
+	String admcd = "";
 	
+	String regGb = "N";
+
+	userid = (String) session.getAttribute("userid");
+	classcd = (String) session.getAttribute("classcd");
+		
 	System.out.println("userid:"+userid);
-	System.out.println("classcd:"+s_classcd);
-		
-	Gson gs = new Gson();
-		
-	JSONObject jo = new JSONObject();
-		
+	System.out.println("classcd:"+classcd);
+	
+    Gson gs = new Gson();
+    
+    JSONObject jo = new JSONObject();
+ 
 	if(userid==null || userid.equals(null)){
 		response.sendRedirect("Login.jsp");
 	}
 	
-	//-----------------------------//
+	GroupDAO gd = null;
+	request.setCharacterEncoding("UTF-8");
+	System.out.println("data:"+request.getParameter("data"));
+
+	gd = gs.fromJson((String)request.getParameter("data"), GroupDAO.class);
+	
+	System.out.println("gd:"+gd);
+	
+	if(gd == null){
+		regGb = "N";
+
+	}else{
+		regGb = "Y";
+		
+		groupcd = gd.getGroupcd();
+		groupname = gd.getGroupname();
+		admcd = gd.getAdm_cd();
+		
+		System.out.println("groupcd:"+groupcd);
+		System.out.println("groupname:"+groupname);
+		System.out.println("admcd:"+admcd);
+	}
 	
 	Connection conn = null;
 	PreparedStatement pstmt = null;
@@ -76,80 +101,23 @@
 	pstmt = null;
 	rs = null;
 	
-	String sql = " SELECT CLASSCD, CLASSNM FROM CLASSINFO ";
-		
-	pstmt = conn.prepareStatement(sql);
-	//pstmt.setString(1,"1");	
-	rs = pstmt.executeQuery();
-	
-	//ComboDAO cd = null;
-	ArrayList al = new ArrayList();	
-
-	while(rs.next()){
-		//cd = new  ComboDAO();
-		//cd.setClasscd(rs.getString("CLASSCD"));
-		//cd.setClassnm(rs.getString("CLASSNM"));
-		al.add(rs.getString("CLASSCD")  + ";" +rs.getString("CLASSNM"));
-	}
-		
-	System.out.println("class al:"+al);
-	
-	sql = " SELECT GROUPCD,GROUPNAME FROM GROUPINFO "; 
+	String sql = " SELECT SIGUNGUTEXT, ADM_CD FROM ADM_CODE "
+		 + " WHERE USEYN = 'Y' AND ADM_CD LIKE '%00-00' "; 
 	
 	pstmt = conn.prepareStatement(sql);
 	//pstmt.setString(1,"1");	
 	rs = pstmt.executeQuery();
 	
 	//ComboDAO cd2 = null;
-	ArrayList al2 = new ArrayList();	
+	ArrayList al = new ArrayList();	
 
 	while(rs.next()){
-		al2.add(rs.getString("GROUPCD")  + ";" +rs.getString("GROUPNAME"));
+		al.add(rs.getString("ADM_CD")  + ";" +rs.getString("SIGUNGUTEXT"));
 	}
-		
-	UserDAO ud = null;
-	request.setCharacterEncoding("UTF-8");
-	System.out.println("data:"+request.getParameter("data"));
 	
-	//od = (OrganDAO) request.getAttribute("OrganDetail");
-	ud = gs.fromJson((String)request.getParameter("data"), UserDAO.class);
-		
-	System.out.println("ud:"+ud);
-	
-	String userid_2 = "";
-	String usernm = "";
-	String pwd = "";
-	String groupcd = "";
-	String groupname = "";
-    String classcd = "";
-	String imei = "";
-	String macaddress = "";
-
-	if(ud == null){
-		
-	}else{
-	
-		userid_2 = ud.getUserid();
-		usernm = ud.getUsernm();
-		pwd = ud.getPwd();
-		groupcd = ud.getGroupcd();
-		groupname = ud.getGroupname();
-		classcd = ud.getClasscd();
-		macaddress = ud.getMacaddress();
-		
-		System.out.println("userid_2:"+userid_2);
-		System.out.println("usernm:"+usernm);
-		System.out.println("pwd:"+pwd);
-		System.out.println("groupcd:"+groupcd);
-		System.out.println("groupname:"+groupname);
-		System.out.println("classcd:"+classcd);
-		System.out.println("maccaddress:"+macaddress);
-	}
 %>
-<body onload=init();>
-<script src="js/jquery-1.10.2.min.js"></script>
-<!--  <script src="bootstrap/js/bootstrap.min.js"></script>-->
 <script type="text/javascript">
+
 function selectedOption(id, value, type) {
     var obj = document.getElementById(id);
     
@@ -173,92 +141,73 @@ function selectedOption(id, value, type) {
 }
 
 function init(){
+	//alert("init");
 	
-	var combo_class = "<%=al.toString()%>";
-	combo_class = combo_class.replace("[", "");
-	combo_class = combo_class.replace("]", "");
-	var sedr = combo_class.split(",");
-	var cnt = "<%=al.size()%>";
-	var ccd = new Array();
+	var groupnames = "<%=groupname %>";
+	var groupcds = "<%=groupcd%>";
+	var admcd = "<%=admcd%>";
+	var regGbs = "<%=regGb%>";
 	
-	for(var i = 0; i < cnt; i++){
-		ccd[i] = document.createElement('option');
-		var temp_arr = new Array();
-		temp_arr = sedr[i].split(";");
-		ccd[i].value=temp_arr[0].replace(" ", "");  
-		ccd[i].text=temp_arr[1].replace(" ", "");
-		document.forms['f'].elements['classcd'].add(ccd[i]);	
+	f.groupname.value=groupnames;
+	f.re_groupcd.value=groupcds;
+	f.groupcd.value=groupcds;
+	f.regGb.value = regGbs;
+	
+	if(f.regGb.value=="Y"){
+		f.groupcd.disabled=true;
 	}
 	
-	var combo_group = "<%=al2.toString()%>";
-	combo_group = combo_group.replace("[", "");
-	combo_group = combo_group.replace("]", "");
-	var sedr_gp = combo_group.split(",");
-	var group_cnt = "<%=al2.size()%>";
+	var combo_adm = "<%=al.toString()%>";
+	combo_adm = combo_adm.replace("[", "");
+	combo_adm = combo_adm.replace("]", "");
+	var sedr_gp = combo_adm.split(",");
+	var group_cnt = "<%=al.size()%>";
 	var gp = new Array();
-	
+		
 	for(var i = 0; i < group_cnt; i++){
 		gp[i] = document.createElement('option');
 		var temp_arr = new Array();
 		temp_arr = sedr_gp[i].split(";");
 		gp[i].value=temp_arr[0].replace(" ", "");  
 		gp[i].text=temp_arr[1].replace(" ", "");
-		document.forms['f'].elements['group_name'].add(gp[i]);	
+		document.forms['f'].elements['admcd'].add(gp[i]);	
 	}
+		
+	selectedOption('admcd', "<%=admcd%>", 'value');	
 	
-	f.userid.value = "<%=userid_2%>";
-	f.hid_userid.value = "<%=userid_2%>";
-	f.pwd.value = "<%=pwd%>";
-	f.pwd_conf.value = "<%=pwd%>"; 
-	f.usernm.value = "<%=usernm %>";
-	f.macaddress.value = "<%=macaddress%>";
-	f.hid_macaddress.value = "<%=macaddress%>";
-	
-	selectedOption('classcd', "<%=classcd%>", 'value');
-	selectedOption('group_name', "<%=groupcd%>", 'value');
-	
-	/**
-	var opt1 = document.createElement('option');
-	opt1.text = "<%=groupname%>";
-	opt1.value = "<%=groupcd%>";
-	document.forms['f'].elements['group_name'].add(opt1); //select 태그에 sption을 추가
-	**/
-
-	
-	/**
-	var opt2 = document.createElement('option');
-	opt2.text = "<%=classcd%>";
-	opt2.value = "<%=classcd%>";
-	document.forms['f'].elements['classcd'].add(opt2); //select 태그에 sption을 추가
-	**/
+	//alert(f.regGb.value);
 } 
 
 function check()
 {
-	//alert(f.pwd.value + ":" + f.pwd_conf.value);
-	//return false;
+	//alert("check");
 	
-	var pwd_len = f.pwd.value.length;
+	var groupcd_cnt = f.groupcd.value.length;
 	
-	if(f.usernm.value=="" || f.usernm.value == null){
+	if(f.groupname.value=="" || f.groupname.value == null){
 		alert("이름을 입력해주세요.");
 		return false;
-	}else if(pwd_len!=4){
-		alert("비밀번호는 4자리로 입력해주세요.");
+	}else if(f.groupcd.value=="" || f.groupcd.value == null){
+		alert("그룹코드를 입력해주세요.");
 		return false;
-	}else if(f.pwd.value=="" || f.pwd.value==null){
-		alert("비밀번호를 입력해주세요.");
-		return false;
-	}else if(f.pwd_conf.value=="" || f.pwd_conf.value==null){
-		alert("비밀번호 확인을 입력해주세요.");
-		return false;
-	}else if(f.pwd.value != f.pwd_conf.value){
-		alert("비밀번호가 일치하지 않습니다.");
+	}else if(groupcd_cnt!=5){
+		alert("그룹코드는 5자리로 입력해주세요.");
 		return false;
 	}
+
+	var message = "해당 내용으로 정말 등록 하시겠습니까?";
+	
+	if(confirm(message) == false){
+		return false;
+	}
+	
 }
 
+
 </script>
+<body onload=init();>
+<script src="js/jquery-1.10.2.min.js"></script>
+<!--  <script src="bootstrap/js/bootstrap.min.js"></script>-->
 <script>
 		
 			$(function(){
@@ -541,7 +490,7 @@ function check()
 			});
 			
 		</script>
-
+		
     <div id="wrapper">
     
         <!-- Navigation -->
@@ -595,10 +544,10 @@ function check()
                         <li>
                             <a href="OrganList.jsp"><i class="fa fa-table fa-fw"></i>기관정보관리</a>
                         </li>
-                        <%if(s_classcd.equals("AAA")){ %>
+                        <%if(classcd.equals("AAA")){ %>
                         <li>
- 	                        <a href="UserList.jsp"><i class="fa fa-edit fa-fw"></i>사용자정보관리</a>
-                            <a href="groupList.jsp"><i class="fa fa-edit fa-fw"></i>그룹정보관리</a>
+                            <a href="UserList.jsp"><i class="fa fa-edit fa-fw"></i>사용자정보관리</a>
+                            <a href="GroupList.jsp"><i class="fa fa-edit fa-fw"></i>그룹정보관리</a>
                         </li>
                         <%} else{}%>
                     </ul>
@@ -615,14 +564,14 @@ function check()
                 <div class="row">
                     <div class="col-lg-12">
                         <h1 class="page-header">
-                            	사용자정보등록
+                            	그룹정보등록
                         </h1>
                         <ol class="breadcrumb">
                             <li>
                                 <i class="fa fa-dashboard"></i>  <a>Dashboard</a>
                             </li>
                             <li class="active">
-                                <i class="fa fa-edit"></i>사용자정보등록
+                                <i class="fa fa-edit"></i>그룹정보등록
                             </li>
                         </ol>
                     </div>
@@ -632,49 +581,32 @@ function check()
                 <div class="row">
                     <div class="col-lg-6">
 
-                        <form id = "f" name = "user_reg" method = "post" action = "AddressServlet?mode=user_reg"  onsubmit="return check();" >
+                        <form id = "f" name = "organ_reg" method = "post" action = "AddressServlet?mode=group_reg"  onsubmit="return check();">
 
                             <div class="form-group">
-                                <label>아이디</label>
-                                <input id="userid" name = "userid" class="form-control" disabled>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>비밀번호</label>
-                                <input type = "password" id="pwd" name = pwd class="form-control onlyNumber" placeholder="Enter Password" maxlength=4>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>비밀번호확인</label>
-                                <input type = "password" id="pwd_conf" name = "pwd_conf" class="form-control onlyNumber" placeholder="Enter Password" maxlength=4>
+                                <label>그룹명</label>
+                                <input id="groupname" name = "groupname" class="form-control" placeholder="Enter text">
                             </div>
 
                             <div class="form-group">
-                                <label>이름</label>
-                                <input id="usernm" name = "usernm" class="form-control" placeholder="Enter Name">
+                                <label>그룹코드</label>
+                                <input id="groupcd" name = "groupcd" class="form-control" placeholder="Enter text" maxlength=5>
                             </div>
                             
-                            <div class="form-group">
-                                <label>업체명</label>
-                                <select id = "group_name" name = "group_name" class="form-control">
+                           <div class="form-group">
+                                <label>지역코드</label>
+                                <select id = "admcd" name = "admcd" class="form-control">
                                 </select>
                             </div>
-                            
-                            <div class="form-group">
-                                <label>사용자등급</label>
-                                <select id = "classcd" name = "classcd" class="form-control">
-                                </select>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>디바이스ID</label> 
-                                <input id="macaddress" name = "macaddress" class="form-control" disabled>
-                            </div>
-                            
-							<button type="submit" class="btn btn-default">수정</button>
+
+							<% if(regGb.equals("Y")){ %>
+								<button type="submit" class="btn btn-default">수정</button>
+							<% }else{ %>
+								<button type="submit" class="btn btn-default">등록</button>
+							<% } %>
                             <button type="reset" class="btn btn-default">취소</button>
-                            <input type = "hidden" id = "hid_macaddress" name = "hid_macaddress">
-							<input type = "hidden" id = "hid_userid" name = "hid_userid">
+                            <input type = "hidden" id = "re_groupcd"	name = "re_groupcd"/>
+                            <input type = "hidden" id = "regGb"	name = "regGb"/>
 						</form>
                     </div>
                    
