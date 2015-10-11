@@ -69,7 +69,7 @@ function clickTrEvent(trobj){
 	     	
 	     	form = document.createElement("form");     
 			form.setAttribute("method","post");                    
-			form.setAttribute("action","/Woori/UserInfo.jsp");        
+			form.setAttribute("action","/ElectionManager_server/UserInfo.jsp");        
 			document.body.appendChild(form);                        
 			//alert("obj2:"+obj);
 			input_id = document.createElement("input");  

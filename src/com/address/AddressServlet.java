@@ -192,11 +192,11 @@ public class AddressServlet extends HttpServlet {
 	        	session.setAttribute("classcd", re_udo.getClasscd());
 	        	session.setAttribute("result", re_udo.getResult());
 	        	
-	        	response.sendRedirect("/Woori/OrganList.jsp");
+	        	response.sendRedirect("/ElectionManager_server/OrganList.jsp");
 	        	
 
 	        }else{
-		        response.sendRedirect("/Woori/Login.jsp");
+		        response.sendRedirect("/ElectionManager_server/Login.jsp");
 		        
 	        }
 		}
