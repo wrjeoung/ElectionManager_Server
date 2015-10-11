@@ -215,8 +215,8 @@ public class AddressServlet extends HttpServlet {
 		 
 		    // 파일 저장 경로(ex : /home/tour/web/ROOT/upload)
 		    //String savePath = root + "upload";
-		    String savePath = "D:\\Upload\\";
-		    //String savePath = "/usr/local/server/tomcat/webapps/ElectionManager_server/organ_upload/";
+		    //String savePath = "D:\\Upload\\";
+		    String savePath = "/usr/local/server/tomcat/webapps/ElectionManager_server/organ_upload/";
 		    
 		    // 업로드 파일명
 		    String uploadFile = "";
@@ -343,8 +343,9 @@ public class AddressServlet extends HttpServlet {
 			            oldFile.delete();
 			        }
 			        
-			        Organ_Img = "D:\\upload\\"+newFileName;
-					
+			        //Organ_Img = "D:\\upload\\"+newFileName;
+			        Organ_Img = "/usr/local/server/tomcat/webapps/ElectionManager_server/organ_upload/"+newFileName;
+				
 				}else if(uploadFile==null && Organ_Img != null ){
 					System.out.println("기존");
 					
