@@ -193,9 +193,12 @@
 			}
 			
 		}else if(sQuery.equals("SELECTITEMS")) {
+			String adm_cd = (String)jre.get("ADM_CD");
+			
 			DBBean dbbean = new DBBean();
 			conn = dbbean.getConnection();
 			conn.setAutoCommit(false);
+			
 			pstmt = null;
 			rs = null;
 			JSONObject resData = new JSONObject();
@@ -209,15 +212,13 @@
 			
 			PreparedStatement pstmt2,pstmt3 = null;
 			ResultSet rs2,rs3 = null;
-			/*
-			String sql1 = "select DISTINCT SIGUNGUTEXT,SIGUNGUCODE from ADM_CODE where SIGUNGUCODE=31053";
-			String sql2 = "select DISTINCT IFNULL(HAENGTEXT,'전체'),HAENGCODE from ADM_CODE where SIGUNGUCODE=31053 order by HAENGCODE";
-			String sql3 = "select DISTINCT IFNULL(ADM_TEXT,'전체'),ADM_CD from ADM_CODE where SIGUNGUCODE=31053 and HAENGCODE = ?";
-			*/
-			String sql1 = "select DISTINCT SIGUNGUTEXT,SIGUNGUCODE from ADM_CODE where SIGUNGUCODE=31053 or SIGUNGUCODE=11150";
+
+			//String sql1 = "select DISTINCT SIGUNGUTEXT,SIGUNGUCODE from ADM_CODE where SIGUNGUCODE=31053 or SIGUNGUCODE=11150";
+			String sql1 = "select SIGUNGUTEXT,SIGUNGUCODE from ADM_CODE where ADM_CD=?";
 			String sql2 = "select DISTINCT IFNULL(HAENGTEXT,'전체'),HAENGCODE from ADM_CODE where SIGUNGUCODE=? order by HAENGCODE";
 			String sql3 = "select DISTINCT IFNULL(ADM_TEXT,'전체'),ADM_CD from ADM_CODE where SIGUNGUCODE=? and HAENGCODE = ?";
 			pstmt = conn.prepareStatement(sql1);
+			pstmt.setString(1, adm_cd);
 			pstmt2 = conn.prepareStatement(sql2);
 			pstmt3 = conn.prepareStatement(sql3);
 			
