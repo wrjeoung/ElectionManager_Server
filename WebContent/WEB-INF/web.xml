@@ -19,4 +19,14 @@
     <servlet-name>AddressServlet</servlet-name>
     <url-pattern>/AddressServlet</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>MapServlet</display-name>
+    <servlet-name>MapServlet</servlet-name>
+    <servlet-class>com.address.MapServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>MapServlet</servlet-name>
+    <url-pattern>/MapServlet</url-pattern>
+  </servlet-mapping>  
 </web-app>

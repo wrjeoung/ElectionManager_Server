@@ -3,8 +3,8 @@
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script> 
 <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
-<script type="text/javascript" src="//apis.daum.net/maps/maps3.js?apikey=86fb7bffcd2d5168c1556dcbaf40c04f"></script>
-<script type="text/javascript" src="http://openapi.map.naver.com/openapi/naverMap.naver?ver=2.0&key=dd31e1e2d1d331ea8fef215d063cdaa0"></script>
+<script type="text/javascript" src="//apis.daum.net/maps/maps3.js?apikey=574483b67abb142c145a976ae833a965"></script>
+<script type="text/javascript" src="http://openapi.map.naver.com/openapi/naverMap.naver?ver=2.0&key=ea08090c0e1a7dbbf57a1170e64a82ee"></script>
 
 
 
@@ -15,7 +15,7 @@ var gmap;
 var markers = [];
 var geocoder;
 var centericon = [];
-var servletUrl = "AddressServlet";
+var servletUrl = "MapServlet";
 
 function initialize() {
 	$.ajax({ //직접입력하였을떄
@@ -40,25 +40,25 @@ function initialize() {
 	    });  
 }
 
-function setTupogu()
+function setTupyogu()
 {
 	var target = document.getElementById("haengjoungdong");
 	var haengjoungdong = target.options[target.selectedIndex].value;
-	document.form1.tupogu.options.length = 0;
+	document.form1.tupyogu.options.length = 0;
 	
 	$.ajax({ //직접입력하였을떄
 	     type : "POST",
 	     url : servletUrl,
-	     data : "mode=tupogu&haengjoungdong="+haengjoungdong,     
+	     data : "mode=tupyogu&haengjoungdong="+haengjoungdong,     
 	     success : function(data) {
 	      var jsonArray = JSON.parse(data);
-	      document.form1.tupogu.options[0] = new Option("-----------선택-----------","-1");
+	      document.form1.tupyogu.options[0] = new Option("-----------선택-----------","-1");
 	      for(var i = 0; i<jsonArray.length;i++)
 		  {
 	    	// 디코딩하여 변수에 담는다.
-	            var tupogu = jsonArray[i].tupogu;
-	      		//console.log("tupogu = "+tupogu);
-	      		document.form1.tupogu.options[i+1] = new Option(tupogu,tupogu);
+	            var tupyogu = jsonArray[i].tupyogu;
+	      		//console.log("tupyogu = "+tupyogu);
+	      		document.form1.tupyogu.options[i+1] = new Option(tupyogu,tupyogu);
 		  }
 	     },      
 	    });
@@ -100,13 +100,13 @@ function changeHaengjoung(value)
 	{
 		return;
 	}
-	document.getElementById("tupogu").disabled=false;
+	document.getElementById("tupyogu").disabled=false;
 	document.getElementById("tong").disabled=false;
-	setTupogu();
+	setTupyogu();
 	setTong();
 }
 
-function changeTupogu(value)
+function changeTupyogu(value)
 {
 	if(value == -1)
 	{
@@ -121,7 +121,7 @@ function changeTong(value)
 	{
 		return;	
 	}
-	document.getElementById("tupogu").disabled=true;
+	document.getElementById("tupyogu").disabled=true;
 }
 
 function mapSearch()
@@ -129,15 +129,15 @@ function mapSearch()
 	var param = "";
 	var target = document.getElementById("haengjoungdong");
 	var haengjoungdong = target.options[target.selectedIndex].value;
-	target = document.getElementById("tupogu");
-	var tupogu = target.options[target.selectedIndex].value;
+	target = document.getElementById("tupyogu");
+	var tupyogu = target.options[target.selectedIndex].value;
 	target = document.getElementById("tong");
 	var tong = target.options[target.selectedIndex].value;
 	target = document.getElementById("mapKind");
 	var mapKind = target.options[target.selectedIndex].value;
 	
 	param += "mode=search&haengjoungdong="+haengjoungdong;
-	param += tupogu == -1 ? "&param=tong&value="+tong : "&param=tupogu&value="+tupogu;
+	param += tupyogu == -1 ? "&param=tong&value="+tong : "&param=tupyogu&value="+tupyogu;
 	param += "&mapKind="+mapKind;
 	
 	$.post(servletUrl, param,function(data){
@@ -151,9 +151,11 @@ function mapSearch()
 				
 		console.log("total count ="+count);
 		
+		document.getElementById('map_canvas').innerHTML = "";
+		
 		if(mapKind == 0) // google
 		{
-			center = new google.maps.LatLng(center_point.y,center_point.x);
+			center = new google.maps.LatLng(jsonArray[0].location.y,jsonArray[0].location.x);
 			
 			var myOptions = {
 					zoom : 15,
@@ -190,11 +192,9 @@ function mapSearch()
 		}
 		else if(mapKind == 1) // naver
 		{
-			alert("--");
-			center = new nhn.api.map.LatLng(center_point.y,center_point.x);
+			center = new nhn.api.map.LatLng(jsonArray[0].location.y,jsonArray[0].location.x);
 			nhn.api.map.setDefaultPoint('LatLng'); // - 지도에서 기본적으로 사용하는 좌표계를 설정합니다.
 			
-			alert("----");
 			map = new nhn.api.map.Map(document.getElementById('map_canvas') ,{
                 point : center, // - 지도의 중심점을 나타냅니다.
                 zoom :10, // - 지도의 초기 레벨을 나타냅니다.
@@ -208,7 +208,7 @@ function mapSearch()
                 //size : new nhn.api.map.Size(800, 600), // - 지도의 크기를 설정합니다.
                 detectCoveredMarker : true
         	});
-			alert("-------");
+			
 			console.log("center_point.x = "+center_point.x);
 			console.log("center_point.y = "+center_point.y);
 			
@@ -237,23 +237,23 @@ function mapSearch()
 		}
 		else if(mapKind == 2) // daum
 		{
-			center = new daum.maps.LatLng(center_point.y,center_point.x); // 지도의 중심좌표
+			center = new daum.maps.LatLng(jsonArray[0].location.y,jsonArray[0].location.x); // 지도의 중심좌표
 			
 			mapOption = {
 					center: center,
-					level : 3 // 지도의 확대 레벨
+					level : 4 // 지도의 확대 레벨
 			};
 			
 			map = new daum.maps.Map(document.getElementById("map_canvas"), mapOption); // 지도를 생성합니다.
 			
 			// 지도에 표시할 원을 생성합니다.
-			var circle = new Array(count);
+			var circle = new Array(jsonArray.length);
 			
 			for(var i = 0; i<jsonArray.length;i++)
 			{
-				var circle = new daum.maps.Circle({
+				circle[i] = new daum.maps.Circle({
 				    center : new daum.maps.LatLng(jsonArray[i].location.y, jsonArray[i].location.x),  // 원의 중심좌표 입니다 
-				    radius: 3, // 미터 단위의 원의 반지름입니다 
+				    radius: 5, // 미터 단위의 원의 반지름입니다 
 				    strokeWeight: 10, // 선의 두께입니다 
 				    strokeColor: '#0000FF', // 선의 색깔입니다
 				    strokeOpacity: 0, // 선의 불투명도 입니다 1에서 0 사이의 값이며 0에 가까울수록 투명합니다
@@ -262,12 +262,109 @@ function mapSearch()
 				    fillOpacity: 0.7  // 채우기 불투명도 입니다   
 				});
 				 
-				circle.setMap(map); 
+				circle[i].setMap(map); 
 			}
 		}
     });
 
 }
+
+function insertExcel()
+{
+	var path = document.getElementById("filePath").value;
+	
+	if(!path) {
+		alert("파일경로를 입력하시오.");
+		return;
+	}
+	
+	var param = "mode=insertExcel&filePath="+path;
+	
+	allButtonDisable();
+	
+	$.post(servletUrl, param,function(data){
+		allButtonEnable();
+		var result = JSON.parse(data);
+		if(result.status=="OK") {
+			alert("엑셀 업로드 성공");
+		} else if(result.status=="INVALID") {
+			alert("파일이 없거나 지원하지 않는 확장자입니다. ");
+		} else if(result.status=='ERROR') {
+			alert("에러 발생 ");
+		}
+	});
+}
+
+function convertToGoogleCoord()
+{
+	var param = "mode=convert&target=google";
+	allButtonDisable();
+	
+	$.post(servletUrl, param,function(data){
+		allButtonEnable();
+		var result = JSON.parse(data);
+		if(result.status=="OK") {
+			alert("구글좌표변환 성공");
+		} else if(result.status=="OVER_QUERY_LIMIT") {
+			alert("일일 사용량 초과 ");
+		}
+	});
+}
+
+function convertToNaverCoord()
+{
+	var param = "mode=convert&target=naver";
+	allButtonDisable();
+	
+	$.post(servletUrl, param,function(data){
+		allButtonEnable();
+		var result = JSON.parse(data);
+		if(result.status=="OK") {
+			alert("네이버좌표변환 성공");
+		} 
+	});
+}
+
+function convertToDaumCoord()
+{
+	var param = "mode=convert&target=daum";
+	allButtonDisable();
+	
+	$.post(servletUrl, param,function(data){
+		allButtonEnable();
+		var result = JSON.parse(data);
+		if(result.status=="OK") {
+			alert("다음좌표변환 성공");
+		} 
+	});
+}
+
+function allButtonEnable()
+{
+	document.getElementById("insertExcelData").disabled=false;
+	document.getElementById("mapKind").disabled=false;
+	document.getElementById("haengjoungdong").disabled=false;
+	document.getElementById("tupyogu").disabled=false;
+	document.getElementById("tong").disabled=false;
+	document.getElementById("search").disabled=false;
+	document.getElementById("googleCoord").disabled=false;
+	document.getElementById("naverCoord").disabled=false;
+	document.getElementById("daumCoord").disabled=false;
+}
+
+function allButtonDisable()
+{
+	document.getElementById("insertExcelData").disabled=true;
+	document.getElementById("mapKind").disabled=true;
+	document.getElementById("haengjoungdong").disabled=true;
+	document.getElementById("tupyogu").disabled=true;
+	document.getElementById("tong").disabled=true;
+	document.getElementById("search").disabled=true;
+	document.getElementById("googleCoord").disabled=true;
+	document.getElementById("naverCoord").disabled=true;
+	document.getElementById("daumCoord").disabled=true;
+}
+
 </script>
 
 
@@ -275,6 +372,11 @@ function mapSearch()
 <form name="form1" method="post" >
 
 <div style="text-align:center;">
+
+파일 경로
+<input type="text" id="filePath" name="filePath" size="40">
+<input type="button" id="insertExcelData" onclick="insertExcel();" value="엑셀정보추가" >
+&nbsp;&nbsp;
 
 <select id="mapKind" name="mapKind">
 	<option value="0">구글</option>
@@ -284,12 +386,16 @@ function mapSearch()
 
 <select id="haengjoungdong" name="haengjoungdong"  onchange="changeHaengjoung(this.value)">
 </select>
-<select id="tupogu" name="tupogu" onchange="changeTupogu(this.value)" >
+<select id="tupyogu" name="tupyogu" onchange="changeTupyogu(this.value)" >
 </select>
 <select id="tong" name="tong" onchange="changeTong(this.value)">
 </select>
 
 <input type="button" id="search" onclick="mapSearch();" style="width:20%" value="검색" >
+
+<input type="button" id="googleCoord" onclick="convertToGoogleCoord();" value="구글좌표변환" >
+<input type="button" id="naverCoord" onclick="convertToNaverCoord();" value="네이버좌표변환" >
+<input type="button" id="daumCoord" onclick="convertToDaumCoord();" value="다음좌표변환" >
 
 </div>
 <div id="map_canvas" style="width: 100%; height: 100%"></div>
