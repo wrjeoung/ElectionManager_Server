@@ -122,17 +122,17 @@ public class MapServlet extends HttpServlet {
 				//ps2.executeUpdate();
 				
 				ps2.addBatch();
-				// ÆÄ¶ó¹ÌÅÍ Clear
+				// ï¿½Ä¶ï¿½ï¿½ï¿½ï¿½ Clear
 				ps2.clearParameters();
 				
 				updateCount++;
 				if(updateCount % 1000 == 0) {
 					updateCount = 0;
 					ps2.executeBatch();
-				      // Batch ÃÊ±âÈ­
+				      // Batch ï¿½Ê±ï¿½È­
                     ps2.clearBatch();
                      
-                    // Ä¿¹Ô
+                    // Ä¿ï¿½ï¿½
                     conn.commit() ;
 				}
 			}
@@ -246,17 +246,17 @@ public class MapServlet extends HttpServlet {
 				//ps2.executeUpdate();
 				
 				ps2.addBatch();
-				// ÆÄ¶ó¹ÌÅÍ Clear
+				// ï¿½Ä¶ï¿½ï¿½ï¿½ï¿½ Clear
 				ps2.clearParameters();
 				
 				updateCount++;
 				if(updateCount % 1000 == 0) {
 					updateCount = 0;
 					ps2.executeBatch();
-				      // Batch ÃÊ±âÈ­
+				      // Batch ï¿½Ê±ï¿½È­
                     ps2.clearBatch();
                      
-                    // Ä¿¹Ô
+                    // Ä¿ï¿½ï¿½
                     conn.commit() ;
 				}
 			}
@@ -370,17 +370,17 @@ public class MapServlet extends HttpServlet {
 				//ps2.executeUpdate();
 				
 				ps2.addBatch();
-				// ÆÄ¶ó¹ÌÅÍ Clear
+				// ï¿½Ä¶ï¿½ï¿½ï¿½ï¿½ Clear
 				ps2.clearParameters();
 				
 				updateCount++;
 				if(updateCount % 1000 == 0) {
 					updateCount = 0;
 					ps2.executeBatch();
-				      // Batch ÃÊ±âÈ­
+				      // Batch ï¿½Ê±ï¿½È­
                     ps2.clearBatch();
                      
-                    // Ä¿¹Ô
+                    // Ä¿ï¿½ï¿½
                     conn.commit() ;
 				}
 			}
@@ -542,7 +542,7 @@ public class MapServlet extends HttpServlet {
 
 		try {
 			//urlStr = "http://openapi.map.naver.com/api/geocode?key=675ace41cc3dd80a9b33254ecec17e98&encoding=utf-8&coord=latlng&output=json&query=" + URLEncoder.encode(korAddress, "utf-8");
-			urlStr = "http://openapi.map.naver.com/api/geocode?key=ea08090c0e1a7dbbf57a1170e64a82ee&encoding=utf-8&coord=latlng&output=json&query=" + URLEncoder.encode(korAddress, "utf-8");
+			urlStr = "http://openapi.map.naver.com/api/geocode?key=aac462049f4200011230fdedcfbd6c15&encoding=utf-8&coord=latlng&output=json&query=" + URLEncoder.encode(korAddress, "utf-8");
 			URL url = new URL(urlStr);
 			
 			connection = (HttpURLConnection) url.openConnection(); 
@@ -684,7 +684,7 @@ public class MapServlet extends HttpServlet {
 		ParseExcel excel = new ParseExcel();
 		PrintWriter writer = response.getWriter();
 		JSONObject result = new JSONObject();
-		//String filepath = "D:/project/¿ÀÁ¤±¸(Áö¹ø,ÅõÇ¥±¸ Á¤º¸)_DB.xlsx";
+		//String filepath = "D:/project/ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½ï¿½,ï¿½ï¿½Ç¥ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)_DB.xlsx";
 		HashSet set = excel.getExcelData(filePath);
 		if(set == null) {
 			result.put("status","INVALID");
@@ -783,7 +783,7 @@ public class MapServlet extends HttpServlet {
 					
 					//ps2.executeUpdate();
 					ps2.addBatch();
-					// ÆÄ¶ó¹ÌÅÍ Clear
+					// ï¿½Ä¶ï¿½ï¿½ï¿½ï¿½ Clear
 					ps2.clearParameters();
 					insertCount++;
 					if(insertCount % 1000 == 0) {
@@ -791,7 +791,7 @@ public class MapServlet extends HttpServlet {
 						ps2.executeBatch();
 	                    ps2.clearBatch();
 	                     
-	                    // Ä¿¹Ô
+	                    // Ä¿ï¿½ï¿½
 	                    conn.commit() ;
 					}
 				}
@@ -878,8 +878,8 @@ public class MapServlet extends HttpServlet {
 			/* Oracle
 			if(mode.equals("tupyogu"))
 			{
-				sql = "SELECT DISTINCT 'Á¦' || TO_NUMBER(REPLACE(REPLACE(tupogu, 'Á¦', ''),'ÅõÇ¥±¸', '')) || 'ÅõÇ¥±¸' AS tupogu FROM DATAADDRESS	where haengjoungdong =?"
-						+ "ORDER BY TO_NUMBER(REPLACE(REPLACE(tupogu, 'Á¦', ''),'ÅõÇ¥±¸', '')) asc";
+				sql = "SELECT DISTINCT 'ï¿½ï¿½' || TO_NUMBER(REPLACE(REPLACE(tupogu, 'ï¿½ï¿½', ''),'ï¿½ï¿½Ç¥ï¿½ï¿½', '')) || 'ï¿½ï¿½Ç¥ï¿½ï¿½' AS tupogu FROM DATAADDRESS	where haengjoungdong =?"
+						+ "ORDER BY TO_NUMBER(REPLACE(REPLACE(tupogu, 'ï¿½ï¿½', ''),'ï¿½ï¿½Ç¥ï¿½ï¿½', '')) asc";
 			}
 			else
 			{
@@ -889,8 +889,8 @@ public class MapServlet extends HttpServlet {
 			
 			// Mysql
 			if(mode.equals("tupyogu")) {
-				sql = "SELECT DISTINCT CONCAT(CONCAT('Á¦',REPLACE(REPLACE(TUPYOGU, 'Á¦', ''),'ÅõÇ¥±¸', '')),'ÅõÇ¥±¸') AS TUPYOGU from DATAADDRESS where HAENGJOUNGDONG = ?"
-						+ "ORDER BY CAST(REPLACE(REPLACE(TUPYOGU, 'Á¦', ''),'ÅõÇ¥±¸', '') AS UNSIGNED) asc";
+				sql = "SELECT DISTINCT CONCAT(CONCAT('ï¿½ï¿½',REPLACE(REPLACE(TUPYOGU, 'ï¿½ï¿½', ''),'ï¿½ï¿½Ç¥ï¿½ï¿½', '')),'ï¿½ï¿½Ç¥ï¿½ï¿½') AS TUPYOGU from DATAADDRESS where HAENGJOUNGDONG = ?"
+						+ "ORDER BY CAST(REPLACE(REPLACE(TUPYOGU, 'ï¿½ï¿½', ''),'ï¿½ï¿½Ç¥ï¿½ï¿½', '') AS UNSIGNED) asc";
 			}
 			else {
 				sql = "SELECT DISTINCT "+mode+" from DATAADDRESS"+" where HAENGJOUNGDONG =? order by CAST(TONG AS UNSIGNED)";

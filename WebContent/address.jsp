@@ -4,10 +4,7 @@
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script> 
 <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
 <script type="text/javascript" src="//apis.daum.net/maps/maps3.js?apikey=574483b67abb142c145a976ae833a965"></script>
-<script type="text/javascript" src="http://openapi.map.naver.com/openapi/naverMap.naver?ver=2.0&key=ea08090c0e1a7dbbf57a1170e64a82ee"></script>
-
-
-
+<script type="text/javascript" src="http://openapi.map.naver.com/openapi/naverMap.naver?ver=2.0&key=aac462049f4200011230fdedcfbd6c15"></script>
 
 <script type="text/javascript">
 
