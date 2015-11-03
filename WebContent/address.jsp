@@ -268,28 +268,39 @@ function mapSearch()
 
 function insertExcel()
 {
-	var path = document.getElementById("filePath").value;
+	var path = document.getElementById("attachFile").value;
 	
 	if(!path) {
 		alert("파일경로를 입력하시오.");
 		return;
 	}
 	
-	var param = "mode=insertExcel&filePath="+path;
+	var formData = new FormData();
+	formData.append("attachFile",$("input[name=attachFile]")[0].files[0]);
 	
 	allButtonDisable();
+	var url = servletUrl+"?mode=insertExcel";
 	
-	$.post(servletUrl, param,function(data){
-		allButtonEnable();
-		var result = JSON.parse(data);
-		if(result.status=="OK") {
-			alert("엑셀 업로드 성공");
-		} else if(result.status=="INVALID") {
-			alert("파일이 없거나 지원하지 않는 확장자입니다. ");
-		} else if(result.status=='ERROR') {
-			alert("에러 발생 ");
-		}
-	});
+	$.ajax({ //직접입력하였을떄
+	     type : "POST",
+	     url : url,
+         dataType: "text",
+         data: formData,
+         // cache: false,
+         processData: false,
+         contentType: false,     
+	     success : function(data) {
+	 		allButtonEnable();
+			var result = JSON.parse(data);
+			if(result.status=="OK") {
+				alert("엑셀 업로드 성공");
+			} else if(result.status=="INVALID") {
+				alert("파일이 없거나 지원하지 않는 확장자입니다. ");
+			} else if(result.status=='ERROR') {
+				alert("에러 발생 ");
+			}
+	     },      
+	    });
 }
 
 function convertToGoogleCoord()
@@ -366,12 +377,10 @@ function allButtonDisable()
 
 
 <body onload="initialize()">
-<form name="form1" method="post" >
+<form name="form1" method="post">
 
 <div style="text-align:center;">
-
-파일 경로
-<input type="text" id="filePath" name="filePath" size="40">
+<input type="file" name="attachFile" id="attachFile">
 <input type="button" id="insertExcelData" onclick="insertExcel();" value="엑셀정보추가" >
 &nbsp;&nbsp;
 

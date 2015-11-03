@@ -24,6 +24,9 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
+import com.oreilly.servlet.MultipartRequest;
+import com.oreilly.servlet.multipart.DefaultFileRenamePolicy;
+
 /**
  * Servlet implementation class MapServlet
  */
@@ -686,6 +689,7 @@ public class MapServlet extends HttpServlet {
 		JSONObject result = new JSONObject();
 		//String filepath = "D:/project/������(����,��ǥ�� ����)_DB.xlsx";
 		HashSet set = excel.getExcelData(filePath);
+
 		if(set == null) {
 			result.put("status","INVALID");
 			writer.println(result);
@@ -953,7 +957,17 @@ public class MapServlet extends HttpServlet {
 				}
 				
 			} else if(mode.equals("insertExcel")) {
-				String filePath = request.getParameter("filePath");
+			    //String savePath = "/Users/juhyukkim/Downloads/upload/";
+				// 30Mbyte
+			    int maxSize  = 1024*1024*30; 
+			    String savePath = "/usr/local/server/tomcat/webapps/ElectionManager_server/excel_upload/";
+			    MultipartRequest multi = new MultipartRequest(request, savePath, maxSize, "UTF-8", new DefaultFileRenamePolicy());
+			    
+				String filePath = multi.getFilesystemName("attachFile");//request.getParameter("filePath");
+				filePath = savePath + filePath;
+				
+				System.out.println("filepath = "+filePath);
+				
 				insertExcelData(response,filePath);
 			} else {
 				getAddressInfo(request,response,mode);

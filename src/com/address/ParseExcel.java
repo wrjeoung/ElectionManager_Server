@@ -40,6 +40,7 @@ public class ParseExcel {
 		//System.out.println("isValid = "+isValid);
 
 		if(!isValid) {
+			file.delete();
 			return null;
 		}
 		
@@ -50,25 +51,25 @@ public class ParseExcel {
 			
 			int rowIndex = 0;
 			int columnIndex = 0;
-			// ½ÃÆ® ¼ö (Ã¹¹øÂ°¿¡¸¸ Á¸ÀçÇÏ¹Ç·Î 0À» ÁØ´Ù)
-			// ¸¸¾à °¢ ½ÃÆ®¸¦ ÀÐ±âÀ§ÇØ¼­´Â FOR¹®À» ÇÑ¹ø ´õ µ¹·ÁÁØ´Ù.
+			// ï¿½ï¿½Æ® ï¿½ï¿½ (Ã¹ï¿½ï¿½Â°ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¹Ç·ï¿½ 0ï¿½ï¿½ ï¿½Ø´ï¿½)
+			// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½Ð±ï¿½ï¿½ï¿½ï¿½Ø¼ï¿½ï¿½ï¿½ FORï¿½ï¿½ï¿½ï¿½ ï¿½Ñ¹ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ø´ï¿½.
 			Sheet sheet = workbook.getSheetAt(0);
-			//ÇàÀÇ ¼ö
+			//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
 			int rows = sheet.getPhysicalNumberOfRows();
 			for(rowIndex=0;rowIndex<rows;rowIndex++) {
-				//ÇàÀ» ÀÐ´Â´Ù.
+				//ï¿½ï¿½ï¿½ï¿½ ï¿½Ð´Â´ï¿½.
 				Row row = sheet.getRow(rowIndex);
 				HashMap<String,String> map = new HashMap<String,String>();
 					
 				if(row != null) {
-					//¼¿ÀÇ ¼ö
+					//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
 					int cells = row.getPhysicalNumberOfCells();
 					String value = "";
 					
 					for(columnIndex=0;columnIndex<=cells;columnIndex++) {
-						//¼¿°ªÀ» ÀÐ´Â´Ù.
+						//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ð´Â´ï¿½.
 						Cell cell = row.getCell(columnIndex);
-						//¼¿ÀÌ ºó°ªÀÏ°æ¿ì¸¦ À§ÇÑ ³ÎÃ¼Å©
+						//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï°ï¿½ì¸¦ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼Å©
 						if(cell == null) {
 							//continue;
 							value = null;
@@ -114,12 +115,13 @@ public class ParseExcel {
 		} finally {
 			try {
 				if(fis != null) fis.close();
+				file.delete();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-				
+		
 		return result;
 	}
 	
