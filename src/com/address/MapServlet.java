@@ -125,17 +125,17 @@ public class MapServlet extends HttpServlet {
 				//ps2.executeUpdate();
 				
 				ps2.addBatch();
-				// ï¿½Ä¶ï¿½ï¿½ï¿½ï¿½ Clear
+				// ÆÄ¶ó¹ÌÅÍ Clear
 				ps2.clearParameters();
 				
 				updateCount++;
 				if(updateCount % 1000 == 0) {
 					updateCount = 0;
 					ps2.executeBatch();
-				      // Batch ï¿½Ê±ï¿½È­
+				      // Batch ÃÊ±âÈ­
                     ps2.clearBatch();
                      
-                    // Ä¿ï¿½ï¿½
+                    // Ä¿¹Ô
                     conn.commit() ;
 				}
 			}
@@ -249,17 +249,17 @@ public class MapServlet extends HttpServlet {
 				//ps2.executeUpdate();
 				
 				ps2.addBatch();
-				// ï¿½Ä¶ï¿½ï¿½ï¿½ï¿½ Clear
+				// ÆÄ¶ó¹ÌÅÍ Clear
 				ps2.clearParameters();
 				
 				updateCount++;
 				if(updateCount % 1000 == 0) {
 					updateCount = 0;
 					ps2.executeBatch();
-				      // Batch ï¿½Ê±ï¿½È­
+				      // Batch ÃÊ±âÈ­
                     ps2.clearBatch();
                      
-                    // Ä¿ï¿½ï¿½
+                    // Ä¿¹Ô
                     conn.commit() ;
 				}
 			}
@@ -373,17 +373,17 @@ public class MapServlet extends HttpServlet {
 				//ps2.executeUpdate();
 				
 				ps2.addBatch();
-				// ï¿½Ä¶ï¿½ï¿½ï¿½ï¿½ Clear
+				// ÆÄ¶ó¹ÌÅÍ Clear
 				ps2.clearParameters();
 				
 				updateCount++;
 				if(updateCount % 1000 == 0) {
 					updateCount = 0;
 					ps2.executeBatch();
-				      // Batch ï¿½Ê±ï¿½È­
+				      // Batch ÃÊ±âÈ­
                     ps2.clearBatch();
                      
-                    // Ä¿ï¿½ï¿½
+                    // Ä¿¹Ô
                     conn.commit() ;
 				}
 			}
@@ -687,7 +687,7 @@ public class MapServlet extends HttpServlet {
 		ParseExcel excel = new ParseExcel();
 		PrintWriter writer = response.getWriter();
 		JSONObject result = new JSONObject();
-		//String filepath = "D:/project/ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½ï¿½,ï¿½ï¿½Ç¥ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)_DB.xlsx";
+		//String filepath = "D:/project/¿ÀÁ¤±¸(Áö¹ø,ÅõÇ¥±¸ Á¤º¸)_DB.xlsx";
 		HashSet set = excel.getExcelData(filePath);
 
 		if(set == null) {
@@ -787,7 +787,7 @@ public class MapServlet extends HttpServlet {
 					
 					//ps2.executeUpdate();
 					ps2.addBatch();
-					// ï¿½Ä¶ï¿½ï¿½ï¿½ï¿½ Clear
+					// ÆÄ¶ó¹ÌÅÍ Clear
 					ps2.clearParameters();
 					insertCount++;
 					if(insertCount % 1000 == 0) {
@@ -795,7 +795,7 @@ public class MapServlet extends HttpServlet {
 						ps2.executeBatch();
 	                    ps2.clearBatch();
 	                     
-	                    // Ä¿ï¿½ï¿½
+	                    // Ä¿¹Ô
 	                    conn.commit() ;
 					}
 				}
@@ -882,8 +882,8 @@ public class MapServlet extends HttpServlet {
 			/* Oracle
 			if(mode.equals("tupyogu"))
 			{
-				sql = "SELECT DISTINCT 'ï¿½ï¿½' || TO_NUMBER(REPLACE(REPLACE(tupogu, 'ï¿½ï¿½', ''),'ï¿½ï¿½Ç¥ï¿½ï¿½', '')) || 'ï¿½ï¿½Ç¥ï¿½ï¿½' AS tupogu FROM DATAADDRESS	where haengjoungdong =?"
-						+ "ORDER BY TO_NUMBER(REPLACE(REPLACE(tupogu, 'ï¿½ï¿½', ''),'ï¿½ï¿½Ç¥ï¿½ï¿½', '')) asc";
+				sql = "SELECT DISTINCT 'Á¦' || TO_NUMBER(REPLACE(REPLACE(tupogu, 'Á¦', ''),'ÅõÇ¥±¸', '')) || 'ÅõÇ¥±¸' AS tupogu FROM DATAADDRESS	where haengjoungdong =?"
+						+ "ORDER BY TO_NUMBER(REPLACE(REPLACE(tupogu, 'Á¦', ''),'ÅõÇ¥±¸', '')) asc";
 			}
 			else
 			{
@@ -893,8 +893,8 @@ public class MapServlet extends HttpServlet {
 			
 			// Mysql
 			if(mode.equals("tupyogu")) {
-				sql = "SELECT DISTINCT CONCAT(CONCAT('ï¿½ï¿½',REPLACE(REPLACE(TUPYOGU, 'ï¿½ï¿½', ''),'ï¿½ï¿½Ç¥ï¿½ï¿½', '')),'ï¿½ï¿½Ç¥ï¿½ï¿½') AS TUPYOGU from DATAADDRESS where HAENGJOUNGDONG = ?"
-						+ "ORDER BY CAST(REPLACE(REPLACE(TUPYOGU, 'ï¿½ï¿½', ''),'ï¿½ï¿½Ç¥ï¿½ï¿½', '') AS UNSIGNED) asc";
+				sql = "SELECT DISTINCT CONCAT(CONCAT('Á¦',REPLACE(REPLACE(TUPYOGU, 'Á¦', ''),'ÅõÇ¥±¸', '')),'ÅõÇ¥±¸') AS TUPYOGU from DATAADDRESS where HAENGJOUNGDONG = ?"
+						+ "ORDER BY CAST(REPLACE(REPLACE(TUPYOGU, 'Á¦', ''),'ÅõÇ¥±¸', '') AS UNSIGNED) asc";
 			}
 			else {
 				sql = "SELECT DISTINCT "+mode+" from DATAADDRESS"+" where HAENGJOUNGDONG =? order by CAST(TONG AS UNSIGNED)";

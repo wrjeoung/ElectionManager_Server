@@ -51,25 +51,25 @@ public class ParseExcel {
 			
 			int rowIndex = 0;
 			int columnIndex = 0;
-			// ï¿½ï¿½Æ® ï¿½ï¿½ (Ã¹ï¿½ï¿½Â°ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¹Ç·ï¿½ 0ï¿½ï¿½ ï¿½Ø´ï¿½)
-			// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½Ð±ï¿½ï¿½ï¿½ï¿½Ø¼ï¿½ï¿½ï¿½ FORï¿½ï¿½ï¿½ï¿½ ï¿½Ñ¹ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ø´ï¿½.
+			// ½ÃÆ® ¼ö (Ã¹¹øÂ°¿¡¸¸ Á¸ÀçÇÏ¹Ç·Î 0À» ÁØ´Ù)
+			// ¸¸¾à °¢ ½ÃÆ®¸¦ ÀÐ±âÀ§ÇØ¼­´Â FOR¹®À» ÇÑ¹ø ´õ µ¹·ÁÁØ´Ù.
 			Sheet sheet = workbook.getSheetAt(0);
-			//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
+			//ÇàÀÇ ¼ö
 			int rows = sheet.getPhysicalNumberOfRows();
 			for(rowIndex=0;rowIndex<rows;rowIndex++) {
-				//ï¿½ï¿½ï¿½ï¿½ ï¿½Ð´Â´ï¿½.
+				//ÇàÀ» ÀÐ´Â´Ù.
 				Row row = sheet.getRow(rowIndex);
 				HashMap<String,String> map = new HashMap<String,String>();
 					
 				if(row != null) {
-					//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
+					//¼¿ÀÇ ¼ö
 					int cells = row.getPhysicalNumberOfCells();
 					String value = "";
 					
 					for(columnIndex=0;columnIndex<=cells;columnIndex++) {
-						//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ð´Â´ï¿½.
+						//¼¿°ªÀ» ÀÐ´Â´Ù.
 						Cell cell = row.getCell(columnIndex);
-						//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï°ï¿½ì¸¦ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼Å©
+						//¼¿ÀÌ ºó°ªÀÏ°æ¿ì¸¦ À§ÇÑ ³ÎÃ¼Å©
 						if(cell == null) {
 							//continue;
 							value = null;
