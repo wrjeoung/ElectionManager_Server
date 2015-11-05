@@ -91,8 +91,11 @@ public class MapServlet extends HttpServlet {
 				buffer.append(sigungu);
 				buffer.append(" ");
 				buffer.append(bubjoungdong);
-				buffer.append(" ");
-				buffer.append(bunji);
+				if(bunji != null && bunji.length() > 0)
+				{
+					buffer.append(" ");
+					buffer.append(bunji);
+				}
 				if(gunmul != null && gunmul.length() > 0)
 				{
 					buffer.append(" ");
@@ -220,8 +223,10 @@ public class MapServlet extends HttpServlet {
 				buffer.append(sigungu);
 				buffer.append(" ");
 				buffer.append(bubjoungdong);
-				buffer.append(" ");
-				buffer.append(bunji);
+				if(bunji != null && bunji.length() > 0) {
+					buffer.append(" ");
+					buffer.append(bunji);
+				}
 				if(gunmul != null && gunmul.length() > 0)
 				{
 					buffer.append(" ");
@@ -258,11 +263,11 @@ public class MapServlet extends HttpServlet {
 					ps2.executeBatch();
 				      // Batch ÃÊ±âÈ­
                     ps2.clearBatch();
-                     
                     // Ä¿¹Ô
                     conn.commit() ;
 				}
 			}
+
 			if(rs != null) rs.close();
 			
 			ps2.executeBatch();
@@ -344,8 +349,11 @@ public class MapServlet extends HttpServlet {
 				buffer.append(sigungu);
 				buffer.append(" ");
 				buffer.append(bubjoungdong);
-				buffer.append(" ");
-				buffer.append(bunji);
+				if(bunji != null && bunji.length() > 0)
+				{
+					buffer.append(" ");
+					buffer.append(bunji);
+				}
 				if(gunmul != null && gunmul.length() > 0)
 				{
 					buffer.append(" ");
@@ -387,6 +395,7 @@ public class MapServlet extends HttpServlet {
                     conn.commit() ;
 				}
 			}
+			
 			if(rs != null) rs.close();
 			
 			ps2.executeBatch();
@@ -509,7 +518,10 @@ public class MapServlet extends HttpServlet {
 				else if(status.equalsIgnoreCase("ZERO_RESULTS"))
 				{
 					System.out.println("zero_results");
-					return null;
+					position = new double[2];
+					position[0] = -1;
+					position[1] = -1;
+					return position;
 				}
 
 				location = (JSONObject) arr.get(0);
@@ -564,12 +576,21 @@ public class MapServlet extends HttpServlet {
 			} 
 			
 			Object obj = JSONValue.parse(stringBuilder.toString()); 
+
 			System.out.println("obj = "+obj); 
 			JSONObject point = (JSONObject) obj;
 			JSONObject error = (JSONObject) point.get("error");
 			
 			if(error != null) {
 				System.out.println("error!!!");
+				String code = (String) error.get("code");
+				if(code.equals("012")) {
+					System.out.println("data is not match");
+					position = new double[2];
+					position[0] = -1;
+					position[1] = -1;
+					return position;
+				}
 				return null;
 			}
 			
@@ -641,7 +662,10 @@ public class MapServlet extends HttpServlet {
 				
 				if(arr.size() < 1) {
 					System.out.println("data is not match");
-					return null;
+					position = new double[2];
+					position[0] = -1;
+					position[1] = -1;
+					return position;
 				}
 				
 				location = (JSONObject) arr.get(0);
@@ -958,8 +982,8 @@ public class MapServlet extends HttpServlet {
 				
 			} else if(mode.equals("insertExcel")) {
 			    //String savePath = "/Users/juhyukkim/Downloads/upload/";
-				// 30Mbyte
-			    int maxSize  = 1024*1024*30; 
+				// 500Mbyte
+			    int maxSize  = 1024*1024*500; 
 			    String savePath = "/usr/local/server/tomcat/webapps/ElectionManager_server/excel_upload/";
 			    MultipartRequest multi = new MultipartRequest(request, savePath, maxSize, "UTF-8", new DefaultFileRenamePolicy());
 			    
@@ -992,7 +1016,7 @@ public class MapServlet extends HttpServlet {
 		DBBean dbbean = new DBBean();
 		Connection conn = dbbean.getConnection();
 		//String sql = "select DISTINCT googlex,googley from dataaddress where haengjoungdong =? and "+param+" = ? and googlex is not null";
-		String sql = "select DISTINCT "+loc_array[0]+","+loc_array[1]+" from DATAADDRESS where haengjoungdong =? and "+param+" = ? and "+loc_array[0]+" is not null";
+		String sql = "select DISTINCT "+loc_array[0]+","+loc_array[1]+" from DATAADDRESS where haengjoungdong =? and "+param+" = ? and "+loc_array[0]+" is not null and "+loc_array[0]+ " > 0";
 		try {
 			conn.setAutoCommit(false);
 			
