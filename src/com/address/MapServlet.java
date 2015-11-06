@@ -869,9 +869,8 @@ public class MapServlet extends HttpServlet {
 		DBBean dbbean = new DBBean();
 		Connection conn = dbbean.getConnection();
 		
-		if(mode.equals("haengjoungdong"))
-		{
-			String sql = "select DISTINCT haengjoungdong from DATAADDRESS";
+		if(mode.equals("sigungu")) {
+			String sql = "select DISTINCT SIGUNGU from DATAADDRESS";
 			JSONArray jArray = new JSONArray();
 			
 			try {
@@ -879,6 +878,37 @@ public class MapServlet extends HttpServlet {
 				
 				PreparedStatement pstmt = conn.prepareStatement(sql);
 
+				ResultSet rs = pstmt.executeQuery();
+				
+				while(rs.next())
+				{
+					String sigungu = rs.getString("SIGUNGU");
+					
+					JSONObject jValue = new JSONObject();
+					System.out.println("sigungu = "+sigungu);
+					jValue.put("sigungu", sigungu);					
+					jArray.add(jValue);
+				}				
+				
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			writer.println(jArray);
+			writer.flush();
+		}
+		else if(mode.equals("haengjoungdong"))
+		{
+			String sigungu = request.getParameter("sigungu");
+			String sql = "select DISTINCT haengjoungdong from DATAADDRESS where SIGUNGU = ?";
+			JSONArray jArray = new JSONArray();
+			
+			try {
+				conn.setAutoCommit(false);
+				
+				PreparedStatement pstmt = conn.prepareStatement(sql);
+				pstmt.setString(1, sigungu);
+				
 				ResultSet rs = pstmt.executeQuery();
 				
 				while(rs.next())
@@ -900,6 +930,7 @@ public class MapServlet extends HttpServlet {
 		}
 		else if(mode.equals("tupyogu") || mode.equals("tong"))
 		{
+			String sigungu = request.getParameter("sigungu");
 			String haengjoungdong = request.getParameter("haengjoungdong");
 			String sql = "";
 			
@@ -917,11 +948,11 @@ public class MapServlet extends HttpServlet {
 			
 			// Mysql
 			if(mode.equals("tupyogu")) {
-				sql = "SELECT DISTINCT CONCAT(CONCAT('力',REPLACE(REPLACE(TUPYOGU, '力', ''),'捧钎备', '')),'捧钎备') AS TUPYOGU from DATAADDRESS where HAENGJOUNGDONG = ?"
+				sql = "SELECT DISTINCT CONCAT(CONCAT('力',REPLACE(REPLACE(TUPYOGU, '力', ''),'捧钎备', '')),'捧钎备') AS TUPYOGU from DATAADDRESS where SIGUNGU = ? and HAENGJOUNGDONG = ?"
 						+ "ORDER BY CAST(REPLACE(REPLACE(TUPYOGU, '力', ''),'捧钎备', '') AS UNSIGNED) asc";
 			}
 			else {
-				sql = "SELECT DISTINCT "+mode+" from DATAADDRESS"+" where HAENGJOUNGDONG =? order by CAST(TONG AS UNSIGNED)";
+				sql = "SELECT DISTINCT "+mode+" from DATAADDRESS"+" where SIGUNGU = ? and HAENGJOUNGDONG =? order by CAST(TONG AS UNSIGNED)";
 			}
 	
 			JSONArray jArray = new JSONArray();
@@ -930,7 +961,8 @@ public class MapServlet extends HttpServlet {
 				conn.setAutoCommit(false);
 				
 				PreparedStatement pstmt = conn.prepareStatement(sql);
-				pstmt.setString(1, haengjoungdong);
+				pstmt.setString(1, sigungu);
+				pstmt.setString(2, haengjoungdong);
 
 				ResultSet rs = pstmt.executeQuery();
 				
@@ -1000,6 +1032,7 @@ public class MapServlet extends HttpServlet {
 		}
 		
 		PrintWriter writer = response.getWriter();
+		String sigungu = request.getParameter("sigungu");
 		String haengjoungdong = request.getParameter("haengjoungdong");
 		String param =  request.getParameter("param");
 		String value= request.getParameter("value");
@@ -1016,13 +1049,14 @@ public class MapServlet extends HttpServlet {
 		DBBean dbbean = new DBBean();
 		Connection conn = dbbean.getConnection();
 		//String sql = "select DISTINCT googlex,googley from dataaddress where haengjoungdong =? and "+param+" = ? and googlex is not null";
-		String sql = "select DISTINCT "+loc_array[0]+","+loc_array[1]+" from DATAADDRESS where haengjoungdong =? and "+param+" = ? and "+loc_array[0]+" is not null and "+loc_array[0]+ " > 0";
+		String sql = "select DISTINCT "+loc_array[0]+","+loc_array[1]+" from DATAADDRESS where SIGUNGU = ? and haengjoungdong =? and "+param+" = ? and "+loc_array[0]+" is not null and "+loc_array[0]+ " > 0";
 		try {
 			conn.setAutoCommit(false);
 			
 			PreparedStatement pstmt = conn.prepareStatement(sql);
-			pstmt.setString(1, haengjoungdong);
-			pstmt.setString(2, value);
+			pstmt.setString(1, sigungu);
+			pstmt.setString(2, haengjoungdong);
+			pstmt.setString(3, value);
 			
 			ResultSet rs = pstmt.executeQuery();
 			

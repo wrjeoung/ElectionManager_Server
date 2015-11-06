@@ -18,14 +18,14 @@ function initialize() {
 	$.ajax({ //직접입력하였을떄
 	     type : "POST",
 	     url : servletUrl,
-	     data : "mode=haengjoungdong",     
+	     data : "mode=sigungu",     
 	     success : function(data) {
 	      var jsonArray = JSON.parse(data);
-	      document.form1.haengjoungdong.options[0] = new Option("-----------선택-----------","-1");
+	      document.form1.sigungu.options[0] = new Option("-----------선택-----------","-1");
 	      for(var i = 0; i<jsonArray.length;i++)
 		  {
-	            var haengjoungdong = jsonArray[i].haengjoungdong;
-	      		document.form1.haengjoungdong.options[i+1] = new Option(haengjoungdong,haengjoungdong);
+	            var sigungu = jsonArray[i].sigungu;
+	      		document.form1.sigungu.options[i+1] = new Option(sigungu,sigungu);
 		  }
 	     },    
 	     error : function() {
@@ -37,16 +37,46 @@ function initialize() {
 	    });  
 }
 
-function setTupyogu()
+function setHaengjoungdong()
 {
-	var target = document.getElementById("haengjoungdong");
-	var haengjoungdong = target.options[target.selectedIndex].value;
-	document.form1.tupyogu.options.length = 0;
+	var target = document.getElementById("sigungu");
+	var sigungu = target.options[target.selectedIndex].value;
+	document.form1.haengjoungdong.options.length = 0;
 	
 	$.ajax({ //직접입력하였을떄
 	     type : "POST",
 	     url : servletUrl,
-	     data : "mode=tupyogu&haengjoungdong="+haengjoungdong,     
+	     data : "mode=haengjoungdong&sigungu="+sigungu,     
+	     success : function(data) {
+	      var jsonArray = JSON.parse(data);
+	      document.form1.haengjoungdong.options[0] = new Option("-----------선택-----------","-1");
+	      for(var i = 0; i<jsonArray.length;i++)
+		  {
+	    	// 디코딩하여 변수에 담는다.
+	            var haengjoungdong = jsonArray[i].haengjoungdong;
+	      		//console.log("haengjoungdong = "+haengjoungdong);
+	      		document.form1.haengjoungdong.options[i+1] = new Option(haengjoungdong,haengjoungdong);
+		  }
+	     },      
+	    });
+}
+
+function setTupyogu()
+{
+	document.form1.tupyogu.options.length = 0;
+	var target = document.getElementById("haengjoungdong");
+	
+	if(target.selectedIndex < 0)
+		return;
+	
+	var sigunguTarget = document.getElementById("sigungu");
+	var sigungu = sigunguTarget.options[sigunguTarget.selectedIndex].value;
+	var haengjoungdong = target.options[target.selectedIndex].value;
+	
+	$.ajax({ //직접입력하였을떄
+	     type : "POST",
+	     url : servletUrl,
+	     data : "mode=tupyogu&sigungu="+sigungu+"&haengjoungdong="+haengjoungdong,     
 	     success : function(data) {
 	      var jsonArray = JSON.parse(data);
 	      document.form1.tupyogu.options[0] = new Option("-----------선택-----------","-1");
@@ -64,16 +94,21 @@ function setTupyogu()
 
 function setTong()
 {
+	document.form1.tong.options.length = 0;
 	var target = document.getElementById("haengjoungdong");
+	
+	if(target.selectedIndex < 0)
+		return;
+	
+	var sigunguTarget = document.getElementById("sigungu");
+	var sigungu = sigunguTarget.options[sigunguTarget.selectedIndex].value;
 	var haengjoungdong = target.options[target.selectedIndex].value;
 	//console.log("haengjoungdong = "+haengjoungdong);
-	document.form1.tong.options.length = 0;
-	
 	
 	$.ajax({ //직접입력하였을떄
 	     type : "POST",
 	     url : servletUrl,
-	     data : "mode=tong&haengjoungdong="+haengjoungdong,     
+	     data : "mode=tong&sigungu="+sigungu+"&haengjoungdong="+haengjoungdong,     
 	     success : function(data) {
 	      var jsonArray = JSON.parse(data);
 	      document.form1.tong.options[0] = new Option("-----------선택-----------","-1");
@@ -89,9 +124,21 @@ function setTong()
 
 }
 
+function changeSigungu(value)
+{
+	if(value == -1)
+	{
+		return;
+	}
+	document.getElementById("haengjoungdong").disabled=false;
+	document.getElementById("tupyogu").disabled=false;
+	document.getElementById("tong").disabled=false;
+	setHaengjoungdong();
+	setTupyogu();
+	setTong(); 
+}
 
-
-function changeHaengjoung(value)
+function changeHaengjoungdong(value)
 {
 	if(value == -1)
 	{
@@ -124,6 +171,8 @@ function changeTong(value)
 function mapSearch()
 {
 	var param = "";
+	var sigunguTarget = document.getElementById("sigungu");
+	var sigungu = sigunguTarget.options[sigunguTarget.selectedIndex].value;
 	var target = document.getElementById("haengjoungdong");
 	var haengjoungdong = target.options[target.selectedIndex].value;
 	target = document.getElementById("tupyogu");
@@ -133,7 +182,7 @@ function mapSearch()
 	target = document.getElementById("mapKind");
 	var mapKind = target.options[target.selectedIndex].value;
 	
-	param += "mode=search&haengjoungdong="+haengjoungdong;
+	param += "mode=search&sigungu="+sigungu+"&haengjoungdong="+haengjoungdong;
 	param += tupyogu == -1 ? "&param=tong&value="+tong : "&param=tupyogu&value="+tupyogu;
 	param += "&mapKind="+mapKind;
 	
@@ -351,6 +400,7 @@ function allButtonEnable()
 {
 	document.getElementById("insertExcelData").disabled=false;
 	document.getElementById("mapKind").disabled=false;
+	document.getElementById("sigungu").disabled=false;
 	document.getElementById("haengjoungdong").disabled=false;
 	document.getElementById("tupyogu").disabled=false;
 	document.getElementById("tong").disabled=false;
@@ -364,6 +414,7 @@ function allButtonDisable()
 {
 	document.getElementById("insertExcelData").disabled=true;
 	document.getElementById("mapKind").disabled=true;
+	document.getElementById("sigungu").disabled=true;
 	document.getElementById("haengjoungdong").disabled=true;
 	document.getElementById("tupyogu").disabled=true;
 	document.getElementById("tong").disabled=true;
@@ -390,7 +441,9 @@ function allButtonDisable()
 	<option value="2">다음</option>
 </select>
 
-<select id="haengjoungdong" name="haengjoungdong"  onchange="changeHaengjoung(this.value)">
+<select id="sigungu" name="sigungu"  onchange="changeSigungu(this.value)">
+</select>
+<select id="haengjoungdong" name="haengjoungdong"  onchange="changeHaengjoungdong(this.value)">
 </select>
 <select id="tupyogu" name="tupyogu" onchange="changeTupyogu(this.value)" >
 </select>
