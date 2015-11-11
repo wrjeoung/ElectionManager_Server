@@ -58,7 +58,7 @@ public class MapServlet extends HttpServlet {
 		PreparedStatement ps2 = null;
 		
 		
-		System.out.println("start");
+		System.out.println("updateGoogleLocationInfo start");
 		try {
 			
 			querySelect.append("select SIGUNGU,BUBJOUNGDONG,BUNJI,GUNMUL from DATAADDRESS \n");
@@ -86,7 +86,7 @@ public class MapServlet extends HttpServlet {
 				String gunmul = rs.getString("GUNMUL");
 				StringBuffer buffer = new StringBuffer();
 				
-				//System.out.println("update");
+				System.out.println("update");
 
 				buffer.append(sigungu);
 				buffer.append(" ");
@@ -125,26 +125,26 @@ public class MapServlet extends HttpServlet {
 				ps2.setString(5, gunmul);
 				ps2.setString(6, gunmul);
 				
-				//ps2.executeUpdate();
+				ps2.executeUpdate();
 				
-				ps2.addBatch();
+				//ps2.addBatch();
 				// 파라미터 Clear
 				ps2.clearParameters();
 				
 				updateCount++;
-				if(updateCount % 1000 == 0) {
+				if(updateCount % 100 == 0) {
 					updateCount = 0;
-					ps2.executeBatch();
+					/*ps2.executeBatch();
 				      // Batch 초기화
                     ps2.clearBatch();
-                     
+                    */ 
                     // 커밋
                     conn.commit() ;
 				}
 			}
 			if(rs != null) rs.close();
 			
-			ps2.executeBatch();
+			//ps2.executeBatch();
 			conn.commit();
 			
 			String status = (String)result.get("status");
@@ -183,7 +183,7 @@ public class MapServlet extends HttpServlet {
 	public void updateNaverLocationInfo(HttpServletResponse response) throws IOException {
 		DBBean dbbean = new DBBean();
 		Connection conn = dbbean.getConnection();
-		System.out.println("updateNaverLocationInfo");
+		System.out.println("updateNaverLocationInfo start");
 		PrintWriter writer = response.getWriter();
 		JSONObject result = new JSONObject();
 		
@@ -193,7 +193,7 @@ public class MapServlet extends HttpServlet {
 		StringBuffer querySelect = new StringBuffer();
 		PreparedStatement ps1 = null;
 		PreparedStatement ps2 = null;
-		System.out.println("start");
+
 		try {
 			
 			querySelect.append("select SIGUNGU,BUBJOUNGDONG,BUNJI,GUNMUL from DATAADDRESS \n");
@@ -251,18 +251,18 @@ public class MapServlet extends HttpServlet {
 				ps2.setString(5, gunmul);
 				ps2.setString(6, gunmul);
 				
-				//ps2.executeUpdate();
+				ps2.executeUpdate();
 				
-				ps2.addBatch();
+				//ps2.addBatch();
 				// 파라미터 Clear
 				ps2.clearParameters();
 				
 				updateCount++;
-				if(updateCount % 1000 == 0) {
+				if(updateCount % 100 == 0) {
 					updateCount = 0;
-					ps2.executeBatch();
+					/*ps2.executeBatch();
 				      // Batch 초기화
-                    ps2.clearBatch();
+                    ps2.clearBatch();*/
                     // 커밋
                     conn.commit() ;
 				}
@@ -270,7 +270,7 @@ public class MapServlet extends HttpServlet {
 
 			if(rs != null) rs.close();
 			
-			ps2.executeBatch();
+			//ps2.executeBatch();
 			conn.commit();
 			
 			String status = (String)result.get("status");
@@ -319,7 +319,7 @@ public class MapServlet extends HttpServlet {
 		StringBuffer querySelect = new StringBuffer();
 		PreparedStatement ps1 = null;
 		PreparedStatement ps2 = null;
-		System.out.println("start");
+		System.out.println("updateDaumLocationInfo start");
 		try {
 			
 			querySelect.append("select SIGUNGU,BUBJOUNGDONG,BUNJI,GUNMUL from DATAADDRESS \n");
@@ -378,19 +378,19 @@ public class MapServlet extends HttpServlet {
 				ps2.setString(5, gunmul);
 				ps2.setString(6, gunmul);
 				
-				//ps2.executeUpdate();
+				ps2.executeUpdate();
 				
-				ps2.addBatch();
+				//ps2.addBatch();
 				// 파라미터 Clear
 				ps2.clearParameters();
 				
 				updateCount++;
-				if(updateCount % 1000 == 0) {
+				if(updateCount % 100 == 0) {
 					updateCount = 0;
-					ps2.executeBatch();
+					/*ps2.executeBatch();
 				      // Batch 초기화
                     ps2.clearBatch();
-                     
+                    */
                     // 커밋
                     conn.commit() ;
 				}
@@ -398,7 +398,7 @@ public class MapServlet extends HttpServlet {
 			
 			if(rs != null) rs.close();
 			
-			ps2.executeBatch();
+			//ps2.executeBatch();
 			conn.commit();
 			
 			String status = (String)result.get("status");
@@ -809,16 +809,16 @@ public class MapServlet extends HttpServlet {
 					ps2.setString(7, sigungu);
 					//ps2.setString(7, "TEST");
 					
-					//ps2.executeUpdate();
-					ps2.addBatch();
+					ps2.executeUpdate();
+					//ps2.addBatch();
 					// 파라미터 Clear
 					ps2.clearParameters();
 					insertCount++;
-					if(insertCount % 1000 == 0) {
+					if(insertCount % 100 == 0) {
 						insertCount = 0;
-						ps2.executeBatch();
+						/*ps2.executeBatch();
 	                    ps2.clearBatch();
-	                     
+	                    */
 	                    // 커밋
 	                    conn.commit() ;
 					}
@@ -826,7 +826,7 @@ public class MapServlet extends HttpServlet {
 				
 				//if(rs != null) rs.close();
 			}
-			ps2.executeBatch();
+			//ps2.executeBatch();
 			conn.commit();
 			
 			result.put("status","OK");
