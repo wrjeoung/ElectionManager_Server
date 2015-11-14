@@ -30,6 +30,8 @@
 	String clientMd5sum = null;
 	String serverMd5sum = null;
 	String mFileName = "final.pdf";
+	boolean existsPdfAtClient = false;
+	boolean existsPdfAtServer = false;
 	// wrjeoung mac path.
     //String mSaveFolder = "/Users/wrjeong";
 	// Woori research sever path.
@@ -67,10 +69,11 @@
         
         clientMd5sum = (String) jre.get("MD5SUM");
         System.out.println("clientMd5sum : "+clientMd5sum);
+        existsPdfAtClient = (boolean) jre.get("existsPdfAtclient");
+        existsPdfAtServer = new File(mSaveFolder + "/" + mFileName).exists();
         
-        obj_re.put("updatePdfFile", false);
-        if(new File(mSaveFolder + "/" + mFileName).exists() == true
-        		&& clientMd5sum != null)
+        if(existsPdfAtServer == true
+        		&& existsPdfAtClient == true)
         {
 	        FileInputStream fis=null;
 	    	MessageDigest md = MessageDigest.getInstance("MD5");
@@ -109,6 +112,9 @@
 	        else {
 	        	obj_re.put("updatePdfFile", true);
 	        }
+        } else if(existsPdfAtServer == true 
+        		&& existsPdfAtClient == false) {
+        	obj_re.put("updatePdfFile", true);
         }
         
         
