@@ -69,7 +69,12 @@
         
         clientMd5sum = (String) jre.get("MD5SUM");
         System.out.println("clientMd5sum : "+clientMd5sum);
-        existsPdfAtClient = (boolean) jre.get("existsPdfAtclient");
+        
+        if( jre.get("existsPdfAtclient") != null) {
+        	existsPdfAtClient = (Boolean) jre.get("existsPdfAtclient");
+        }
+        obj_re.put("updatePdfFile", false);
+        System.out.println("existsPdfAtClient : "+existsPdfAtClient);
         existsPdfAtServer = new File(mSaveFolder + "/" + mFileName).exists();
         
         if(existsPdfAtServer == true
