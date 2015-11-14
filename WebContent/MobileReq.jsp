@@ -33,9 +33,9 @@
 	boolean existsPdfAtClient = false;
 	boolean existsPdfAtServer = false;
 	// wrjeoung mac path.
-    //String mSaveFolder = "/Users/wrjeong";
+    // String mSaveFolder = "/Users/wrjeong";
 	// Woori research sever path.
-    String mSaveFolder = "/usr/local/server/tomcat/webapps/Woori/data";
+    String mSaveFolder = "/usr/local/server/tomcat/webapps/ElectionManager_server/data";
 	
 	request.setCharacterEncoding("UTF-8");		
 	response.setContentType("text/html;charset=UTF-8");
@@ -74,8 +74,9 @@
         	existsPdfAtClient = (Boolean) jre.get("existsPdfAtclient");
         }
         obj_re.put("updatePdfFile", false);
-        System.out.println("existsPdfAtClient : "+existsPdfAtClient);
         existsPdfAtServer = new File(mSaveFolder + "/" + mFileName).exists();
+        System.out.println("existsPdfAtClient : "+existsPdfAtClient);
+        System.out.println("existsPdfAtServer : "+existsPdfAtServer);
         
         if(existsPdfAtServer == true
         		&& existsPdfAtClient == true)
