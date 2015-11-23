@@ -69,8 +69,8 @@ public class MapServlet extends HttpServlet {
 			ps1 = conn.prepareStatement(querySelect.toString());
 			//ps1.setString(1, "TEST");
 			
-			queryUpdate.append("update DATAADDRESS set googlex = ?, googley = ? where BUBJOUNGDONG = ? and BUNJI = ?");
-			queryUpdate.append(" and ( GUNMUL = ? OR ? IS NULL )");
+			queryUpdate.append("update DATAADDRESS set googlex = ?, googley = ? where BUBJOUNGDONG = ? and ( BUNJI = ? OR ? IS NULL )");
+			queryUpdate.append(" and ( GUNMUL = ? OR ? IS NULL ) and googlex is null");
 
 			ps2 = conn.prepareStatement(queryUpdate.toString());
 			
@@ -122,15 +122,13 @@ public class MapServlet extends HttpServlet {
 				ps2.setString(2, ""+locationGoogle[1]);
 				ps2.setString(3, bubjoungdong);
 				ps2.setString(4, bunji);
-				ps2.setString(5, gunmul);
+				ps2.setString(5, bunji);
 				ps2.setString(6, gunmul);
-				
+				ps2.setString(7, gunmul);
 				ps2.executeUpdate();
-				
 				//ps2.addBatch();
 				// 파라미터 Clear
 				ps2.clearParameters();
-				
 				updateCount++;
 				if(updateCount % 100 == 0) {
 					updateCount = 0;
@@ -145,7 +143,7 @@ public class MapServlet extends HttpServlet {
 			if(rs != null) rs.close();
 			
 			//ps2.executeBatch();
-			conn.commit();
+			//conn.commit();
 			
 			String status = (String)result.get("status");
 			
@@ -201,8 +199,8 @@ public class MapServlet extends HttpServlet {
 			
 			ps1 = conn.prepareStatement(querySelect.toString());
 			
-			queryUpdate.append("update DATAADDRESS set naverx = ?, navery = ? where BUBJOUNGDONG = ? and BUNJI = ?");
-			queryUpdate.append(" and ( GUNMUL = ? OR ? IS NULL )");
+			queryUpdate.append("update DATAADDRESS set naverx = ?, navery = ? where BUBJOUNGDONG = ? and ( BUNJI = ? OR ? IS NULL )");
+			queryUpdate.append(" and ( GUNMUL = ? OR ? IS NULL ) and naverx is null");
 
 			ps2 = conn.prepareStatement(queryUpdate.toString());
 			
@@ -248,8 +246,9 @@ public class MapServlet extends HttpServlet {
 				ps2.setString(2, ""+locationNaver[1]);
 				ps2.setString(3, bubjoungdong);
 				ps2.setString(4, bunji);
-				ps2.setString(5, gunmul);
+				ps2.setString(5, bunji);
 				ps2.setString(6, gunmul);
+				ps2.setString(7, gunmul);
 				
 				ps2.executeUpdate();
 				
@@ -327,8 +326,8 @@ public class MapServlet extends HttpServlet {
 			
 			ps1 = conn.prepareStatement(querySelect.toString());
 			
-			queryUpdate.append("update DATAADDRESS set daumx = ?, daumy = ? where BUBJOUNGDONG = ? and BUNJI = ?");
-			queryUpdate.append(" and ( GUNMUL = ? OR ? IS NULL )");
+			queryUpdate.append("update DATAADDRESS set daumx = ?, daumy = ? where BUBJOUNGDONG = ? and ( BUNJI = ? OR ? IS NULL )");
+			queryUpdate.append(" and ( GUNMUL = ? OR ? IS NULL ) and daumx is null");
 
 			ps2 = conn.prepareStatement(queryUpdate.toString());
 			
@@ -375,8 +374,9 @@ public class MapServlet extends HttpServlet {
 				ps2.setString(2, ""+locationDaum[1]);
 				ps2.setString(3, bubjoungdong);
 				ps2.setString(4, bunji);
-				ps2.setString(5, gunmul);
+				ps2.setString(5, bunji);
 				ps2.setString(6, gunmul);
+				ps2.setString(7, gunmul);
 				
 				ps2.executeUpdate();
 				
