@@ -29,4 +29,15 @@
     <servlet-name>MapServlet</servlet-name>
     <url-pattern>/MapServlet</url-pattern>
   </servlet-mapping>  
+  
+    <servlet>
+    <description></description>
+    <display-name>MemoServlet</display-name>
+    <servlet-name>MemoServlet</servlet-name>
+    <servlet-class>memo.MemoServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>MemoServlet</servlet-name>
+    <url-pattern>/MemoServlet</url-pattern>
+  </servlet-mapping> 
 </web-app>
