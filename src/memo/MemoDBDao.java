@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import com.address.DBBean;
 
@@ -168,19 +169,32 @@ public class MemoDBDao {
 		return result;
 	}
 	
-	public String GetBoardList(String admCd, String offset){
+	public BoardListBody GetBoardList(String admCd, int offset){
 		BoardListBody body = new BoardListBody();
-	
+		body.custMemoList = new ArrayList<BoardListBody.BoardDTO>();
+				
+		System.out.println("admCd : "+admCd);
+		System.out.println("offset : "+offset);
 		
-		System.out.println("admCd:"+admCd);
-		System.out.println("offset:"+offset);
-		
-		String sql = "SELECT * FROM BOARD "
-				+ " where SUBSTRING(ADM_CD,1,7) = SUBSTRING(?,1,7) and SUBSTRING(ADM_CD,9,2) != '00'";
-				 
+		String sql = " SELECT D.*"
+					+" FROM"
+					+" ( SELECT @ROWNUM := @ROWNUM + 1 AS ROWNUM , C.*"
+					+"   FROM"
+				 	+"   ("
+					+"     SELECT A.MEMO_SEQ,ADM_CD,DATE,CONTENT,TAG,IMG_YN,IMG_SEQ,IMG_URL"
+				 	+"     FROM BOARD A"
+					+"     LEFT OUTER JOIN BOARD_IMG B on A.MEMO_SEQ = B.MEMO_SEQ"
+				 	+"     WHERE SUBSTRING(ADM_CD,1,7) = SUBSTRING(?,1,7) and SUBSTRING(ADM_CD,9,2) != '00'"
+					+"     OR SUBSTRING(?,6,2) = '00' and SUBSTRING(?,1,5) = SUBSTRING(ADM_CD,1,5) and SUBSTRING(ADM_CD,9,2) != '00' and ADM_CD != ?"
+				 	+"     ORDER BY DATE DESC"
+					+"   ) C,"
+				 	+"   (SELECT @ROWNUM := 0) R"
+					+" ) D"
+				 	+" WHERE D.ROWNUM > ? and D.ROWNUM <= ?+20";
 				
 		PreparedStatement pstmt = null;
 		Connection conn = null;
+		ResultSet rs = null;
 		
 		try{
 			
@@ -190,24 +204,60 @@ public class MemoDBDao {
 			
 			pstmt = conn.prepareStatement(sql);
 			
-			//pstmt.setInt(1, Integer.parseInt(memoSeq));
-			//pstmt.setString(2, imgShow);
+			pstmt.setString(1, admCd);
+			pstmt.setString(2, admCd);
+			pstmt.setString(3, admCd);
+			pstmt.setString(4, admCd);
+			pstmt.setInt(5, offset);
+			pstmt.setInt(6, offset);
 			
-			int re = pstmt.executeUpdate();
+			rs = pstmt.executeQuery();
 
-			if(re>0){
-				result = "SUCCESS";
-			}else{
-				result = "FAIL";
+			while(rs.next()) {
+				int memoSeq = rs.getInt("MEMO_SEQ");
+				String adm_Cd = rs.getString("ADM_CD");
+				long date = rs.getLong("DATE");
+				String content = rs.getString("CONTENT");
+				String tag = rs.getString("TAG");
+				String imgYn = rs.getString("IMG_YN");
+				int imgSeq = rs.getInt("IMG_SEQ");
+				String imgUrl = rs.getString("IMG_URL");
+				
+				System.out.println("memoSeq : "+memoSeq);
+				System.out.println("adm_Cd : "+adm_Cd);
+				System.out.println("date : "+date);
+				System.out.println("content : "+content);
+				System.out.println("tag : "+tag);
+				System.out.println("imgYn : "+imgYn);
+				System.out.println("imgSeq : "+imgSeq);
+				System.out.println("imgUrl : "+imgUrl);
+				
+				BoardListBody.BoardDTO boardDto = new BoardListBody.BoardDTO();
+				boardDto.imgFileList = new ArrayList<ImageInfoDTO>();
+				
+				boardDto.memoSeq = String.valueOf(memoSeq);
+				boardDto.admCd = adm_Cd;
+				boardDto.longDate = date;
+				boardDto.contents = content;
+				boardDto.tag = tag;
+				boardDto.imgYn = imgYn;
+				
+				if(imgUrl != null && imgUrl.length() > 0) {
+					ImageInfoDTO imgDto = new ImageInfoDTO();
+					imgDto.imgSeq = imgSeq;
+					imgDto.imgUrl = imgUrl;
+					boardDto.imgFileList.add(imgDto);
+				}
+				
+				body.custMemoList.add(boardDto);
 			}
-			
-			conn.commit();
 			
 		}catch(Exception e){
 			e.printStackTrace();
 			
 		}finally{
 			try {
+				if(rs!=null) rs.close();
 				if(pstmt!=null) pstmt.close();
 				if(conn!=null) conn.close();
 				
@@ -216,6 +266,6 @@ public class MemoDBDao {
 			}
 			
 		}
-		return result;
+		return body;
 	}
 }

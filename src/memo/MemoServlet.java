@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -12,10 +13,20 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.simple.JSONObject;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.oreilly.servlet.MultipartRequest;
 import com.oreilly.servlet.multipart.DefaultFileRenamePolicy;
 
 public class MemoServlet extends HttpServlet {
+	
+	public static final String RESPONSE_RESULT = "result";		
+	public static final String RESPONSE_RESULT_ERROR_MSG = "error";
+	public static final String RESPONSE_RESULT_ERROR_CODE = "errorcode";		
+	public static final String RESPONSE_BODY_DATA_KEY = "data";	
+	
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
@@ -28,6 +39,10 @@ public class MemoServlet extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		request.setCharacterEncoding("UTF-8");		
+		response.setContentType("text/html;charset=UTF-8");
+		response.setCharacterEncoding("UTF-8");
+		
 		String type= request.getParameter("Type");
 		System.out.println("type = "+type);
 		
@@ -133,10 +148,24 @@ public class MemoServlet extends HttpServlet {
 		    }
 		} else if("List".equals(type)) {
 			String admCd = request.getParameter("AdmCd");
-			String offset = request.getParameter("Offset");
+			int offset = Integer.parseInt(request.getParameter("Offset"));
 			
 			MemoDBDao dao = new MemoDBDao();
+			BoardListBody body = dao.GetBoardList(admCd, offset);
 			
+			PrintWriter writer = response.getWriter();
+						
+			GsonBuilder builder = new GsonBuilder();
+	    	Gson gson = builder.create();
+	    	
+	    	JSONObject obj = new JSONObject();
+	    	obj.put(RESPONSE_RESULT,"success");
+	    	obj.put(RESPONSE_RESULT_ERROR_MSG,"success");
+	    	obj.put(RESPONSE_RESULT_ERROR_CODE,"000");
+	    	obj.put(RESPONSE_BODY_DATA_KEY, gson.toJson(body));
+			
+			writer.println(obj);
+			writer.flush();
 		}
 	}
 }
