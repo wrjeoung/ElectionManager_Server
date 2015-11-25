@@ -54,9 +54,8 @@ public class MemoServlet extends HttpServlet {
 		    String root = request.getSession().getServletContext().getRealPath("/");
 		 
 		    // 파일 저장 경로(ex : /home/tour/web/ROOT/upload)
-		    //String savePath = root + "upload";
-		    String savePath = "E:/project/woori/";
-		    //String savePath = "/usr/local/server/tomcat/webapps/ElectionManager_server/memo_upload/";
+		    //String savePath = "E:/project/woori/";
+		    String savePath = "/usr/local/server/tomcat/webapps/ElectionManager_server/memo_upload/";
 		    
 		    try {
 				MultipartRequest multi = new MultipartRequest(request, savePath, maxSize, "UTF-8", new DefaultFileRenamePolicy());
