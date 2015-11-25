@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import com.address.DBBean;
+import com.address.GroupDAO;
 
 public class MemoDBDao {
 	private String result = "FAIL";
@@ -47,6 +48,58 @@ public class MemoDBDao {
 			}
 		}
 		return maxSeq;
+	}
+	
+	public String UpMemo(BoardListBody.BoardDTO dto){
+		
+	
+		PreparedStatement pstmt = null;
+		Connection conn = null;
+		
+		/*String sql = " UPDATE GROUPINFO "
+			+ " SET GROUPNAME = ? "
+			+ " , ADM_CD = ? "
+			+ " , MFYDT = SYSDATE() "
+			+ " WHERE GROUPCD = ?";
+		*/
+		String sql = "";
+		try{
+			
+			DBBean dbbean = new DBBean();
+			conn = dbbean.getConnection();
+			conn.setAutoCommit(false);
+			
+			pstmt = conn.prepareStatement(sql);
+			
+			//pstmt.setString(1, groupname);
+			//pstmt.setString(2, admcd);
+			//pstmt.setString(3, groupcd);
+
+			int iResult = pstmt.executeUpdate();
+			
+			if(iResult>0){
+				result = "SUCCESS";
+			}else{
+				result = "FAIL";
+			}
+			
+			conn.commit();
+			
+		}catch(Exception e){
+			result = "FAIL";
+			e.printStackTrace();
+		}finally{
+			try {
+				if(pstmt!=null) pstmt.close();
+				if(conn!=null) conn.close();
+				
+			} catch (SQLException e) {
+				e.printStackTrace();
+				result = "FAIL";
+			}
+		}
+			
+		return result;
 	}
 	
 	public String InMemo(BoardListBody.BoardDTO dto){
