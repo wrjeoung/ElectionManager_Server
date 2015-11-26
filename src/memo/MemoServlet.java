@@ -46,7 +46,7 @@ public class MemoServlet extends HttpServlet {
 		String type= request.getParameter("Type");
 		System.out.println("type = "+type);
 		
-		if("Add".equals(type) || "List".equals(type)) {
+		if("Add".equals(type) || "Update".equals(type)) {
 		    // 10Mbyte 제한
 		    int maxSize  = 1024*1024*10;        
 		 
@@ -75,12 +75,6 @@ public class MemoServlet extends HttpServlet {
 			    SimpleDateFormat simDf = new SimpleDateFormat("yyyyMMddHHmmss");
 			    
 			    String memoSeq = multi.getParameter("MemoSeq");
-		    	int iMemoSeq = 0;
-		    	
-				if(memoSeq!=null){
-					iMemoSeq = Integer.parseInt(memoSeq);
-				}
-			    
 			    String admCd = multi.getParameter("AdmCd");
 			    String tag = multi.getParameter("Tag");
 			    String imgyn = multi.getParameter("ImgYn");
@@ -97,7 +91,7 @@ public class MemoServlet extends HttpServlet {
 		        // 파일업로드
 		        uploadFile = multi.getFilesystemName("Attachment1");
 		        System.out.println("uploadFile:" + uploadFile);
-		        if(uploadFile!=null) {
+		        if(uploadFile!=null && imgUrl == null) {
 		        	System.out.println("신규등록");
 		        	
 					 // 실제 저장할 파일명(ex : 20140819151221.zip)
@@ -128,10 +122,16 @@ public class MemoServlet extends HttpServlet {
 			            oldFile.delete();
 			        }
 			
-		        } else if(uploadFile==null && imgUrl != null ){
+		        } else if(uploadFile==null && imgUrl != null){
 					System.out.println("기존");
 				} else if(uploadFile!=null && imgUrl != null){
 					System.out.println("변경");
+					
+					// 기존 파일 삭제
+					File orgFile = new File(savePath+imgUrl);
+					if(orgFile.exists()) {
+						orgFile.delete();
+					}
 					
 					 // 실제 저장할 파일명(ex : 20140819151221.zip)
 			        newFileName = simDf.format(new Date(currentTime)) +"."+ uploadFile.substring(uploadFile.lastIndexOf(".")+1);
@@ -160,9 +160,10 @@ public class MemoServlet extends HttpServlet {
 			            fout.close();
 			            oldFile.delete();
 			        }
-				}
+				} 
 		        
-		        BoardListBody.BoardDTO boardDto = new BoardListBody.BoardDTO();		        
+		        BoardListBody.BoardDTO boardDto = new BoardListBody.BoardDTO();
+		        boardDto.memoSeq = memoSeq;
 		        boardDto.admCd = admCd;
 		        boardDto.contents = contents;
 		        boardDto.tag = tag;
@@ -172,20 +173,94 @@ public class MemoServlet extends HttpServlet {
 		        String result = "FAIL";
 		        
 		        MemoDBDao dao = new MemoDBDao();
-		        result = dao.InMemo(boardDto);
+		        if("Add".equals(type)) {
+		        	result = dao.InMemo(boardDto);
+		        } else {
+		        	result = dao.UpMemo(boardDto);
+		        }
 		        
 		        System.out.println("memoInsert result:"+result);
 		        
-		        if(uploadFile!=null && result.equals("SUCCESS")) {
+		        if(uploadFile!=null && imgUrl == null && result.equals("SUCCESS")) {
 		        	int maxMemoSeq = dao.getMaxMemoSeq();
 		        	boardDto.memoSeq = String.valueOf(maxMemoSeq);
 		        	result = dao.InImage(boardDto);
 		        	System.out.println("ImageInsert result:"+result);
+		        }else if(uploadFile!=null && imgUrl != null && result.equals("SUCCESS")){
+		        	result = dao.UpImage(boardDto);
+		        	System.out.println("ImageUpdate result:"+result);
+		        }else if(uploadFile == null && imgUrl == null && "Update".equals(type)){
+		        	ImageInfoDTO dto = dao.getImageInfo(Integer.parseInt(memoSeq));
+		        	if(dto != null) {
+						// 기존 파일 삭제
+						File orgFile = new File(savePath+dto.imgUrl);
+						if(orgFile.exists()) {
+							orgFile.delete();
+						}
+						result = dao.DelImage(dto.imgSeq);
+						System.out.println("ImageDelete result:"+result);
+		        	}
 		        }
 		        
 		    }catch(Exception e) {
 		    	e.printStackTrace();
 		    }
+		} else if("Del".equals(type)){ 
+			
+		    // 파일 저장 경로(ex : /home/tour/web/ROOT/upload)
+		    //String savePath = "E:/project/woori/";
+		    String savePath = "/usr/local/server/tomcat/webapps/ElectionManager_server/memo_upload/";
+			
+			
+			String memoSeq = request.getParameter("MemoSeq"); 
+			MemoDBDao dao = new MemoDBDao();
+			int iMemoSeq = 0;
+			
+			if(memoSeq != null) {
+				iMemoSeq = Integer.parseInt(memoSeq);
+			}
+			try {
+				String result = "FAIL";
+				
+				result = dao.DelMemo(iMemoSeq);
+				System.out.println("MemoDelete result:"+result);
+				
+				if(result.equals("SUCCESS")) {
+					ImageInfoDTO dto = dao.getImageInfo(iMemoSeq);
+		        	if(dto != null) {
+						// 기존 파일 삭제
+						File orgFile = new File(savePath+dto.imgUrl);
+						if(orgFile.exists()) {
+							orgFile.delete();
+						}
+						result = dao.DelImage(dto.imgSeq);
+						System.out.println("ImageDelete result:"+result);
+		        	}
+				}
+				
+				PrintWriter writer = response.getWriter();
+				
+				GsonBuilder builder = new GsonBuilder();
+		    	Gson gson = builder.create();
+		    	
+		    	DefaultBody body = new DefaultBody();
+		    	body.error = "success";
+		    	body.errorcode = "000";
+		    	body.result = "success";
+		    	
+		    	JSONObject obj = new JSONObject();
+		    	obj.put(RESPONSE_RESULT,"success");
+		    	obj.put(RESPONSE_RESULT_ERROR_MSG,"success");
+		    	obj.put(RESPONSE_RESULT_ERROR_CODE,"000");
+		    	obj.put(RESPONSE_BODY_DATA_KEY, gson.toJson(body));
+				
+				writer.println(obj);
+				writer.flush();
+				
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+			
 		} else if("List".equals(type)) {
 			String admCd = request.getParameter("AdmCd");
 			int offset = Integer.parseInt(request.getParameter("Offset"));

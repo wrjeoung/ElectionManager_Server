@@ -30,7 +30,7 @@ public class MemoDBDao {
 			
 			rs = pstmt.executeQuery();
 			
-			while(rs.next()) {
+			if(rs.next()) {
 				maxSeq = rs.getInt(1);
 			}
 			
@@ -51,18 +51,34 @@ public class MemoDBDao {
 	}
 	
 	public String UpMemo(BoardListBody.BoardDTO dto){
+		String memoSeq = dto.memoSeq;
+		int iMemoSeq = 0;
+		if(memoSeq != null) {
+			iMemoSeq = Integer.parseInt(memoSeq);
+		}
+		String contents = dto.contents;
+		String tag = dto.tag;
+		String imgYn = dto.imgYn;
+		String imgShow = dto.imgShow;
 		
-	
+		System.out.println("memoSeq:"+memoSeq);
+		System.out.println("contents:"+contents);
+		System.out.println("imgYn:"+imgYn);
+		System.out.println("imgShow:"+imgShow);
+		
+		if(tag == null) {
+			tag = "";
+		}
+		
+		String sql = " UPDATE BOARD "
+				+ " SET CONTENT = ? "
+				+ " 	, TAG = ? "
+				+ " 	, IMG_YN = ? "
+				+ " WHERE MEMO_SEQ = ?";
+		
 		PreparedStatement pstmt = null;
 		Connection conn = null;
-		
-		/*String sql = " UPDATE GROUPINFO "
-			+ " SET GROUPNAME = ? "
-			+ " , ADM_CD = ? "
-			+ " , MFYDT = SYSDATE() "
-			+ " WHERE GROUPCD = ?";
-		*/
-		String sql = "";
+
 		try{
 			
 			DBBean dbbean = new DBBean();
@@ -71,9 +87,10 @@ public class MemoDBDao {
 			
 			pstmt = conn.prepareStatement(sql);
 			
-			//pstmt.setString(1, groupname);
-			//pstmt.setString(2, admcd);
-			//pstmt.setString(3, groupcd);
+			pstmt.setString(1, contents);
+			pstmt.setString(2, tag);
+			pstmt.setString(3, imgYn);
+			pstmt.setInt(4, iMemoSeq);
 
 			int iResult = pstmt.executeUpdate();
 			
@@ -95,7 +112,51 @@ public class MemoDBDao {
 				
 			} catch (SQLException e) {
 				e.printStackTrace();
+			}
+		}
+			
+		return result;
+	}
+	
+	public String DelMemo(int memoSeq){
+		System.out.println("memoSeq:"+memoSeq);
+		
+		String sql = " DELETE FROM BOARD "
+				+ " WHERE MEMO_SEQ = ?";
+		
+		PreparedStatement pstmt = null;
+		Connection conn = null;
+
+		try{
+			
+			DBBean dbbean = new DBBean();
+			conn = dbbean.getConnection();
+			conn.setAutoCommit(false);
+			
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setInt(1, memoSeq);
+
+			int iResult = pstmt.executeUpdate();
+			
+			if(iResult>0){
+				result = "SUCCESS";
+			}else{
 				result = "FAIL";
+			}
+			
+			conn.commit();
+			
+		}catch(Exception e){
+			result = "FAIL";
+			e.printStackTrace();
+		}finally{
+			try {
+				if(pstmt!=null) pstmt.close();
+				if(conn!=null) conn.close();
+				
+			} catch (SQLException e) {
+				e.printStackTrace();
 			}
 		}
 			
@@ -148,6 +209,120 @@ public class MemoDBDao {
 			conn.commit();
 			
 		}catch(Exception e){
+			result = "FAIL";
+			e.printStackTrace();
+			
+		}finally{
+			try {
+				if(pstmt!=null) pstmt.close();
+				if(conn!=null) conn.close();
+				
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			
+		}
+		return result;
+	}
+	
+	public ImageInfoDTO getImageInfo(int memoSeq) {
+		ImageInfoDTO dto = null;
+		
+		System.out.println("memoSeq = "+memoSeq);
+		
+		
+		String sql = " SELECT IMG_SEQ,IMG_URL FROM BOARD_IMG "
+					+" WHERE MEMO_SEQ = ?";
+		
+		PreparedStatement pstmt = null;
+		Connection conn = null;
+		ResultSet rs = null;
+		
+		try{
+			
+			DBBean dbbean = new DBBean();
+			conn = dbbean.getConnection();
+			conn.setAutoCommit(false);
+			
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setInt(1, memoSeq);
+			
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				int imgSeq = rs.getInt("IMG_SEQ");
+				String imgUrl = rs.getString("IMG_URL");
+						
+				dto = new ImageInfoDTO();
+				dto.imgSeq = imgSeq;
+				dto.imgUrl = imgUrl;
+			}
+			
+		}catch(Exception e){
+			e.printStackTrace();
+			
+		}finally{
+			try {
+				if(rs!=null) rs.close();
+				if(pstmt!=null) pstmt.close();
+				if(conn!=null) conn.close();
+				
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return dto;
+	}
+	
+	public String UpImage(BoardListBody.BoardDTO dto){
+		String memoSeq = dto.memoSeq;
+		String admCd = dto.admCd;
+		String contents = dto.contents;
+		String tag = dto.tag;
+		String imgYn = dto.imgYn;
+		String imgShow = dto.imgShow;
+		
+		
+		System.out.println("memoSeq:"+memoSeq);
+		System.out.println("admCd:"+admCd);
+		System.out.println("contents:"+contents);
+		System.out.println("imgYn:"+imgYn);
+		System.out.println("imgShow:"+imgShow);
+		
+		String sql = " UPDATE BOARD_IMG "
+				+ " SET IMG_URL = ? "
+				+ " WHERE MEMO_SEQ = ?";
+		
+				
+		PreparedStatement pstmt = null;
+		Connection conn = null;
+		
+		try{
+			
+			DBBean dbbean = new DBBean();
+			conn = dbbean.getConnection();
+			conn.setAutoCommit(false);
+			
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1, imgShow);
+			pstmt.setInt(2, Integer.parseInt(memoSeq));
+			
+			
+			int re = pstmt.executeUpdate();
+
+			if(re>0){
+				result = "SUCCESS";
+			}else{
+				result = "FAIL";
+			}
+			
+			conn.commit();
+			
+		}catch(Exception e){
+			result = "FAIL";
 			e.printStackTrace();
 			
 		}finally{
@@ -207,6 +382,53 @@ public class MemoDBDao {
 			conn.commit();
 			
 		}catch(Exception e){
+			result = "FAIL";
+			e.printStackTrace();
+			
+		}finally{
+			try {
+				if(pstmt!=null) pstmt.close();
+				if(conn!=null) conn.close();
+				
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			
+		}
+		return result;
+	}
+	
+	public String DelImage(int imgSeq){
+		System.out.println("imgSeq:"+imgSeq);
+	
+		String sql = " DELETE FROM BOARD_IMG "
+				+ " WHERE IMG_SEQ = ?";
+						
+		PreparedStatement pstmt = null;
+		Connection conn = null;
+		
+		try{
+			
+			DBBean dbbean = new DBBean();
+			conn = dbbean.getConnection();
+			conn.setAutoCommit(false);
+			
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setInt(1, imgSeq);
+						
+			int re = pstmt.executeUpdate();
+
+			if(re>0){
+				result = "SUCCESS";
+			}else{
+				result = "FAIL";
+			}
+			
+			conn.commit();
+			
+		}catch(Exception e){
+			result = "FAIL";
 			e.printStackTrace();
 			
 		}finally{
