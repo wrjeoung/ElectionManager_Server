@@ -459,7 +459,8 @@ public class MemoDBDao {
 					+"     SELECT A.MEMO_SEQ,ADM_CD,(UNIX_TIMESTAMP(DATE) * 1000) AS DATE,CONTENT,TAG,IMG_YN,IMG_SEQ,IMG_URL"
 				 	+"     FROM BOARD A"
 					+"     LEFT OUTER JOIN BOARD_IMG B on A.MEMO_SEQ = B.MEMO_SEQ"
-				 	+"     WHERE SUBSTRING(ADM_CD,1,7) = SUBSTRING(?,1,7) and SUBSTRING(ADM_CD,9,2) != '00'"
+				 	+"     WHERE SUBSTRING(ADM_CD,1,7) = SUBSTRING(?,1,7) and SUBSTRING(?,9,2) = '00'"
+				 	+"     OR ADM_CD = ?"
 					+"     OR SUBSTRING(?,6,2) = '00' and SUBSTRING(?,1,5) = SUBSTRING(ADM_CD,1,5) and SUBSTRING(ADM_CD,9,2) != '00' and ADM_CD != ?"
 				 	+"     ORDER BY DATE DESC"
 					+"   ) C,"
@@ -483,8 +484,10 @@ public class MemoDBDao {
 			pstmt.setString(2, admCd);
 			pstmt.setString(3, admCd);
 			pstmt.setString(4, admCd);
-			pstmt.setInt(5, offset);
-			pstmt.setInt(6, offset);
+			pstmt.setString(5, admCd);
+			pstmt.setString(6, admCd);
+			pstmt.setInt(7, offset);
+			pstmt.setInt(8, offset);
 			
 			rs = pstmt.executeQuery();
 
