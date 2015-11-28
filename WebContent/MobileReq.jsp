@@ -511,6 +511,7 @@
 			System.out.println("SEARCHORGAN:"+adm_cd_before);
 			
 			String adm_cd_after = adm_cd_before.substring(0,7);
+			System.out.println("adm_cd_after:"+adm_cd_after);
 			String haengtext = "";
 			String organ_name = "";
 			int Organ_Seq = 0;
@@ -531,13 +532,27 @@
 			JSONArray al = new JSONArray();
 			OrganDAO od = new OrganDAO();
 			
-			String sql = " SELECT A.ORGAN_SEQ, B.HAENGTEXT, A.ORGAN_NAME  "
-				 + " FROM ORGANINFO A INNER JOIN ADM_CODE B	"
-				 + " ON(A.HAENGCODE = B.HAENGCODE)	"
-				 + " WHERE A.ORGAN_GB = ?  "
-				 + " AND A.HAENGCODE = ? "
-				 + " GROUP BY A.ORGAN_SEQ, B.HAENGTEXT, A.ORGAN_NAME	";
+			String sql = "";
 			
+			//3105300 오정구
+			//3105353 오정구/원동2동
+			
+			if(adm_cd_after.substring(5,7).equals("00")){
+				adm_cd_after = adm_cd_after.substring(0,5);
+				sql = " SELECT A.ORGAN_SEQ, B.HAENGTEXT, A.ORGAN_NAME  "
+						 + " FROM ORGANINFO A INNER JOIN ADM_CODE B	"
+						 + " ON(A.HAENGCODE = B.HAENGCODE)	"
+						 + " WHERE A.ORGAN_GB = ?  "
+						 + " AND A.SIGUNGUCODE = ? " 
+						 + " GROUP BY A.ORGAN_SEQ, B.HAENGTEXT, A.ORGAN_NAME	";
+			}else{
+				sql = " SELECT A.ORGAN_SEQ, B.HAENGTEXT, A.ORGAN_NAME  "
+						 + " FROM ORGANINFO A INNER JOIN ADM_CODE B	"
+						 + " ON(A.HAENGCODE = B.HAENGCODE)	"
+						 + " WHERE A.ORGAN_GB = ?  "
+						 + " AND A.HAENGCODE = ? "
+						 + " GROUP BY A.ORGAN_SEQ, B.HAENGTEXT, A.ORGAN_NAME	";
+			}
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, organ_gb);
 			pstmt.setString(2, adm_cd_after);
