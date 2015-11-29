@@ -17,6 +17,7 @@
 <%@ page import="com.address.GeoUtil" %>
 <%@ page import="com.address.PdfDAO" %>
 <%@ page import="com.address.EtcDAO" %>
+<%@ page import="com.address.BusinessKindDTO" %>
 <%@ page import="java.security.MessageDigest" %>
 <%@ page import="java.security.NoSuchAlgorithmException" %>
 
@@ -1643,7 +1644,36 @@
 			update_pass = pstmt.executeUpdate();
 			obj_re.put("UPDATEPASS",update_pass);
 			System.out.println("MODIFYPASS update_pass : "+update_pass);
-		} else {
+		} else if(sQuery.equals("BUSINESSKIND")) {
+			DBBean dbbean = new DBBean();
+			conn = dbbean.getConnection();
+			conn.setAutoCommit(false);
+			pstmt = null;
+			rs = null;
+			
+			String sql = "SELECT BKCODE,BKNAME FROM BUSINESS_KIND";
+			pstmt = conn.prepareStatement(sql);
+			
+			rs = pstmt.executeQuery();
+			
+			BusinessKindDTO dto = null;
+			
+			GsonBuilder builder = new GsonBuilder();
+		    Gson gson = builder.create();
+			JSONArray jArray = new JSONArray();
+			
+			while(rs.next()) {
+				dto = new BusinessKindDTO();
+				dto.bkCode = rs.getString("BKCODE");
+				dto.bkName = rs.getString("BKNAME");
+				jArray.add(gson.toJson(dto));
+			}
+			
+			obj_re.put("BKINFO", jArray);
+			
+			obj_re.put("RESULT","SUCCESS");
+			
+		}else {
 			
 		}
 		obj_re.put("TYPE",sQuery);
