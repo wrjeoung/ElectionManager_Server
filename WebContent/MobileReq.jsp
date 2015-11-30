@@ -18,6 +18,7 @@
 <%@ page import="com.address.PdfDAO" %>
 <%@ page import="com.address.EtcDAO" %>
 <%@ page import="com.address.BusinessKindDTO" %>
+<%@ page import="com.address.BusinessListDTO" %>
 <%@ page import="java.security.MessageDigest" %>
 <%@ page import="java.security.NoSuchAlgorithmException" %>
 
@@ -1657,7 +1658,7 @@
 			rs = pstmt.executeQuery();
 			
 			BusinessKindDTO dto = null;
-			
+			JSONObject obj = new JSONObject();
 			GsonBuilder builder = new GsonBuilder();
 		    Gson gson = builder.create();
 			JSONArray jArray = new JSONArray();
@@ -1672,6 +1673,64 @@
 			obj_re.put("BKINFO", jArray);
 			
 			obj_re.put("RESULT","SUCCESS");
+			
+		}else if(sQuery.equals("BUSINESSLIST")) {
+			String title = (String) jre.get("TITLE");
+			String kind = (String) jre.get("KIND");
+			String admCd_before = (String) jre.get("ADM_CD");
+									
+			System.out.println("BUSINESSLIST title : "+title);
+			System.out.println("BUSINESSLIST kind : "+kind);
+			System.out.println("BUSINESSLIST admCd_before : "+admCd_before);
+			
+			String admCd_after = admCd_before;
+			
+			if(admCd_after.substring(5,7).equals("00")){
+				admCd_after = admCd_after.substring(0,5);
+			}
+				
+			DBBean dbbean = new DBBean();
+			conn = dbbean.getConnection();
+			conn.setAutoCommit(false);
+						
+			pstmt = null;
+			rs = null;
+					
+			String sql = " SELECT BN_SEQ,BKNAME AS KIND_STR,TITLE FROM BUSINESS_KIND A," 
+							+"( SELECT BN_SEQ,KIND,TITLE FROM BUSINESS "
+							+"  WHERE ( SUBSTRING(?,1,2) = SUBSTRING(KIND,1,2) AND SUBSTRING(?,3,1) = '0'"
+							+"  OR KIND=?)"
+							+"  AND CT_AREA LIKE ?";
+			if(title != null && title.length() > 0) {
+				 	   sql +="  AND TITLE LIKE ?";
+			}
+					   sql +=") B";
+					   sql +=" WHERE A.BKCODE=B.KIND";
+			
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1,kind);
+			pstmt.setString(2,kind);
+			pstmt.setString(3,kind);
+			pstmt.setString(4,"%"+admCd_after+"%");
+			if(title != null && title.length() > 0) {
+				pstmt.setString(5,"%"+title+"%");
+				
+			}
+			
+			rs = pstmt.executeQuery();			
+			JSONArray jArray = new JSONArray();
+			GsonBuilder builder = new GsonBuilder();
+		    Gson gson = builder.create();
+						
+			while(rs.next()) {
+				BusinessListDTO dto = new BusinessListDTO();
+				dto.bnSeq = rs.getInt("BN_SEQ");
+				dto.title = rs.getString("TITLE");
+				dto.kindStr = rs.getString("KIND_STR");
+				jArray.add(gson.toJson(dto));
+			}
+			obj_re.put("RESULT","SUCCESS");
+			obj_re.put("BUSINESSLIST", jArray);
 			
 		}else {
 			

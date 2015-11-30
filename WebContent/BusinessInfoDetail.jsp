@@ -11,10 +11,8 @@
 </head>
 <%
 	System.out.println("{Call BusinessInfoDetial}"); 
-	//System.out.println("bn_seq:"+request.getParameter("bn_seq"));
 	
-	//int bnSeq = Integer.parseInt(request.getParameter("bn_seq"));
-	int bnSeq = 1;
+	int bnSeq = Integer.parseInt(request.getParameter("bn_seq"));
 	
 	String title = "";
 	String kind = "";
@@ -26,9 +24,7 @@
 	String etc = "";
 	String imgYn = "";
 	ArrayList<String> imgList = new ArrayList<String>();
-	
-	
-	
+		
 	Connection conn = null;
 	PreparedStatement pstmt = null;
 	ResultSet rs = null;
@@ -39,7 +35,9 @@
 	pstmt = null;
 	rs = null;
 	
-	String sql = "select * from BUSINESS where BN_SEQ=?";
+	String sql = " SELECT TITLE,BKNAME AS KIND,CT_AREA,SUMMARY,CONTENT,PROGRESS_PROCESS,RESULT,ETC" 
+			    +" FROM BUSINESS A,BUSINESS_KIND B WHERE BN_SEQ=?" 
+			    +" AND A.KIND=B.BKCODE";
 	
 	pstmt = conn.prepareStatement(sql);
 	pstmt.setInt(1, bnSeq); 
@@ -56,9 +54,7 @@
 		progressProcess = rs.getString("PROGRESS_PROCESS");
 		result = rs.getString("RESULT");
 		etc = rs.getString("ETC");
-		
-		ctArea = ctArea.replace(",","/");
-		
+				
 		System.out.println("title:"+title);
 		System.out.println("kind:"+kind);
 		System.out.println("ctArea:"+ctArea);
@@ -70,6 +66,26 @@
 
 	}
 	
+	String ctAreas[] = ctArea.split("/");
+	ctArea = "";
+	
+	sql = "SELECT HAENGTEXT FROM ADM_CODE WHERE ADM_CD = ?";
+	pstmt = conn.prepareStatement(sql);
+	
+	for(int i = 0; i<ctAreas.length;i++) {
+		pstmt.clearParameters();
+		pstmt.setString(1,ctAreas[i]); 
+		
+		rs = pstmt.executeQuery();
+		if(rs.next()) {
+			ctArea += rs.getString("HAENGTEXT");	
+		}
+		
+		if(i < ctAreas.length -1) {
+			ctArea += "/";
+		}
+	}
+			
 	String summarys[] = summary.split("\n");
 	String contents[] = content.split("\n");
 	String progressProcesses[] = progressProcess.split("\n");
@@ -77,7 +93,7 @@
 	String etcs[] = etc.split("\n");
 	
 	
-	sql = "select IMG_URL from BUSINESS_IMG where BN_SEQ=?";
+	sql = "SELECT IMG_URL from BUSINESS_IMG WHERE BN_SEQ=?";
 	pstmt = conn.prepareStatement(sql);
 	pstmt.setInt(1, bnSeq); 
 	
@@ -99,7 +115,7 @@
 <body>
 <div id="organ">
 <div id="div_info">
-<table border="0" cellspacing="1"  width="100%" height="476" >
+<table border="0" cellspacing="2"  width="100%" height="476" >
     <tr bgcolor="#f0f0f0"">
         <td width="131" height="30">
             <p align="center"><b>»ç¾÷¸í</b></p>
