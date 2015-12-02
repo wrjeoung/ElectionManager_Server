@@ -1048,11 +1048,11 @@
 					ed = new ElectDao();
 					ed.setLevel(rs.getInt("LEVEL"));
 					ed.setAdm_cd(rs.getString("ADM_CD"));
-					ed.setAvg(rs.getFloat("AVG"));
-					ed.setF6th(rs.getFloat("6TH"));
-					ed.setF19th(rs.getFloat("19TH"));
-					ed.setF18th_1(rs.getFloat("18th_1"));
-					ed.setF18th_2(rs.getFloat("18TH_2"));
+					ed.setAvg(Float.parseFloat(String.format("%.1f",rs.getFloat("AVG"))));
+					ed.setF6th(Float.parseFloat(String.format("%.1f",rs.getFloat("6TH"))));
+					ed.setF19th(Float.parseFloat(String.format("%.1f",rs.getFloat("19TH"))));
+					ed.setF18th_1(Float.parseFloat(String.format("%.1f",rs.getFloat("18th_1"))));
+					ed.setF18th_2(Float.parseFloat(String.format("%.1f",rs.getFloat("18TH_2"))));
 					al4.add(gson.toJson(ed));
 				}
 		     
