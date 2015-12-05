@@ -153,7 +153,7 @@
 			pstmt.setString(1, userinf[0]);
 			pstmt.setString(2, userinf[1]);
 			pstmt.setString(3, userinf[2]);
-			pstmt.setString(4, "");
+			pstmt.setString(4, "99999");
 			pstmt.setString(5, "");
 			pstmt.setString(6, "");
 			pstmt.setString(7, userinf[4]);
@@ -327,6 +327,8 @@
 				
 			}
 			System.out.println("pdfpath : "+pdfpath);
+			System.out.println("admcd : "+admcd);
+			System.out.println("classcd : "+classcd);
 			//iCnt가 0보다 크면 mac 중복 
 			if(iCnt>0){
 				System.out.println("[중복체크]서버에 동일한 mac 있음.:"+mac);
