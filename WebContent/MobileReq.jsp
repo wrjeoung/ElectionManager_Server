@@ -153,8 +153,8 @@
 			pstmt.setString(1, userinf[0]);
 			pstmt.setString(2, userinf[1]);
 			pstmt.setString(3, userinf[2]);
-			pstmt.setString(4, "A0001");
-			pstmt.setString(5, "AAA");
+			pstmt.setString(4, "");
+			pstmt.setString(5, "");
 			pstmt.setString(6, "");
 			pstmt.setString(7, userinf[4]);
 			pstmt.setString(8, userinf[5]);
@@ -1652,7 +1652,8 @@
 			pstmt = null;
 			rs = null;
 			
-			String sql = "SELECT BKCODE,BKNAME FROM BUSINESS_KIND";
+			String sql = "SELECT DISTINCT BKCODE,BKNAME FROM BUSINESS_KIND A, BUSINESS B" 
+					+" WHERE A.BKCODE = B.KIND";
 			pstmt = conn.prepareStatement(sql);
 			
 			rs = pstmt.executeQuery();
