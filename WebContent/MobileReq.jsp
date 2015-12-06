@@ -694,7 +694,7 @@
 			obj_re.put("GEODATA",jArray);
 			obj_re.put("CENTER", center);
 			
-		}else if(sQuery.equals("AREA_SEARCH")){
+		}else if(sQuery.equals("AREA_SEARCH") || sQuery.equals("TEST")){
 			DBBean dbbean = new DBBean();
 			conn = dbbean.getConnection();
 			conn.setAutoCommit(false);
