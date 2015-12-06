@@ -154,7 +154,7 @@
 			pstmt.setString(2, userinf[1]);
 			pstmt.setString(3, userinf[2]);
 			pstmt.setString(4, "99999");
-			pstmt.setString(5, "");
+			pstmt.setString(5, "ZZZ");
 			pstmt.setString(6, "");
 			pstmt.setString(7, userinf[4]);
 			pstmt.setString(8, userinf[5]);
@@ -207,7 +207,8 @@
 			}
 			
 		}else if(sQuery.equals("SELECTITEMS")) {
-			String adm_cd = (String)jre.get("ADM_CD");
+			String param1 = (String)jre.get("ADM_CD");
+			String classCd = (String)jre.get("CLASSCD");
 			
 			DBBean dbbean = new DBBean();
 			conn = dbbean.getConnection();
@@ -228,11 +229,17 @@
 			ResultSet rs2,rs3 = null;
 
 			//String sql1 = "select DISTINCT SIGUNGUTEXT,SIGUNGUCODE from ADM_CODE where SIGUNGUCODE=31053 or SIGUNGUCODE=11150";
-			String sql1 = "select SIGUNGUTEXT,SIGUNGUCODE from ADM_CODE where ADM_CD=?";
+			String sql1 = "";
+			if(classCd != null && classCd.equals("AAA")) {
+				sql1 = "select DISTINCT SIGUNGUTEXT,SIGUNGUCODE from ADM_CODE where USEYN=?";
+				param1 = "Y";
+			} else {
+		    	sql1 = "select SIGUNGUTEXT,SIGUNGUCODE from ADM_CODE where ADM_CD=?";
+			}
 			String sql2 = "select DISTINCT IFNULL(HAENGTEXT,'전체'),HAENGCODE from ADM_CODE where SIGUNGUCODE=? order by HAENGCODE";
 			String sql3 = "select DISTINCT IFNULL(ADM_TEXT,'전체'),ADM_CD from ADM_CODE where SIGUNGUCODE=? and HAENGCODE = ?";
 			pstmt = conn.prepareStatement(sql1);
-			pstmt.setString(1, adm_cd);
+			pstmt.setString(1, param1);
 			pstmt2 = conn.prepareStatement(sql2);
 			pstmt3 = conn.prepareStatement(sql3);
 			
@@ -441,63 +448,6 @@
 			obj_re.put("GEODATA",jArray);
 			obj_re.put("CENTER", center);
 			
-		}else if(sQuery.equals("SELECTITEMS2")){
-			DBBean dbbean = new DBBean();
-			conn = dbbean.getConnection();
-			conn.setAutoCommit(false);
-			pstmt = null;
-			rs = null;
-			JSONObject resData = new JSONObject();
-			JSONArray sigunguArray = new JSONArray();
-			JSONObject haengObj = new JSONObject();
-			JSONObject tupyoguObj = new JSONObject();
-			
-			PreparedStatement pstmt2,pstmt3 = null;
-			ResultSet rs2,rs3 = null;
-			
-			String sql1 = "select DISTINCT SIGUNGU from DATAADDRESS";
-			String sql2 = "select DISTINCT HAENGJOUNGDONG from DATAADDRESS where SIGUNGU = ?";
-			String sql3 = "select DISTINCT TUPYOGU from DATAADDRESS where SIGUNGU = ? and HAENGJOUNGDONG = ? order by tupyogu_num";
-			
-			pstmt = conn.prepareStatement(sql1);
-			pstmt2 = conn.prepareStatement(sql2);
-			pstmt3 = conn.prepareStatement(sql3);
-			
-			rs = pstmt.executeQuery();
-			while(rs.next()) {
-				String sigungu = rs.getString(1);
-				sigunguArray.add(sigungu);
-				
-				pstmt2.setString(1, sigungu);
-				rs2 = pstmt2.executeQuery();
-				pstmt2.clearParameters();
-				
-				JSONArray jArray = new JSONArray();
-				while(rs2.next()) {
-					String haengjoungdong = rs2.getString(1);
-					jArray.add(haengjoungdong);
-					
-					pstmt3.setString(1, sigungu);
-					pstmt3.setString(2, haengjoungdong);
-					rs3 = pstmt3.executeQuery();
-					pstmt3.clearParameters();
-					JSONArray jArray2 = new JSONArray();
-					while(rs3.next()) {
-						String tupyogu = rs3.getString(1);
-						jArray2.add(tupyogu);
-					}
-					tupyoguObj.put(haengjoungdong,jArray2);
-				}
-				haengObj.put(sigungu, jArray);
-			}
-			resData.put("SIGUNGU",sigunguArray);
-			resData.put("HAENGJOUNGDONG",haengObj);
-			resData.put("TUPYOGU",tupyoguObj);
-			
-			obj_re.put("RESULT","SUCCESS");
-			obj_re.put("SELECTITEMS2",resData);
-			
-			//System.out.println("resData = "+resData.toString());
 		}else if(sQuery.equals("SELECTORGAN1")){
 			
 			String adm_cd = (String) jre.get("ADM_CD");
@@ -744,7 +694,7 @@
 			obj_re.put("GEODATA",jArray);
 			obj_re.put("CENTER", center);
 			
-		}else if(sQuery.equals("TEST")){
+		}else if(sQuery.equals("AREA_SEARCH")){
 			DBBean dbbean = new DBBean();
 			conn = dbbean.getConnection();
 			conn.setAutoCommit(false);
