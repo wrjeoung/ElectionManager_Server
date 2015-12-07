@@ -1605,7 +1605,7 @@
 			rs = null;
 			
 			String sql = "SELECT DISTINCT BKCODE,BKNAME FROM BUSINESS_KIND A, BUSINESS B" 
-					+" WHERE A.BKCODE = B.KIND";
+					+" WHERE A.BKCODE = B.KIND OR SUBSTRING(BKCODE,3,1) = '0'";
 			pstmt = conn.prepareStatement(sql);
 			
 			rs = pstmt.executeQuery();
