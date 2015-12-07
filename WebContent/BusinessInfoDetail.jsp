@@ -6,7 +6,13 @@
 <head>
 <title>사업 및 정책</title>
 <style type="text/css">
-.leftPadding {padding:0 0 0 20px;}
+.Padding {
+	padding:10px 0 10px 20px;
+}
+.Padding2 {
+	padding-top:10px; 
+	padding-bottom:10px;
+}
 </style>
 </head>
 <%
@@ -120,7 +126,7 @@
         <td width="131" height="30">
             <p align="center"><b>사업명</b></p>
         </td>
-        <td width="276" valign="middle" class="leftPadding">
+        <td width="276" valign="middle" class="Padding">
             <p><%=title%></p>
         </td>
     </tr>
@@ -128,7 +134,7 @@
         <td width="131" height="30" valign="middle">
             <p align="center"><b>사업종류</b></p>
         </td>
-        <td width="276" valign="middle" class="leftPadding">
+        <td width="276" valign="middle" class="Padding">
             <p><%=kind%></p>
         </td>
     </tr>
@@ -136,7 +142,7 @@
         <td width="131" height="30" valign="middle">
             <p align="center"><b>관할지역</b></p>
         </td>
-        <td width="276" valign="middle" class="leftPadding">
+        <td width="276" valign="middle" class="Padding">
             <p><%=ctArea %></p>
         </td>
     </tr>
@@ -144,9 +150,9 @@
         <td width="131" height="30" valign="middle">
             <p align="center"><b>주요내용</b></p>
         </td>
-        <td width="276" valign="middle" class="leftPadding">
+        <td width="276" valign="middle" class="Padding">
         	<% for(int i = 0; i<summarys.length; i++) { %>
-            	<p><%=summarys[i] %></p>
+            	<%=summarys[i] %><br/>
             <% } %>
         </td>
     </tr>
@@ -154,9 +160,9 @@
         <td width="131" height="30" valign="middle">
             <p align="center"><b>진행과정</b></p>
         </td>
-        <td width="276" valign="middle" class="leftPadding">
+        <td width="276" valign="middle" class="Padding">
         	<% for(int i = 0; i<progressProcesses.length; i++) { %>
-            	<p><%=progressProcesses[i] %></p>
+            	<%=progressProcesses[i] %><br/>
             <% } %>
         </td>
     </tr>
@@ -164,9 +170,9 @@
         <td width="131" height="30" valign="middle">
             <p align="center"><b>사업결과</b></p>
         </td>
-        <td width="276" valign="middle" class="leftPadding">
+        <td width="276" valign="middle" class="Padding">
         	<% for(int i = 0; i<results.length; i++) { %>
-            	<p><%=results[i] %></p>
+            	<%=results[i] %><br/>
             <% } %>
         </td>
     </tr>
@@ -174,19 +180,16 @@
         <td width="131" height="30" valign="middle">
             <p align="center"><b>기타</b></p>
         </td>
-        <td width="276" valign="middle" class="leftPadding">
+        <td width="276" valign="middle" class="Padding">
         	<% for(int i = 0; i<etcs.length; i++) { %>
-            	<p><%=etcs[i] %></p>
+            	<%=etcs[i] %><br/>
             <% } %>
         </td>
     </tr>
     <tr bgcolor="#f6f6f6">
-    	<td width="131" height="30" valign="middle">
-            <p align="center"><b>이미지</b></p>
-        </td>
-        <td width="413" height="236" valign="middle" class="leftPadding">
+        <td width="413" height="236" colspan="2 valign="middle" class="Padding2">
        	    <% for(int i = 0; i<imgList.size(); i++) { %>
-            	<p><img src="<%=imgList.get(i) %>" width="280" height="209" border="0"></p>
+            	<p align="center"><img src="<%=imgList.get(i) %>" width="280" height="209" border="0"></p>
             <% } %>
         </td>
     </tr>
