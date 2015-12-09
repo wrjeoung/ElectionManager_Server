@@ -68,6 +68,97 @@ public class DBProc {
 		return ud;
 	}
 	
+	public BusinessDTO businessList(BusinessDTO bds){
+		
+		int bn_seq = bds.getBn_seq();
+		System.out.println("bn_seq:"+bn_seq);
+		
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;;
+		Connection conn = null;
+		
+		BusinessDTO bd = null;
+		
+		String img_yn = "N";
+		String img_url = ""; 
+		
+		try{
+			
+			DBBean dbbean = new DBBean();
+			conn = dbbean.getConnection();
+			conn.setAutoCommit(false);
+			
+			String sql = " SELECT A.BN_SEQ, A.TITLE, A.KIND, A.CT_AREA, A.SUMMARY, A.CONTENT, A.PROGRESS_PROCESS, A.RESULT, A.ETC "
+					+ " ,A.IMG_YN, B.BKNAME, A.GROUPCD "
+					+ " FROM BUSINESS A INNER JOIN BUSINESS_KIND B " 
+					+ " ON(A.KIND = B.BKCODE) "
+					+ " WHERE A.BN_SEQ = ? ";
+			
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, bn_seq);
+			
+			rs = pstmt.executeQuery();
+			
+			while(rs.next()){
+				bd = new BusinessDTO();
+				bd.setBn_seq(rs.getInt("BN_SEQ"));
+				bd.setTitle(rs.getString("TITLE"));
+				bd.setKind(rs.getString("KIND"));
+				bd.setCt_area(rs.getString("CT_AREA"));
+				bd.setSummary(rs.getString("SUMMARY"));
+				bd.setContent(rs.getString("CONTENT"));
+				bd.setProgress_process(rs.getString("PROGRESS_PROCESS"));
+				bd.setResult(rs.getString("RESULT"));
+				bd.setEtc(rs.getString("ETC"));
+				bd.setImg_yn(rs.getString("IMG_YN"));
+				img_yn = rs.getString("IMG_YN");
+				bd.setBkname(rs.getString("BKNAME"));
+				bd.setGroupcd(rs.getString("GROUPCD"));
+			}	
+			
+			if(img_yn.equals("Y")){
+				
+				sql = " SELECT IMG_URL FROM BUSINESS_IMG "
+					+ " WHERE BN_SEQ = ?";
+				
+				pstmt = conn.prepareStatement(sql);
+				pstmt.setInt(1, bn_seq);
+				
+				rs = pstmt.executeQuery();
+				int ii = 0;
+				while(rs.next()){
+					
+					if(ii==0){
+						img_url = rs.getString("IMG_URL");
+					}else{
+						img_url = img_url + ";" + rs.getString("IMG_URL");
+					}
+					ii++;
+				}
+				System.out.println("img_url:"+img_url);
+				bd.setImg_url(img_url);
+			}
+		
+		}catch(Exception e){
+			
+			e.printStackTrace();
+			
+		}finally{
+			
+			try {
+				if(rs!=null) rs.close();
+				if(pstmt!=null) pstmt.close();
+				if(conn!=null) conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			
+		}
+		
+		
+		return bd;
+	}
+	
 	public GroupDAO groupList(GroupDAO gdo){
 		
 		String groupcd = gdo.getGroupcd();
@@ -78,7 +169,7 @@ public class DBProc {
 		
 		GroupDAO gd = null;
 		
-try{
+		try{
 			
 			DBBean dbbean = new DBBean();
 			conn = dbbean.getConnection();
@@ -181,7 +272,7 @@ try{
 		int idata = odo.getOrgan_Seq();
 		
 		PreparedStatement pstmt = null;
-		ResultSet rs = null;;
+		ResultSet rs = null;
 		Connection conn = null;
 		
 		WOrganDAO od = new WOrganDAO();
@@ -496,6 +587,139 @@ try{
 			}
 		}
 			
+		return result;
+	}
+	
+	public String Inbusiness(BusinessDTO bd){
+		
+		System.out.println("Inbusiness");
+		int bn_seq = 0;
+		int bn_seq_before = 0;
+		int bn_seq_after = 0;
+		String title = bd.getTitle();
+		String kind = bd.getKind();
+		String groupcd = bd.getGroupcd();
+		String ct_area = bd.getCt_area();
+		String progress_process =  bd.getProgress_process();
+		String results = bd.getResult();
+		String etc  = bd.getEtc();
+		String img_yn =  bd.getImg_yn();
+		String content = bd.getContent();
+		int img_seq;
+		String img_url = bd.getImg_url();
+		String summary = bd.getSummary();
+		
+		summary = summary.replaceAll("\r\n", "<br>");
+		kind = kind.replaceAll("\r\n", "<br>");
+		content = content.replaceAll("\r\n", "<br>");
+		progress_process = progress_process.replaceAll("\r\n", "<br>");
+		etc = etc.replaceAll("\r\n", "<br>");
+		results = results.replaceAll("\r\n", "<br>");
+		
+		System.out.println("title:"+title);
+		System.out.println("kind:"+kind);
+		System.out.println("groupcd:"+groupcd);
+		System.out.println("ct_area:"+ct_area);
+		System.out.println("progress_process:"+progress_process);
+		System.out.println("results:"+results);
+		System.out.println("etc:"+etc);
+		System.out.println("img_yn:"+img_yn);
+		System.out.println("content:"+content);
+		System.out.println("img_url:"+img_url);
+		System.out.println("summary:"+summary);
+		
+		String sql1 = " SELECT MAX(BN_SEQ) AS BN_SEQ_CNT_BEFORE FROM BUSINESS ";
+		String sql2 = " INSERT INTO BUSINESS (TITLE,KIND,CT_AREA,SUMMARY,CONTENT,PROGRESS_PROCESS,RESULT,ETC,GROUPCD,IMG_YN) "
+					+ " VALUES(?,?,?,?,?,?,?,?,?,?) ";
+		String sql3 = " SELECT MAX(BN_SEQ) AS BN_SEQ_CNT_AFTER FROM BUSINESS ";
+		String sql4 = " INSERT INTO BUSINESS_IMG (BN_SEQ,IMG_URL) VALUES(?,?) ";
+		
+		PreparedStatement pstmt = null;
+		Connection conn = null;
+		ResultSet rs = null;
+		
+		try{
+			
+			DBBean dbbean = new DBBean();
+			conn = dbbean.getConnection();
+			conn.setAutoCommit(false);
+			
+			pstmt = conn.prepareStatement(sql1);
+			rs = pstmt.executeQuery();
+			
+			while(rs.next()){
+				bn_seq_before = rs.getInt("BN_SEQ_CNT_BEFORE");
+				System.out.println("BN_SEQ_CNT_BEFORE:"+bn_seq_before);
+			}
+			
+			pstmt = conn.prepareStatement(sql2);
+			
+			pstmt.setString(1, title);
+			pstmt.setString(2, kind);
+			pstmt.setString(3, ct_area);
+			pstmt.setString(4, summary);
+			pstmt.setString(5, content);
+			pstmt.setString(6, progress_process);
+			pstmt.setString(7, results);
+			pstmt.setString(8, etc);
+			pstmt.setString(9, groupcd);
+			pstmt.setString(10, img_yn);
+			
+			int re = pstmt.executeUpdate();
+
+			if(re>0){
+				result = "SUCCESS";
+			}else{
+				result = "FAIL";
+			}
+			
+			System.out.println("Insert result:"+result);
+			
+			pstmt = conn.prepareStatement(sql3);
+			rs = pstmt.executeQuery();
+			
+			while(rs.next()){
+				bn_seq_after = rs.getInt("BN_SEQ_CNT_AFTER");
+				System.out.println("BN_SEQ_CNT_AFTER:"+bn_seq_after);
+			}
+
+			//String img = "AAAAA;BBBBB;DDDDD";
+			String sData[] = img_url.split(";"); 
+				
+			int re2 = 0;
+			int rCnt = 0;
+				
+			for(int i=0; i<sData.length; i++){
+				System.out.println("img_url["+i+"]="+ sData[i]);
+				pstmt = conn.prepareStatement(sql4);
+				pstmt.setInt(1, bn_seq_after);
+				pstmt.setString(2, sData[i]);
+				re2 = pstmt.executeUpdate();
+				rCnt = rCnt+re2;
+			}
+				
+			conn.commit();
+			System.out.println("rCnt:"+rCnt+",sData.length:"+sData.length);
+			if(rCnt==sData.length){
+				result = "SUCCESS";
+			}else{
+				result = "FAIL";
+			}
+		
+		}catch(Exception e){
+			e.printStackTrace();
+			
+		}finally{
+			try {
+				if(pstmt!=null) pstmt.close();
+				if(conn!=null) conn.close();
+				
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			
+		}
+ 
 		return result;
 	}
 	

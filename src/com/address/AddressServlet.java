@@ -193,12 +193,333 @@ public class AddressServlet extends HttpServlet {
 	        	session.setAttribute("result", re_udo.getResult());
 	        	
 	        	response.sendRedirect("/ElectionManager_server/OrganList.jsp");
+	        	//response.sendRedirect("/Woori/OrganList.jsp");
 	        	
 
 	        }else{
 		        response.sendRedirect("/ElectionManager_server/Login.jsp");
-		        
+		        //response.sendRedirect("/Woori/Login.jsp");
 	        }
+		}
+		else if(mode.equals("business_reg")){
+			System.out.println("business_reg....");
+			
+			request.setCharacterEncoding("UTF-8");
+			 
+		    // 10Mbyte 제한
+		    int maxSize  = 1024*1024*50;        
+		 
+		    // 웹서버 컨테이너 경로
+		    String root = request.getSession().getServletContext().getRealPath("/");
+		 
+		    // 파일 저장 경로(ex : /home/tour/web/ROOT/upload)
+		    //String savePath = root + "upload";
+		    //String savePath = "D:\\Upload\\";
+		    String savePath = "/usr/local/server/tomcat/webapps/ElectionManager_server/business_upload/";
+		    int arrSize = 3;
+		    // 업로드 파일명
+		    String uploadFile[] = new String[arrSize];
+		 
+		    // 실제 저장할 파일명
+		    String newFileName[] = new String[arrSize];
+		    
+		    String result = "FAIL";
+
+		    int read = 0;
+		    byte[] buf = new byte[1024];
+		    FileInputStream fin = null;
+		    FileOutputStream fout = null;
+		    long currentTime = System.currentTimeMillis();  
+		    SimpleDateFormat simDf = new SimpleDateFormat("yyyyMMddHHmmss"); 
+		    
+		    try{
+		    	
+		    	//business_reg	title	kind	ct_area_in	summary	content	progress_process	result	regGb	uploadFile1	uploadFile2	uploadFile3
+		    	MultipartRequest multi = new MultipartRequest(request, savePath, maxSize, "UTF-8", new DefaultFileRenamePolicy());
+
+		    	String regGb = multi.getParameter("regGb");
+		    	String title = multi.getParameter("title");
+		    	String kind = multi.getParameter("kind");
+		    	String ct_area_in = multi.getParameter("ct_area_in");
+		    	String summary = multi.getParameter("summary");
+		    	String content = multi.getParameter("content");
+		    	String progress_process = multi.getParameter("progress_process");
+		    	String results = multi.getParameter("result");
+		    	String groupcd = multi.getParameter("groupcd");
+		    	String etc = multi.getParameter("etc");
+		    	String img_url = "";
+		    	
+		        //전송받은 parameter의 한글깨짐 방지
+		        //String title = multi.getParameter("title");
+		        //title = new String(title.getBytes("8859_1"), "UTF-8");
+				
+		        System.out.println("regGb:" + regGb);
+		        System.out.println("title:" + title);
+		        System.out.println("kind:" + kind);
+		        System.out.println("ct_area_in:" + ct_area_in);
+		        System.out.println("summary:" + summary);
+		        System.out.println("content:" + content);
+		        System.out.println("progress_process:" + progress_process);
+		        System.out.println("results:" + results);
+		        System.out.println("groupcd:" + groupcd);
+		        System.out.println("etc:" + etc);
+		        
+		        // 파일업로드
+		    	for(int i = 0; i < uploadFile.length; i++){
+		    		uploadFile[i] = multi.getFilesystemName("uploadFile"+i+"");
+		    		System.out.println("uploadFile["+i+"]:"+uploadFile[i]);
+		    		if(uploadFile[i]!=null){
+		    			
+		    			if(i==0){
+		    				img_url = img_url + uploadFile[i];
+		    			}else{
+		    				img_url = img_url + ";" +uploadFile[i];
+		    			}
+		    		}
+		    	}
+		    	
+		    	System.out.println("img_url:" + img_url);
+		    			        
+		        
+		        if(regGb.equals("N")){
+		        	
+		        	System.out.println("주요사업 신규등록");
+					
+					// 실제 저장할 파일명(ex : 20140819151221.zip)
+		        	for(int i=0; i < newFileName.length; i++){
+		        		if(uploadFile[i]!=null){
+		        			newFileName[i] = simDf.format(new Date(currentTime)) +"."+ uploadFile[i].substring(uploadFile[i].lastIndexOf(".")+1);
+		        		}
+		        	}
+		        	
+		        	File oldFile[] = new File[arrSize];
+		        	File newFile[] = new File[arrSize];
+		        	
+		        	for(int i=0; i < oldFile.length; i++){
+		        		oldFile[i] = new File(savePath + uploadFile[i]);
+		        		newFile[i] = new File(savePath + newFileName[i]);
+		        	}
+		        	
+		        	for(int i =0; i < oldFile.length; i++ ){
+		        		
+		        		if(!oldFile[i].renameTo(newFile[i])){
+		        			buf = new byte[1024];
+				            fin = new FileInputStream(oldFile[i]);
+				            fout = new FileOutputStream(newFile[i]);
+				            read = 0;
+				            while((read=fin.read(buf,0,buf.length))!=-1){
+				                fout.write(buf, 0, read);
+				            }
+				            fin.close();
+				            fout.close();
+				            oldFile[i].delete();
+		        		}		
+		        	}
+		        	
+		        	BusinessDTO bd = new BusinessDTO();
+		        	
+		    		bd.setTitle(title);
+		    		bd.setKind(kind);
+		    		bd.setGroupcd(groupcd);
+		    		bd.setCt_area(ct_area_in);
+		    		bd.setProgress_process(progress_process);
+		    		bd.setResult(results);
+		    		bd.setEtc(etc);
+		    		bd.setImg_yn("Y");
+		    		bd.setContent(content);
+		    		bd.setImg_url(img_url);
+		    		bd.setSummary(summary);
+		        	
+		        	DBProc db = new DBProc();
+		    
+		        	result = db.Inbusiness(bd);
+		        	System.out.println("result:"+result);
+			        System.out.println("-----");
+			        
+		        }else{
+		        	System.out.println("주요사업 정보 수정");
+		        	
+		            String uploadFile_Mf[] = new String[arrSize];
+		            
+		            for(int i=0; i < arrSize; i++){
+		            	
+		            	
+		            }
+		        			
+		        	// 실제 저장할 파일명(ex : 20140819151221.zip)
+		        	for(int i=0; i < newFileName.length; i++){
+		        		if(uploadFile[i]!=null){
+		        			newFileName[i] = simDf.format(new Date(currentTime)) +"."+ uploadFile[i].substring(uploadFile[i].lastIndexOf(".")+1);
+		        		}
+		        	}
+		        	
+		        	File oldFile[] = new File[arrSize];
+		        	File newFile[] = new File[arrSize];
+		        	
+		        	for(int i=0; i < oldFile.length; i++){
+		        		oldFile[i] = new File(savePath + uploadFile[i]);
+		        		newFile[i] = new File(savePath + newFileName[i]);
+		        	}
+		        	
+		        	for(int i =0; i < oldFile.length; i++ ){
+		        		
+		        		if(!oldFile[i].renameTo(newFile[i])){
+		        			buf = new byte[1024];
+				            fin = new FileInputStream(oldFile[i]);
+				            fout = new FileOutputStream(newFile[i]);
+				            read = 0;
+				            while((read=fin.read(buf,0,buf.length))!=-1){
+				                fout.write(buf, 0, read);
+				            }
+				            fin.close();
+				            fout.close();
+				            oldFile[i].delete();
+		        		}		
+		        	}
+		        	
+		        	BusinessDTO bd = new BusinessDTO();
+		        	
+		    		bd.setTitle(title);
+		    		bd.setKind(kind);
+		    		bd.setGroupcd(groupcd);
+		    		bd.setCt_area(ct_area_in);
+		    		bd.setProgress_process(progress_process);
+		    		bd.setResult(results);
+		    		bd.setEtc(etc);
+		    		bd.setImg_yn("Y");
+		    		bd.setContent(content);
+		    		bd.setImg_url(img_url);
+		    		bd.setSummary(summary);
+		        	
+		        	DBProc db = new DBProc();
+		    
+		        	result = db.Inbusiness(bd);
+		        	System.out.println("result:"+result);
+			        System.out.println("-----");
+		        	
+		        }
+		        
+		        /**
+		        System.out.println("uploadFile_Mf:" + uploadFile_Mf);
+		        
+				if((uploadFile1!=null || uploadFile2!=null || uploadFile3!=null )&& business_img1.equals("")){
+					System.out.println("신규등록");
+					
+					 // 실제 저장할 파일명(ex : 20140819151221.zip)
+			        newFileName = simDf.format(new Date(currentTime)) +"."+ uploadFile.substring(uploadFile.lastIndexOf(".")+1);
+			         
+			        // 업로드된 파일 객체 생성
+			        File oldFile = new File(savePath + uploadFile);
+			 
+			         
+			        // 실제 저장될 파일 객체 생성
+			        File newFile = new File(savePath + newFileName);
+			        
+			        // 파일명 rename
+			        if(!oldFile.renameTo(newFile)){
+			 
+			            // rename이 되지 않을경우 강제로 파일을 복사하고 기존파일은 삭제
+			 
+			            buf = new byte[1024];
+			            fin = new FileInputStream(oldFile);
+			            fout = new FileOutputStream(newFile);
+			            read = 0;
+			            while((read=fin.read(buf,0,buf.length))!=-1){
+			                fout.write(buf, 0, read);
+			            }
+			             
+			            fin.close();
+			            fout.close();
+			            oldFile.delete();
+			        }
+			        
+			        Organ_Img = "D:\\upload\\"+newFileName;
+			        //Organ_Img = "/usr/local/server/tomcat/webapps/ElectionManager_server/organ_upload/"+newFileName;
+					
+				}else if(uploadFile==null && Organ_Img != null ){
+					System.out.println("기존");
+					
+				}else if(uploadFile!=null && Organ_Img != null){
+					System.out.println("변경");
+					 // 실제 저장할 파일명(ex : 20140819151221.zip)
+			        newFileName = simDf.format(new Date(currentTime)) +"."+ uploadFile.substring(uploadFile.lastIndexOf(".")+1);
+			         
+			        // 업로드된 파일 객체 생성
+			        File oldFile = new File(savePath + uploadFile);
+			 
+			         
+			        // 실제 저장될 파일 객체 생성
+			        File newFile = new File(savePath + newFileName);
+			        
+			        // 파일명 rename
+			        if(!oldFile.renameTo(newFile)){
+			 
+			            // rename이 되지 않을경우 강제로 파일을 복사하고 기존파일은 삭제
+			 
+			            buf = new byte[1024];
+			            fin = new FileInputStream(oldFile);
+			            fout = new FileOutputStream(newFile);
+			            read = 0;
+			            while((read=fin.read(buf,0,buf.length))!=-1){
+			                fout.write(buf, 0, read);
+			            }
+			             
+			            fin.close();
+			            fout.close();
+			            oldFile.delete();
+			        }
+			        
+			        //Organ_Img = "/usr/local/server/tomcat/webapps/ElectionManager_server/organ_upload/"+newFileName;
+			        Organ_Img = "D:\\upload\\"+newFileName;
+				}
+		 
+		        WOrganDAO od = new WOrganDAO();
+				od.setOrgan_Gb(Organ_Gb);
+				od.setGroup_Cd(Group_Cd);
+				od.setGroup_Name(Group_Name);
+				od.setOrgan_Name(Organ_Name);
+				od.setOrgan_Add(Organ_Add);
+				od.setOrgan_Img(Organ_Img);
+				od.setOrgan_Date(Organ_Date);
+				od.setOrgan_Mem_Cman(Organ_Mem_Cman);
+				od.setOrgan_Mem_Board(iOrgan_Mem_Board);
+				od.setOrgan_Mem_Cnt(iOrgan_Mem_Cnt);
+				od.setOrgan_Con_Num(Organ_Con_Num);
+				od.setAddr_cox(addr_cox);
+				od.setAddr_coy(addr_coy);
+				od.setSidocode(sidocode);
+				od.setSigungucode(sigungucode);
+				od.setHaengcode(haengcode);
+				od.setAddr_auth(addr_auth);
+		        od.setOrgan_Seq(iOrgan_Seq);
+				
+				DBProc dp = new DBProc();
+				
+				String result = "FAIL";
+				
+				if(regGb.equals("N")){
+					result = dp.InOrgan(od);
+				}else{
+					result = dp.UpOrgan(od);
+				}
+				System.out.println("result:"+result);
+		        
+				request.setAttribute("result", result);
+		        ServletContext sc = getServletContext();
+	        	RequestDispatcher rd = sc.getRequestDispatcher("/OrganList.jsp");
+		        rd.forward(request, response);
+		        
+		 	**/
+		        
+				request.setAttribute("result", result);
+		        ServletContext sc = getServletContext();
+	        	RequestDispatcher rd = sc.getRequestDispatcher("/BusinessList.jsp");
+		        rd.forward(request, response);
+		        
+		    }catch(Exception e){
+		        e.printStackTrace();
+		    }
+			
 		}
 		
 		else if(mode.equals("organ_reg")){
@@ -345,7 +666,7 @@ public class AddressServlet extends HttpServlet {
 			        
 			        //Organ_Img = "D:\\upload\\"+newFileName;
 			        Organ_Img = "/usr/local/server/tomcat/webapps/ElectionManager_server/organ_upload/"+newFileName;
-				
+					
 				}else if(uploadFile==null && Organ_Img != null ){
 					System.out.println("기존");
 					
@@ -379,7 +700,8 @@ public class AddressServlet extends HttpServlet {
 			            oldFile.delete();
 			        }
 			        
-			        Organ_Img = "D:\\upload\\"+newFileName;
+			        Organ_Img = "/usr/local/server/tomcat/webapps/ElectionManager_server/organ_upload/"+newFileName;
+			        //Organ_Img = "D:\\upload\\"+newFileName;
 				}
 		 
 		        WOrganDAO od = new WOrganDAO();
@@ -623,7 +945,39 @@ public class AddressServlet extends HttpServlet {
 				
 			}
 	
-		}else if(mode.equals("groupList")){
+		}
+		else if(mode.equals("businessList")){
+			System.out.println("businessList");
+			String data = request.getParameter("data");
+			System.out.println("data:"+data);
+			
+			PrintWriter writer = response.getWriter();
+			
+			if(data.equals(null)||data.equals("")){
+				
+			}else{
+				
+				int idata = Integer.parseInt(data);
+				
+				BusinessDTO bd = new BusinessDTO();
+				bd.setBn_seq(idata);
+				
+				DBProc dp = new DBProc();
+				bd = dp.businessList(bd);
+				
+				GsonBuilder builder = new GsonBuilder();
+		    	Gson gson = builder.create();
+				
+				JSONObject jo = new JSONObject();
+				//jo.put("RESULT", "SUCCESS");
+				jo.put("businessDetail", gson.toJson(bd));
+				writer.println(jo);
+				writer.flush();
+				
+			}
+			
+		}
+		else if(mode.equals("groupList")){
 			
 			
 			System.out.println("groupList");

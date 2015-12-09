@@ -1,12 +1,11 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="com.address.UserDAO" %>
+<%@ page import="com.address.BusinessDTO"%>
 <%@ page import="com.address.DBBean" %>
-<%@ page import="com.address.ComboDAO" %>
 <%@ page import="com.google.gson.Gson" %>
 <%@ page import="com.google.gson.GsonBuilder"%>
-<%@page import="org.json.simple.JSONObject"%>
-<%@page import="java.sql.*" %>
-<%@page import="java.util.ArrayList"%>
+<%@ page import="org.json.simple.JSONObject"%>
+<%@ page import="java.sql.*" %>
+<%@ page import="java.util.ArrayList"%>
 <html>
 <head>
 
@@ -44,157 +43,171 @@
     <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
 	-->
 </head>
-<% 		
-	System.out.println("UserInfo.jsp"); 
+<% 
+	System.out.println("BusinessInfo.jsp"); 
 
 	String userid = "";
-	String s_classcd = "";	
-		
+	String classcd = "";
+	String regGb = "N";
+	String groupcd = "";
+
 	userid = (String) session.getAttribute("userid");
-	s_classcd = (String) session.getAttribute("classcd");
+	classcd = (String) session.getAttribute("classcd");
+	groupcd = (String) session.getAttribute("groupcd");	
 	
 	System.out.println("userid:"+userid);
-	System.out.println("classcd:"+s_classcd);
-		
-	Gson gs = new Gson();
-		
-	JSONObject jo = new JSONObject();
-		
+	System.out.println("classcd:"+classcd);
+	
+    Gson gs = new Gson();
+    
+    JSONObject jo = new JSONObject();
+ 
 	if(userid==null || userid.equals(null)){
 		response.sendRedirect("Login.jsp");
 	}
 	
-	//-----------------------------//
+	BusinessDTO bd = null;
+	request.setCharacterEncoding("UTF-8");
+	System.out.println("data:"+request.getParameter("data"));
+
+	bd = gs.fromJson((String)request.getParameter("data"), BusinessDTO.class);
+	
+	System.out.println("bd:"+bd);
+	
+	String title = "";
+	String kind = "";
+	String ct_area_in = "";
+	String summary = "";
+	String content ="";
+	String progress_process = "";
+	String results = "";
+	String groupcds = "";
+	String etc = "";
+	String img_url ="";
+	String img_yn = "";
+	
+	if(bd == null){
+		regGb = "N";
+
+	}else{
+		regGb = "Y";
+		
+    	title = bd.getTitle();
+    	kind = bd.getKind();
+    	ct_area_in =bd.getCt_area();
+    	summary = bd.getSummary();
+    	//summary = summary.replaceAll("<br>", "\r\n");
+    	content = bd.getContent();
+    	progress_process = bd.getProgress_process();
+    	results = bd.getResult();
+    	groupcds = bd.getGroupcd();
+    	etc = bd.getEtc();
+    	img_url =bd.getImg_url();
+    	img_yn = bd.getImg_yn();
+    	
+    	System.out.println("title:"+title);
+    	System.out.println("kind:"+kind);
+    	System.out.println("ct_area_in:"+ct_area_in);
+    	System.out.println("summary:"+summary);
+    	System.out.println("content:"+content);
+    	System.out.println("progress_process:"+progress_process);
+    	System.out.println("results:"+results);
+    	System.out.println("groupcds:"+groupcds);
+    	System.out.println("etc:"+etc);
+    	System.out.println("img_url:"+img_url);
+    	System.out.println("img_yn:"+img_yn);
+		
+	}
 	
 	Connection conn = null;
 	PreparedStatement pstmt = null;
-	ResultSet rs = null;
+	ResultSet rs1 = null;
+	ResultSet rs2 = null;
+	ResultSet rs3 = null;
 	
 	DBBean dbbean = new DBBean();
 	conn = dbbean.getConnection();
 	conn.setAutoCommit(false);
 	pstmt = null;
-	rs = null;
+	rs1 = null;
+	rs2 =  null;
+	rs3 =  null;
 	
-	String sql = " SELECT CLASSCD, CLASSNM FROM CLASSINFO ";
+	String sql = "";
+	String sql2 = ""; 
+	String sql3 = "";
+	
+	sql3 = " SELECT GROUPCD,GROUPNAME FROM GROUPINFO "; 
+	
+	//사업종류 콤보박스 사용
+	if(classcd.equals("AAA")){
+		sql = " SELECT BKCODE,BKNAME FROM BUSINESS_KIND ";
+		pstmt = conn.prepareStatement(sql);	
+		rs1 = pstmt.executeQuery();
 		
-	pstmt = conn.prepareStatement(sql);
-	//pstmt.setString(1,"1");	
-	rs = pstmt.executeQuery();
-	
-	//ComboDAO cd = null;
-	ArrayList al = new ArrayList();	
-
-	while(rs.next()){
-		//cd = new  ComboDAO();
-		//cd.setClasscd(rs.getString("CLASSCD"));
-		//cd.setClassnm(rs.getString("CLASSNM"));
-		al.add(rs.getString("CLASSCD")  + ";" +rs.getString("CLASSNM"));
+		sql2 = "SELECT DISTINCT HAENGCODE, HAENGTEXT FROM ADM_CODE "
+			+ "	WHERE USEYN = 'Y' "
+			+ "	AND SUBSTRING(HAENGCODE, 6, 2)  <> '00' "; 
+		pstmt = conn.prepareStatement(sql2);	
+		rs2 = pstmt.executeQuery();
+		
+		sql3 = " SELECT GROUPCD,GROUPNAME FROM GROUPINFO WHERE GROUPCD <> '99999' ";
+		pstmt = conn.prepareStatement(sql3);	
+		rs3 = pstmt.executeQuery();
+				
+	}else{
+		sql = " SELECT BKCODE,BKNAME FROM BUSINESS_KIND WHERE GROUPCD=?";
+		pstmt = conn.prepareStatement(sql);
+		pstmt.setString(1,groupcd);	
+		rs1 = pstmt.executeQuery();
+		
+		sql2 = " SELECT DISTINCT HAENGCODE, HAENGTEXT FROM ADM_CODE "
+			+ "	WHERE USEYN = 'Y' " 
+			+ "	AND SUBSTRING(HAENGCODE, 6, 2)  <> '00' " 
+			+ "	AND SIGUNGUCODE = (SELECT DISTINCT SUBSTRING(ADM_CD, 1, 5) FROM GROUPINFO WHERE GROUPCD = ?) ";
+		pstmt = conn.prepareStatement(sql2);	
+		pstmt.setString(1,groupcd);
+		rs2 = pstmt.executeQuery();
+		
+		sql3 = " SELECT GROUPCD,GROUPNAME FROM GROUPINFO "
+			+ " WHERE GROUPCD = ? AND GROUPCD <> '99999' ";
+		pstmt.setString(1,groupcd);
+		pstmt = conn.prepareStatement(sql3);	
+		rs3 = pstmt.executeQuery();
 	}
-		
-	System.out.println("class al:"+al);
-	
-	sql = " SELECT GROUPCD,GROUPNAME FROM GROUPINFO "; 
-	
-	pstmt = conn.prepareStatement(sql);
-	//pstmt.setString(1,"1");	
-	rs = pstmt.executeQuery();
 	
 	//ComboDAO cd2 = null;
+	ArrayList al = new ArrayList();	
 	ArrayList al2 = new ArrayList();	
+	ArrayList al3 = new ArrayList();	
 
-	while(rs.next()){
-		al2.add(rs.getString("GROUPCD")  + ";" +rs.getString("GROUPNAME"));
+	while(rs1.next()){
+		al.add(rs1.getString("BKCODE")  + ";" +rs1.getString("BKNAME"));
 	}
-		
-	UserDAO ud = null;
-	request.setCharacterEncoding("UTF-8");
-	System.out.println("data:"+request.getParameter("data"));
 	
-	//od = (OrganDAO) request.getAttribute("OrganDetail");
-	ud = gs.fromJson((String)request.getParameter("data"), UserDAO.class);
-		
-	System.out.println("ud:"+ud);
-	
-	String userid_2 = "";
-	String usernm = "";
-	String pwd = "";
-	String groupcd = "";
-	String groupname = "";
-    String classcd = "";
-	String imei = "";
-	String macaddress = "";
-
-	if(ud == null){
-		
-	}else{
-	
-		userid_2 = ud.getUserid();
-		usernm = ud.getUsernm();
-		pwd = ud.getPwd();
-		groupcd = ud.getGroupcd();
-		groupname = ud.getGroupname();
-		classcd = ud.getClasscd();
-		macaddress = ud.getMacaddress();
-		
-		System.out.println("userid_2:"+userid_2);
-		System.out.println("usernm:"+usernm);
-		System.out.println("pwd:"+pwd);
-		System.out.println("groupcd:"+groupcd);
-		System.out.println("groupname:"+groupname);
-		System.out.println("classcd:"+classcd);
-		System.out.println("maccaddress:"+macaddress);
+	while(rs2.next()){
+		al2.add(rs2.getString("HAENGCODE")  + ";" +rs2.getString("HAENGTEXT"));
 	}
+	
+	while(rs3.next()){
+		al3.add(rs3.getString("GROUPCD")  + ";" +rs3.getString("GROUPNAME"));
+	}
+	
 %>
-<body onload=init();>
-<script src="js/jquery-1.10.2.min.js"></script>
-<!--  <script src="bootstrap/js/bootstrap.min.js"></script>-->
 <script type="text/javascript">
-function selectedOption(id, value, type) {
-    var obj = document.getElementById(id);
-    
-    for(i=0; i<obj.length; i++) {
-        switch(type) {
-            case 'value' :
-                if(obj[i].value == value) {
-                    obj[i].selected = true;
-                }
-                break;
-            
-            case 'text' :
-                if(obj[i].text == value) {
-                    obj[i].selected = true;
-                }
-                break;
-            default :
-                break;
-        }
-    }    
-}
 
 function init(){
 	
-	var combo_class = "<%=al.toString()%>";
-	combo_class = combo_class.replace("[", "");
-	combo_class = combo_class.replace("]", "");
-	var sedr = combo_class.split(",");
-	var cnt = "<%=al.size()%>";
-	var ccd = new Array();
+	//alert("init");
 	
-	for(var i = 0; i < cnt; i++){
-		ccd[i] = document.createElement('option');
-		var temp_arr = new Array();
-		temp_arr = sedr[i].split(";");
-		ccd[i].value=temp_arr[0].replace(" ", "");  
-		ccd[i].text=temp_arr[1].replace(" ", "");
-		document.forms['f'].elements['classcd'].add(ccd[i]);	
-	}
+	var classcd = "<%=classcd %>";
+	var regGbs = "<%=regGb %>";
 	
-	var combo_group = "<%=al2.toString()%>";
+	var combo_group = "<%=al.toString()%>";
 	combo_group = combo_group.replace("[", "");
 	combo_group = combo_group.replace("]", "");
 	var sedr_gp = combo_group.split(",");
-	var group_cnt = "<%=al2.size()%>";
+	var group_cnt = "<%=al.size()%>";
 	var gp = new Array();
 	
 	for(var i = 0; i < group_cnt; i++){
@@ -203,62 +216,195 @@ function init(){
 		temp_arr = sedr_gp[i].split(";");
 		gp[i].value=temp_arr[0].replace(" ", "");  
 		gp[i].text=temp_arr[1].replace(" ", "");
-		document.forms['f'].elements['group_name'].add(gp[i]);	
+		document.forms['f'].elements['kind'].add(gp[i]);	
+	}
+	combo_group = "";
+	combo_group = "<%=al2.toString()%>";
+	combo_group = combo_group.replace("[", "");
+	combo_group = combo_group.replace("]", "");
+	sedr_gp = combo_group.split(",");
+	group_cnt = "<%=al2.size()%>";
+	gp = new Array();
+	
+	for(var i = 0; i < group_cnt; i++){
+		gp[i] = document.createElement('option');
+		var temp_arr = new Array();
+		temp_arr = sedr_gp[i].split(";");
+		gp[i].value=temp_arr[0].replace(" ", "");  
+		gp[i].text=temp_arr[1].replace(" ", "");
+		document.forms['f'].elements['ct_area'].add(gp[i]);	
 	}
 	
-	f.userid.value = "<%=userid_2%>";
-	f.hid_userid.value = "<%=userid_2%>";
-	f.pwd.value = "<%=pwd%>";
-	f.pwd_conf.value = "<%=pwd%>"; 
-	f.usernm.value = "<%=usernm %>";
-	f.macaddress.value = "<%=macaddress%>";
-	f.hid_macaddress.value = "<%=macaddress%>";
+	combo_group = "";
+	combo_group = "<%=al3.toString()%>";
+	combo_group = combo_group.replace("[", "");
+	combo_group = combo_group.replace("]", "");
+	sedr_gp = combo_group.split(",");
+	group_cnt = "<%=al3.size()%>";
+	gp = new Array();
 	
-	selectedOption('classcd', "<%=classcd%>", 'value');
-	selectedOption('group_name', "<%=groupcd%>", 'value');
-	
-	/**
-	var opt1 = document.createElement('option');
-	opt1.text = "<%=groupname%>";
-	opt1.value = "<%=groupcd%>";
-	document.forms['f'].elements['group_name'].add(opt1); //select 태그에 sption을 추가
-	**/
+	for(var i = 0; i < group_cnt; i++){
+		gp[i] = document.createElement('option');
+		var temp_arr = new Array();
+		temp_arr = sedr_gp[i].split(";");
+		gp[i].value=temp_arr[0].replace(" ", "");  
+		gp[i].text=temp_arr[1].replace(" ", "");
+		document.forms['f'].elements['groupcd'].add(gp[i]);	
+	}
 
+	//alert(f.regGb.value);
+	f.regGb.value = regGbs;
 	
-	/**
-	var opt2 = document.createElement('option');
-	opt2.text = "<%=classcd%>";
-	opt2.value = "<%=classcd%>";
-	document.forms['f'].elements['classcd'].add(opt2); //select 태그에 sption을 추가
-	**/
+	if(regGbs=="Y"){
+		alert("수정");
+		var titles ="<%=title %>";
+		var kinds = "<%=kind %>";
+		var ct_area_ins = "<%=ct_area_in %>";
+		
+		var summarys = "<%=summary %>";
+		summarys = summarys.replace("<br>", "\n");
+
+		var contents = "<%=content %>";
+		contents =  contents.replace("<br>", "\n");
+		
+		var progress_processs = "<%=progress_process %>";
+		progress_processs = progress_processs.replace("<br>", "\n");
+		
+		var resultss = "<%=results %>";
+		resultss = resultss.replace("<br>", "\n");
+		
+		var groupcdss = "<%=groupcds %>";
+		var etcs = "<%=etc %>";
+		etcs = etcs.replace("<br>","\n");
+		
+		var img_urls = "<%=img_url %>";
+		var img_yns = "<%=img_yn %>";
+		
+		f.title.value = titles;
+		f.kind.value = kinds;
+		f.ct_area_in.value = ct_area_ins;
+		f.summary.value = summarys;
+		f.content.value = contents;
+		f.progress_process.value = progress_processs;
+		f.result.value = resultss;
+		f.groupcd.value = groupcdss;
+		f.etc.value = etcs;
+		
+		//f.img_url.value = img_urls;
+		//f.img_yn.value = img_yns;
+		
+		var aa = img_urls.split(';');
+		alert(aa.length);
+		
+		var bb = new Array(aa.length);
+		
+		var str = "";
+		for(var i = 0; i < aa.length; + i++){
+			
+			if(i==0){
+				f.uploadFile_Mf0.value = aa[i];
+			}if(i==1){
+				f.uploadFile_Mf1.value = aa[i];
+			}if(i==2){
+				f.uploadFile_Mf2.value = aa[i];
+			}
+					
+		}
+		
+		alert(img_urls);
+		
+	}else{
+		
+		alert("등록");
+		
+	}
 } 
 
-function check()
-{
-	//alert(f.pwd.value + ":" + f.pwd_conf.value);
-	//return false;
-	
-	var pwd_len = f.pwd.value.length;
-	
-	if(f.usernm.value=="" || f.usernm.value == null){
-		alert("이름을 입력해주세요.");
-		return false;
-	}else if(pwd_len!=4){
-		alert("비밀번호는 4자리로 입력해주세요.");
-		return false;
-	}else if(f.pwd.value=="" || f.pwd.value==null){
-		alert("비밀번호를 입력해주세요.");
-		return false;
-	}else if(f.pwd_conf.value=="" || f.pwd_conf.value==null){
-		alert("비밀번호 확인을 입력해주세요.");
-		return false;
-	}else if(f.pwd.value != f.pwd_conf.value){
-		alert("비밀번호가 일치하지 않습니다.");
-		return false;
+function handleEnter (field, event, num) {
+// 눌려진 키 코드를 가져온다.
+var keyCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode;   
+	// Enter 키가 눌린 경우
+	if (keyCode == 13) {
+		event.keyCode = null;
+		if(num == 1){
+			// alert(f.content.value);			
+			// 엔터키가 눌렸을 때 처리할 코드
+			
+		}
 	}
 }
 
+function AddrArea(){
+	
+	if(f.ct_area_in.value==""){
+		f.ct_area_in.value=f.ct_area_in.value+f.ct_area.value+"-00";
+	}else{
+		f.ct_area_in.value= f.ct_area_in.value+"/"+f.ct_area.value+"-00";
+	}
+}
+
+function check()
+{
+	
+	var message = "주요사업정보 상세보기에 보여지는 정보입니다.\n해당 내용으로 정말 등록 하시겠습니까?";
+	
+	if(confirm(message) == false){
+		return false;
+	}
+	
+}
+
+function file_upload(){
+	//alert("file_upload");
+	var servletUrl = "AddressServlet";
+	var param = "";
+	
+	$.ajax({
+	     type : "POST",
+	     url : servletUrl,
+	     data : "mode=upload",     
+	     success : function(data){
+			
+	     },    
+	     error : function(){
+	      
+	     },
+	     ajaxError : function(){
+	      
+		 }    
+	 });
+}
+
+function isValidMonth(mm) {
+    var m = parseInt(mm,10);
+    return (m >= 1 && m <= 12);
+}
+
+function isValidDay(yyyy, mm, dd) {
+    var m = parseInt(mm,10) - 1;
+    var d = parseInt(dd,10);
+    var end = new Array(31,28,31,30,31,30,31,31,30,31,30,31);
+    if ((yyyy % 4 == 0 && yyyy % 100 != 0) || yyyy % 400 == 0) {
+        end[1] = 29;
+    }
+    return (d >= 1 && d <= end[m]);
+}
+ 
+function isValidTime(time) {
+    var year  = time.substring(0,4);
+    var month = time.substring(4,6);
+    var day   = time.substring(6,8);
+    if (parseInt(year,10) >= 1900  && isValidMonth(month) &&
+        isValidDay(year,month,day) ) {
+        return true;
+    }
+    return false;
+}
+
 </script>
+<body onload=init();>
+<script src="js/jquery-1.10.2.min.js"></script>
+<!--  <script src="bootstrap/js/bootstrap.min.js"></script>-->
 <script>
 		
 			$(function(){
@@ -541,7 +687,7 @@ function check()
 			});
 			
 		</script>
-
+		
     <div id="wrapper">
     
         <!-- Navigation -->
@@ -620,14 +766,14 @@ function check()
                 <div class="row">
                     <div class="col-lg-12">
                         <h1 class="page-header">
-                            	사용자정보등록
+                            	주요사업등록
                         </h1>
                         <ol class="breadcrumb">
                             <li>
                                 <i class="fa fa-dashboard"></i>  <a>Dashboard</a>
                             </li>
                             <li class="active">
-                                <i class="fa fa-edit"></i>사용자정보등록
+                                <i class="fa fa-edit"></i>주요사업등록
                             </li>
                         </ol>
                     </div>
@@ -637,49 +783,82 @@ function check()
                 <div class="row">
                     <div class="col-lg-6">
 
-                        <form id = "f" name = "user_reg" method = "post" action = "AddressServlet?mode=user_reg"  onsubmit="return check();" >
+                        <form id = "f" name = "c" method = "post" action = "AddressServlet?mode=business_reg"  onsubmit="return check();" enctype="multipart/form-data" >
 
                             <div class="form-group">
-                                <label>아이디</label>
-                                <input id="userid" name = "userid" class="form-control" disabled>
+                                <label>사업명</label>
+ 								<input id="title" name = "title" class="form-control">
                             </div>
                             
                             <div class="form-group">
-                                <label>비밀번호</label>
-                                <input type = "password" id="pwd" name = pwd class="form-control onlyNumber" placeholder="Enter Password" maxlength=4>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>비밀번호확인</label>
-                                <input type = "password" id="pwd_conf" name = "pwd_conf" class="form-control onlyNumber" placeholder="Enter Password" maxlength=4>
-                            </div>
-
-                            <div class="form-group">
-                                <label>이름</label>
-                                <input id="usernm" name = "usernm" class="form-control" placeholder="Enter Name">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>업체명</label>
-                                <select id = "group_name" name = "group_name" class="form-control">
+                                <label>사업종류</label>
+                                <select id = "kind" name = "kind" class="form-control">
                                 </select>
                             </div>
                             
                             <div class="form-group">
-                                <label>사용자등급</label>
-                                <select id = "classcd" name = "classcd" class="form-control">
+                                <label>등록업체</label>
+                                <select id = "groupcd" name = "groupcd" class="form-control">
                                 </select>
+                            </div>
+         
+                            <div class="form-group">
+                                <label>관할지역</label>
+                                <table>
+                                <tr>
+                                	<td width="25%"><select id = "ct_area" name = "ct_area" class="form-control"></select></td>
+                                	<td width="2%">&nbsp;</td>
+                                	<td width="6%"><input type="button" value="추가" onClick="AddrArea()"></td>
+                                	<td width="2%">&nbsp;</td>
+                                	<td width="65%"><input id="ct_area_in" name = "ct_area_in" class="form-control"></td>
+                                </tr>
+                                </table>
                             </div>
                             
                             <div class="form-group">
-                                <label>디바이스ID</label> 
-                                <input id="macaddress" name = "macaddress" class="form-control" disabled>
+                                <label>사업개요</label>
+                                <textarea id="summary" name = "summary"  class="form-control" rows="4"  onkeypress="return handleEnter(this, event, 1)"></textarea>
                             </div>
                             
-							<button type="submit" class="btn btn-default">수정</button>
+                            <div class="form-group">
+                                <label>주요내용</label>
+                                <textarea id="content" name = "content" class="form-control" rows="4"  onkeypress="return handleEnter(this, event, 1)"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>진행과정</label>
+                                <textarea id="progress_process" name = "progress_process" class="form-control" rows="4"  onkeypress="return handleEnter(this, event, 1)"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>사업결과</label>
+                                <textarea id="result" name = "result" class="form-control" rows="4"  onkeypress="return handleEnter(this, event, 1)"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>기타</label>
+                                <textarea id="etc" name = "etc" class="form-control" rows="4"  onkeypress="return handleEnter(this, event, 1)"></textarea>
+                            </div>
+                         
+                            <div class="form-group">
+                                <label>이미지 업로드</label>
+		                         	<input id="business_img0" name = "uploadFile0" type="file">
+		                         	<input id="business_img1" name = "uploadFile1" type="file">
+		                         	<input id="business_img2" name = "uploadFile2" type="file">
+                            </div>
+                            
+							<% if(regGb.equals("Y")){ %>
+								<button type="submit" class="btn btn-default">수정</button>
+							<% }else{ %>
+								<button type="submit" class="btn btn-default">등록</button>
+							<% } %>
+							
                             <button type="reset" class="btn btn-default">취소</button>
-                            <input type = "hidden" id = "hid_macaddress" name = "hid_macaddress">
-							<input type = "hidden" id = "hid_userid" name = "hid_userid">
+							<input type = "hidden" id = "uploadFile_Mf0" name = "uploadFile_Mf0" />
+							<input type = "hidden" id = "uploadFile_Mf1" name = "uploadFile_Mf1" />
+							<input type = "hidden" id = "uploadFile_Mf2" name = "uploadFile_Mf2" />
+							<input type = "hidden" id = "regGb"	name = "regGb"	/>
+
 						</form>
                     </div>
                    

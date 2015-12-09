@@ -765,8 +765,13 @@ function isValidTime(time) {
                         <li>
                             <a href="UserList.jsp"><i class="fa fa-edit fa-fw"></i>사용자정보관리</a>
                             <a href="GroupList.jsp"><i class="fa fa-edit fa-fw"></i>그룹정보관리</a>
+                            <a href="BusinessList.jsp"><i class="fa fa-edit fa-fw"></i>주요사업관리</a>
                         </li>
-                        <%} else{}%>
+                        <% } else if(classcd.equals("BBB")){ %>
+                             <li>
+                             <a href="BusinessList.jsp"><i class="fa fa-edit fa-fw"></i>주요사업관리</a>             
+                             </li>      
+                        <% }else{}%>
                     </ul>
                 </div>
                 <!-- /.sidebar-collapse -->

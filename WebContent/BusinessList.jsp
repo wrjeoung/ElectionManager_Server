@@ -1,7 +1,8 @@
+<%@page import="com.address.BusinessDTO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.address.DBBean" %>
 <%@ page import="java.sql.*"%>
-<%@ page import="com.address.GroupDAO"%>
+<%@ page import="com.address.WOrganDAO"%>
 <%@ page import="java.util.ArrayList"%>
 <html>
 <head>
@@ -58,25 +59,25 @@ function clickTrEvent(trobj){
 	$.ajax({
 	     type : "POST",
 	     url : servletUrl,
-	     data : "mode=groupList&data="+data,     
+	     data : "mode=businessList&data="+data,     
 	     success : function(data){
 	     
 	     	//alert("data:"+data);
 	     	res = JSON.parse(data);
 	     	//alert("res:"+res);
-	     	obj = res.groupDetail;
+	     	obj = res.businessDetail;
 	     	//alert("obj1:"+obj);
 	     	
 	     	form = document.createElement("form");     
 			form.setAttribute("method","post");                    
-			form.setAttribute("action","/Woori/GroupInfo.jsp");  
-			//form.setAttribute("action","/ElectionManager_server/GroupInfo.jsp"); 
+			//form.setAttribute("action","/Woori/BusinessInfo.jsp");     
+			form.setAttribute("action","/ElectionManager_server/BusinessInfo.jsp");
 			document.body.appendChild(form);                        
 			//alert("obj2:"+obj);
 			input_id = document.createElement("input");  
 			input_id.setAttribute("type", "hidden");                 
 			input_id.setAttribute("name", "data");                        
-			input_id.setAttribute("value", obj);      
+			input_id.setAttribute("value", obj);                          
 			form.appendChild(input_id);
 		
 			//폼전송
@@ -105,14 +106,19 @@ function changeTrColor(trObj, oldColor, newColor){
 
 <%
 
+	System.out.println("OrganLsi.jsp");
+	
 	String userid = "";
 	String classcd = "";
-
+	String groupcd  = "";
+	
 	userid = (String) session.getAttribute("userid");
 	classcd = (String) session.getAttribute("classcd");
+	groupcd = (String) session.getAttribute("groupcd");
 	
 	System.out.println("userid:"+userid);
 	System.out.println("classcd:"+classcd);
+	System.out.println("groupcd:"+groupcd);
 	
 	if(userid==null || userid.equals(null)){
 		response.sendRedirect("Login.jsp");
@@ -128,22 +134,45 @@ function changeTrColor(trObj, oldColor, newColor){
 	pstmt = null;
 	rs = null;
 	
-	String sql = " SELECT GROUPCD, GROUPNAME, ADM_CD FROM GROUPINFO";
+	String sql = "";
+	if(classcd.equals("AAA")){
+		sql = " SELECT A.BN_SEQ, A.TITLE, C.BKNAME, B.GROUPNAME, B.GROUPCD "
+			+ " FROM BUSINESS A INNER JOIN GROUPINFO B "
+			+ " ON (A.GROUPCD=B.GROUPCD) "
+			+ " INNER JOIN BUSINESS_KIND C "
+			+ " ON (A.KIND = C.BKCODE) ";
+		pstmt = conn.prepareStatement(sql);
 		
-	pstmt = conn.prepareStatement(sql);
-	//pstmt.setString(1,"1");	
+	}else{
+		/**	
+		sql = " SELECT  A.ORGAN_SEQ, A.ORGAN_ADDR, A.ORGAN_NAME, A.ORGAN_GB, A.ORGAN_DATE, B.GROUPCD, B.GROUPNAME "
+			+ " FROM ORGANINFO A INNER JOIN GROUPINFO B "
+			+ " ON(A.GROUPCD=B.GROUPCD)"
+			+ " WHERE B.GROUPCD=? ";
+		pstmt = conn.prepareStatement(sql);
+		pstmt.setString(1,groupcd);
+		**/
+	}
+	//A.BN_SEQ, A.TITLE, A.BKNAME, B.GROUPNAME
 	rs = pstmt.executeQuery();
 	
-	GroupDAO gd = null;
+	BusinessDTO bd = null;
 	ArrayList al = new ArrayList();
 	
 	while(rs.next()){
-		gd = new GroupDAO();
-		gd.setGroupcd(rs.getString("GROUPCD"));
-		gd.setGroupname(rs.getString("GROUPNAME"));
-		gd.setAdm_cd(rs.getString("ADM_CD"));
-		al.add(gd);
+		bd = new BusinessDTO();
+		bd.setBn_seq(rs.getInt("bn_seq"));
+		bd.setBkname(rs.getString("bkname"));
+		bd.setTitle(rs.getString("title"));
+		bd.setGroupcd(rs.getString("groupcd"));
+		bd.setGroupname(rs.getString("groupname"));
+		al.add(bd);
 	}
+
+	//aa = name.substring(0, 4);
+	//bb = name.substring(4, 6);
+	//cc = name.substring(6, 8);
+	
 %>
 <body>
 
@@ -221,7 +250,7 @@ function changeTrColor(trObj, oldColor, newColor){
         <div id="page-wrapper">
             <div class="row">
                 <div class="col-lg-12">
-                    <h1 class="page-header">그룹정보관리</h1>
+                    <h1 class="page-header">주요사업관리</h1>
                 </div>
                 <!-- /.col-lg-12 -->
             </div>
@@ -239,31 +268,35 @@ function changeTrColor(trObj, oldColor, newColor){
                                     <thead>
                                         <tr>
                                         	<th align="center">순번</th>
-                                        	<th>그룹코드</th>
-                                            <th>그룹명</th>
-                                            <th>ADM_CODE</th>
+                                        	<th>주요사업코드</th>
+                                        	<th>사업명</th>
+                                        	<th>사업종류</th>
+                                            <th>등록그룹명</th>
                                         </tr>
                                     </thead>
-                                    <%
-    								for(int i = 0; i < al.size(); i++){
-    									gd = (GroupDAO) al.get(i);
-
+                                    <% for(int i=0; i<al.size(); i++){ 
+                                    	//A.BN_SEQ, A.TITLE, A.BKNAME, B.GROUPNAME
+                                    	bd = (BusinessDTO) al.get(i);
+                                    	
+                                    	//int bn_seq = bd.getBn_seq();
+                                    	//String bkname = bd.getBkname();
+                                    	//String title = 
+                                    	//String groupname = bd.getGroupname();
+                                    	
                                     %>
                                     <tbody>
-                                        <tr ondblclick="javscript:clickTrEvent(this)" id="<%=gd.getGroupcd()%>" onmouseover="javascript:changeTrColor(this,  '#FFFFFF', '#F4FFFD')" style="cursor:hand">
-                                        	<th style="text-align:center"><%=i+1%></th>
-                                        	<th style="text-align:center"><%=gd.getGroupcd() %></th>
-                                            <th style="text-align:center"><%=gd.getGroupname() %></th>
-                                            <th style="text-align:center"><%=gd.getAdm_cd() %></th>
+                                        <tr ondblclick="javscript:clickTrEvent(this)" id="<%=bd.getBn_seq()%>" onmouseover="javascript:changeTrColor(this,  '#FFFFFF', '#F4FFFD')" style="cursor:hand">
+                                        	<th style="text-align:center"><%=i %></th>
+                                        	<th style="text-align:center"><%=bd.getBn_seq() %></th>
+                                        	<th style="text-align:center"><%=bd.getTitle() %></th>
+                                        	<th style="text-align:center"><%=bd.getBkname() %></th>
+                                            <th style="text-align:center"><%=bd.getGroupname() %></th>
                                         </tr>
-
                                     </tbody>
-                                    <%
-    								}
-                                    %>
+                                    <%} %>
                                 </table>
                             </div>
-                            <input type="button" id = "test" name = "test" value="신규등록" onclick='location.href="GroupInfo.jsp"'>
+                            <input type="button" id = "test" name = "test" value="신규등록" onclick='location.href="BusinessInfo.jsp"'>
                             <!-- /.table-responsive -->
 
                         </div>

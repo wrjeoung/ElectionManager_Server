@@ -69,7 +69,8 @@ function clickTrEvent(trobj){
 	     	
 	     	form = document.createElement("form");     
 			form.setAttribute("method","post");                    
-			form.setAttribute("action","/ElectionManager_server/UserInfo.jsp");        
+			form.setAttribute("action","/ElectionManager_server/UserInfo.jsp"); 
+			//form.setAttribute("action","/Woori/UserInfo.jsp"); 
 			document.body.appendChild(form);                        
 			//alert("obj2:"+obj);
 			input_id = document.createElement("input");  
@@ -208,8 +209,13 @@ function changeTrColor(trObj, oldColor, newColor){
                         <li>
                             <a href="UserList.jsp"><i class="fa fa-edit fa-fw"></i>사용자정보관리</a>
                             <a href="GroupList.jsp"><i class="fa fa-edit fa-fw"></i>그룹정보관리</a>
+                            <a href="BusinessList.jsp"><i class="fa fa-edit fa-fw"></i>주요사업관리</a>
                         </li>
-                        <%} else{}%>
+                        <% } else if(classcd.equals("BBB")){ %>
+                             <li>
+                             <a href="BusinessList.jsp"><i class="fa fa-edit fa-fw"></i>주요사업관리</a>             
+                             </li>      
+                        <% }else{}%>
                     </ul>
                 </div>
                 <!-- /.sidebar-collapse -->
