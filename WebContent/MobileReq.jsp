@@ -17,6 +17,8 @@
 <%@ page import="com.address.GeoUtil" %>
 <%@ page import="com.address.PdfDAO" %>
 <%@ page import="com.address.EtcDAO" %>
+<%@ page import="com.address.BusinessKindDTO" %>
+<%@ page import="com.address.BusinessListDTO" %>
 <%@ page import="java.security.MessageDigest" %>
 <%@ page import="java.security.NoSuchAlgorithmException" %>
 
@@ -151,8 +153,8 @@
 			pstmt.setString(1, userinf[0]);
 			pstmt.setString(2, userinf[1]);
 			pstmt.setString(3, userinf[2]);
-			pstmt.setString(4, "A0001");
-			pstmt.setString(5, "AAA");
+			pstmt.setString(4, "99999");
+			pstmt.setString(5, "ZZZ");
 			pstmt.setString(6, "");
 			pstmt.setString(7, userinf[4]);
 			pstmt.setString(8, userinf[5]);
@@ -205,7 +207,8 @@
 			}
 			
 		}else if(sQuery.equals("SELECTITEMS")) {
-			String adm_cd = (String)jre.get("ADM_CD");
+			String param1 = (String)jre.get("ADM_CD");
+			String classCd = (String)jre.get("CLASSCD");
 			
 			DBBean dbbean = new DBBean();
 			conn = dbbean.getConnection();
@@ -226,11 +229,17 @@
 			ResultSet rs2,rs3 = null;
 
 			//String sql1 = "select DISTINCT SIGUNGUTEXT,SIGUNGUCODE from ADM_CODE where SIGUNGUCODE=31053 or SIGUNGUCODE=11150";
-			String sql1 = "select SIGUNGUTEXT,SIGUNGUCODE from ADM_CODE where ADM_CD=?";
+			String sql1 = "";
+			if(classCd != null && classCd.equals("AAA")) {
+				sql1 = "select DISTINCT SIGUNGUTEXT,SIGUNGUCODE from ADM_CODE where USEYN=?";
+				param1 = "Y";
+			} else {
+		    	sql1 = "select SIGUNGUTEXT,SIGUNGUCODE from ADM_CODE where ADM_CD=?";
+			}
 			String sql2 = "select DISTINCT IFNULL(HAENGTEXT,'전체'),HAENGCODE from ADM_CODE where SIGUNGUCODE=? order by HAENGCODE";
 			String sql3 = "select DISTINCT IFNULL(ADM_TEXT,'전체'),ADM_CD from ADM_CODE where SIGUNGUCODE=? and HAENGCODE = ?";
 			pstmt = conn.prepareStatement(sql1);
-			pstmt.setString(1, adm_cd);
+			pstmt.setString(1, param1);
 			pstmt2 = conn.prepareStatement(sql2);
 			pstmt3 = conn.prepareStatement(sql3);
 			
@@ -300,7 +309,7 @@
 			String sql = "SELECT A.PWD, B.GROUPCD, B.ADM_CD, C.PDFPATH, A.CLASSCD"
 				+ " FROM USERINFO A INNER JOIN GROUPINFO B "
 				+ " ON(A.GROUPCD=B.GROUPCD) "
-				+ " INNER JOIN ADM_CODE C "
+				+ " LEFT OUTER JOIN ADM_CODE C "
 				+ " ON(B.ADM_CD=C.ADM_CD) "
 				+ " WHERE MACADDRESS = ? ";
 			
@@ -325,6 +334,8 @@
 				
 			}
 			System.out.println("pdfpath : "+pdfpath);
+			System.out.println("admcd : "+admcd);
+			System.out.println("classcd : "+classcd);
 			//iCnt가 0보다 크면 mac 중복 
 			if(iCnt>0){
 				System.out.println("[중복체크]서버에 동일한 mac 있음.:"+mac);
@@ -437,63 +448,6 @@
 			obj_re.put("GEODATA",jArray);
 			obj_re.put("CENTER", center);
 			
-		}else if(sQuery.equals("SELECTITEMS2")){
-			DBBean dbbean = new DBBean();
-			conn = dbbean.getConnection();
-			conn.setAutoCommit(false);
-			pstmt = null;
-			rs = null;
-			JSONObject resData = new JSONObject();
-			JSONArray sigunguArray = new JSONArray();
-			JSONObject haengObj = new JSONObject();
-			JSONObject tupyoguObj = new JSONObject();
-			
-			PreparedStatement pstmt2,pstmt3 = null;
-			ResultSet rs2,rs3 = null;
-			
-			String sql1 = "select DISTINCT SIGUNGU from DATAADDRESS";
-			String sql2 = "select DISTINCT HAENGJOUNGDONG from DATAADDRESS where SIGUNGU = ?";
-			String sql3 = "select DISTINCT TUPYOGU from DATAADDRESS where SIGUNGU = ? and HAENGJOUNGDONG = ? order by tupyogu_num";
-			
-			pstmt = conn.prepareStatement(sql1);
-			pstmt2 = conn.prepareStatement(sql2);
-			pstmt3 = conn.prepareStatement(sql3);
-			
-			rs = pstmt.executeQuery();
-			while(rs.next()) {
-				String sigungu = rs.getString(1);
-				sigunguArray.add(sigungu);
-				
-				pstmt2.setString(1, sigungu);
-				rs2 = pstmt2.executeQuery();
-				pstmt2.clearParameters();
-				
-				JSONArray jArray = new JSONArray();
-				while(rs2.next()) {
-					String haengjoungdong = rs2.getString(1);
-					jArray.add(haengjoungdong);
-					
-					pstmt3.setString(1, sigungu);
-					pstmt3.setString(2, haengjoungdong);
-					rs3 = pstmt3.executeQuery();
-					pstmt3.clearParameters();
-					JSONArray jArray2 = new JSONArray();
-					while(rs3.next()) {
-						String tupyogu = rs3.getString(1);
-						jArray2.add(tupyogu);
-					}
-					tupyoguObj.put(haengjoungdong,jArray2);
-				}
-				haengObj.put(sigungu, jArray);
-			}
-			resData.put("SIGUNGU",sigunguArray);
-			resData.put("HAENGJOUNGDONG",haengObj);
-			resData.put("TUPYOGU",tupyoguObj);
-			
-			obj_re.put("RESULT","SUCCESS");
-			obj_re.put("SELECTITEMS2",resData);
-			
-			//System.out.println("resData = "+resData.toString());
 		}else if(sQuery.equals("SELECTORGAN1")){
 			
 			String adm_cd = (String) jre.get("ADM_CD");
@@ -740,7 +694,7 @@
 			obj_re.put("GEODATA",jArray);
 			obj_re.put("CENTER", center);
 			
-		}else if(sQuery.equals("TEST")){
+		}else if(sQuery.equals("AREA_SEARCH") || sQuery.equals("TEST")){
 			DBBean dbbean = new DBBean();
 			conn = dbbean.getConnection();
 			conn.setAutoCommit(false);
@@ -1046,11 +1000,11 @@
 					ed = new ElectDao();
 					ed.setLevel(rs.getInt("LEVEL"));
 					ed.setAdm_cd(rs.getString("ADM_CD"));
-					ed.setAvg(rs.getFloat("AVG"));
-					ed.setF6th(rs.getFloat("6TH"));
-					ed.setF19th(rs.getFloat("19TH"));
-					ed.setF18th_1(rs.getFloat("18th_1"));
-					ed.setF18th_2(rs.getFloat("18TH_2"));
+					ed.setAvg(Float.parseFloat(String.format("%.1f",rs.getFloat("AVG"))));
+					ed.setF6th(Float.parseFloat(String.format("%.1f",rs.getFloat("6TH"))));
+					ed.setF19th(Float.parseFloat(String.format("%.1f",rs.getFloat("19TH"))));
+					ed.setF18th_1(Float.parseFloat(String.format("%.1f",rs.getFloat("18th_1"))));
+					ed.setF18th_2(Float.parseFloat(String.format("%.1f",rs.getFloat("18TH_2"))));
 					al4.add(gson.toJson(ed));
 				}
 		     
@@ -1643,7 +1597,95 @@
 			update_pass = pstmt.executeUpdate();
 			obj_re.put("UPDATEPASS",update_pass);
 			System.out.println("MODIFYPASS update_pass : "+update_pass);
-		} else {
+		} else if(sQuery.equals("BUSINESSKIND")) {
+			DBBean dbbean = new DBBean();
+			conn = dbbean.getConnection();
+			conn.setAutoCommit(false);
+			pstmt = null;
+			rs = null;
+			
+			String sql = "SELECT DISTINCT BKCODE,BKNAME FROM BUSINESS_KIND A, BUSINESS B" 
+					+" WHERE A.BKCODE = B.KIND OR SUBSTRING(BKCODE,3,1) = '0'";
+			pstmt = conn.prepareStatement(sql);
+			
+			rs = pstmt.executeQuery();
+			
+			BusinessKindDTO dto = null;
+			JSONObject obj = new JSONObject();
+			GsonBuilder builder = new GsonBuilder();
+		    Gson gson = builder.create();
+			JSONArray jArray = new JSONArray();
+			
+			while(rs.next()) {
+				dto = new BusinessKindDTO();
+				dto.bkCode = rs.getString("BKCODE");
+				dto.bkName = rs.getString("BKNAME");
+				jArray.add(gson.toJson(dto));
+			}
+			
+			obj_re.put("BKINFO", jArray);
+			
+			obj_re.put("RESULT","SUCCESS");
+			
+		}else if(sQuery.equals("BUSINESSLIST")) {
+			String title = (String) jre.get("TITLE");
+			String kind = (String) jre.get("KIND");
+			String admCd_before = (String) jre.get("ADM_CD");
+									
+			System.out.println("BUSINESSLIST title : "+title);
+			System.out.println("BUSINESSLIST kind : "+kind);
+			System.out.println("BUSINESSLIST admCd_before : "+admCd_before);
+			
+			String admCd_after = admCd_before;
+			
+			if(admCd_after.substring(5,7).equals("00")){
+				admCd_after = admCd_after.substring(0,5);
+			}
+				
+			DBBean dbbean = new DBBean();
+			conn = dbbean.getConnection();
+			conn.setAutoCommit(false);
+						
+			pstmt = null;
+			rs = null;
+					
+			String sql = " SELECT BN_SEQ,BKNAME AS KIND_STR,TITLE FROM BUSINESS_KIND A," 
+							+"( SELECT BN_SEQ,KIND,TITLE FROM BUSINESS "
+							+"  WHERE ( SUBSTRING(?,1,2) = SUBSTRING(KIND,1,2) AND SUBSTRING(?,3,1) = '0'"
+							+"  OR KIND=?)"
+							+"  AND CT_AREA LIKE ?";
+			if(title != null && title.length() > 0) {
+				 	   sql +="  AND TITLE LIKE ?";
+			}
+					   sql +=") B";
+					   sql +=" WHERE A.BKCODE=B.KIND";
+			
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1,kind);
+			pstmt.setString(2,kind);
+			pstmt.setString(3,kind);
+			pstmt.setString(4,"%"+admCd_after+"%");
+			if(title != null && title.length() > 0) {
+				pstmt.setString(5,"%"+title+"%");
+				
+			}
+			
+			rs = pstmt.executeQuery();			
+			JSONArray jArray = new JSONArray();
+			GsonBuilder builder = new GsonBuilder();
+		    Gson gson = builder.create();
+						
+			while(rs.next()) {
+				BusinessListDTO dto = new BusinessListDTO();
+				dto.bnSeq = rs.getInt("BN_SEQ");
+				dto.title = rs.getString("TITLE");
+				dto.kindStr = rs.getString("KIND_STR");
+				jArray.add(gson.toJson(dto));
+			}
+			obj_re.put("RESULT","SUCCESS");
+			obj_re.put("BUSINESSLIST", jArray);
+			
+		}else {
 			
 		}
 		obj_re.put("TYPE",sQuery);
