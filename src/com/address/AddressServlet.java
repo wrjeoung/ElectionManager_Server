@@ -224,6 +224,7 @@ public class AddressServlet extends HttpServlet {
 		    String newFileName[] = new String[arrSize];
 		    
 		    String result = "FAIL";
+		    String new_img_url = "";
 
 		    int read = 0;
 		    byte[] buf = new byte[1024];
@@ -298,21 +299,31 @@ public class AddressServlet extends HttpServlet {
 		        	for(int i=0; i < oldFile.length; i++){
 		        		oldFile[i] = new File(savePath + uploadFile[i]);
 		        		newFile[i] = new File(savePath + newFileName[i]);
+		        		if(i==0){
+		        			new_img_url = new_img_url + newFileName[i];
+		        		}else{
+		        			new_img_url = new_img_url + ";" + newFileName[i];
+		        		}
 		        	}
 		        	
 		        	for(int i =0; i < oldFile.length; i++ ){
 		        		
 		        		if(!oldFile[i].renameTo(newFile[i])){
-		        			buf = new byte[1024];
-				            fin = new FileInputStream(oldFile[i]);
-				            fout = new FileOutputStream(newFile[i]);
-				            read = 0;
-				            while((read=fin.read(buf,0,buf.length))!=-1){
-				                fout.write(buf, 0, read);
-				            }
-				            fin.close();
-				            fout.close();
-				            oldFile[i].delete();
+		        			if(uploadFile[i]!=null){
+		        					System.out.println("oldFile["+i+"]:"+oldFile[i]);
+		        					System.out.println("newFile["+i+"]:"+newFile[i]);
+				        			buf = new byte[1024];
+						            fin = new FileInputStream(oldFile[i]);
+						            fout = new FileOutputStream(newFile[i]);
+						            read = 0;
+						            while((read=fin.read(buf,0,buf.length))!=-1){
+						                fout.write(buf, 0, read);
+						            }
+						            fin.close();
+						            fout.close();
+						            oldFile[i].delete();
+		        				}else{
+		        			}
 		        		}		
 		        	}
 		        	
@@ -327,7 +338,7 @@ public class AddressServlet extends HttpServlet {
 		    		bd.setEtc(etc);
 		    		bd.setImg_yn("Y");
 		    		bd.setContent(content);
-		    		bd.setImg_url(img_url);
+		    		bd.setImg_url(new_img_url);
 		    		bd.setSummary(summary);
 		        	
 		        	DBProc db = new DBProc();
@@ -536,8 +547,8 @@ public class AddressServlet extends HttpServlet {
 		 
 		    // 파일 저장 경로(ex : /home/tour/web/ROOT/upload)
 		    //String savePath = root + "upload";
-		    //String savePath = "D:\\Upload\\";
-		    String savePath = "/usr/local/server/tomcat/webapps/ElectionManager_server/organ_upload/";
+		    String savePath = "D:\\Upload\\";
+		    //String savePath = "/usr/local/server/tomcat/webapps/ElectionManager_server/organ_upload/";
 		    
 		    // 업로드 파일명
 		    String uploadFile = "";
@@ -664,8 +675,8 @@ public class AddressServlet extends HttpServlet {
 			            oldFile.delete();
 			        }
 			        
-			        //Organ_Img = "D:\\upload\\"+newFileName;
-			        Organ_Img = "/usr/local/server/tomcat/webapps/ElectionManager_server/organ_upload/"+newFileName;
+			        Organ_Img = "D:\\upload\\"+newFileName;
+			        //Organ_Img = "/usr/local/server/tomcat/webapps/ElectionManager_server/organ_upload/"+newFileName;
 					
 				}else if(uploadFile==null && Organ_Img != null ){
 					System.out.println("기존");
@@ -700,8 +711,8 @@ public class AddressServlet extends HttpServlet {
 			            oldFile.delete();
 			        }
 			        
-			        Organ_Img = "/usr/local/server/tomcat/webapps/ElectionManager_server/organ_upload/"+newFileName;
-			        //Organ_Img = "D:\\upload\\"+newFileName;
+			        //Organ_Img = "/usr/local/server/tomcat/webapps/ElectionManager_server/organ_upload/"+newFileName;
+			        Organ_Img = "D:\\upload\\"+newFileName;
 				}
 		 
 		        WOrganDAO od = new WOrganDAO();
