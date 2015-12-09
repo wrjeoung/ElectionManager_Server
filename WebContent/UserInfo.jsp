@@ -595,13 +595,13 @@ function check()
                         <li>
                             <a href="OrganList.jsp"><i class="fa fa-table fa-fw"></i>기관정보관리</a>
                         </li>
-                        <%if(classcd.equals("AAA")){ %>
+                        <%if(s_classcd.equals("AAA")){ %>
                         <li>
                             <a href="UserList.jsp"><i class="fa fa-edit fa-fw"></i>사용자정보관리</a>
                             <a href="GroupList.jsp"><i class="fa fa-edit fa-fw"></i>그룹정보관리</a>
                             <a href="BusinessList.jsp"><i class="fa fa-edit fa-fw"></i>주요사업관리</a>
                         </li>
-                        <% } else if(classcd.equals("BBB")){ %>
+                        <% } else if(s_classcd.equals("BBB")){ %>
                              <li>
                              <a href="BusinessList.jsp"><i class="fa fa-edit fa-fw"></i>주요사업관리</a>             
                              </li>      
