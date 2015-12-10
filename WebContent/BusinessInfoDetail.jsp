@@ -8,10 +8,14 @@
 <style type="text/css">
 .Padding {
 	padding:10px 0 10px 20px;
+	height:"auto";
+	word-break:break-all;"
 }
 .Padding2 {
 	padding-top:10px; 
 	padding-bottom:10px;
+	height:"auto";
+	word-break:break-all;"
 }
 </style>
 </head>
@@ -121,73 +125,73 @@
 <body>
 <div id="organ">
 <div id="div_info">
-<table border="0" cellspacing="2"  width="100%" height="476" >
+<table border="0" cellspacing="2"  width="100%" style="table-layout:fixed">
     <tr bgcolor="#f0f0f0"">
-        <td width="131" height="30">
+        <td width="20%" height="30">
             <p align="center"><b>사업명</b></p>
         </td>
-        <td width="276" valign="middle" class="Padding">
+        <td width="80%" valign="middle" class="Padding">
             <p><%=title%></p>
         </td>
     </tr>
     <tr bgcolor="#f6f6f6">
-        <td width="131" height="30" valign="middle">
+        <td width="20%" height="30" valign="middle" >
             <p align="center"><b>사업종류</b></p>
         </td>
-        <td width="276" valign="middle" class="Padding">
+        <td width="80%" valign="middle" class="Padding">
             <p><%=kind%></p>
         </td>
     </tr>
     <tr bgcolor="#f6f6f6">
-        <td width="131" height="30" valign="middle">
+        <td width="20%" height="30" valign="middle">
             <p align="center"><b>관할지역</b></p>
         </td>
-        <td width="276" valign="middle" class="Padding">
+        <td width="80%" valign="middle" class="Padding">
             <p><%=ctArea %></p>
         </td>
     </tr>
     <tr bgcolor="#f6f6f6">
-        <td width="131" height="30" valign="middle">
+        <td width="20%" height="30" valign="middle">
             <p align="center"><b>주요내용</b></p>
         </td>
-        <td width="276" valign="middle" class="Padding">
+        <td width="80%" valign="middle" class="Padding">
         	<% for(int i = 0; i<summarys.length; i++) { %>
             	<%=summarys[i] %><br/>
             <% } %>
         </td>
     </tr>
     <tr bgcolor="#f6f6f6">
-        <td width="131" height="30" valign="middle">
+        <td width="20%" height="30" valign="middle">
             <p align="center"><b>진행과정</b></p>
         </td>
-        <td width="276" valign="middle" class="Padding">
+        <td width="80%" valign="middle" class="Padding">
         	<% for(int i = 0; i<progressProcesses.length; i++) { %>
             	<%=progressProcesses[i] %><br/>
             <% } %>
         </td>
     </tr>
     <tr bgcolor="#f6f6f6">
-        <td width="131" height="30" valign="middle">
+        <td width="20%" height="30" valign="middle">
             <p align="center"><b>사업결과</b></p>
         </td>
-        <td width="276" valign="middle" class="Padding">
+        <td width="80%" valign="middle" class="Padding">
         	<% for(int i = 0; i<results.length; i++) { %>
             	<%=results[i] %><br/>
             <% } %>
         </td>
     </tr>
     <tr bgcolor="#f6f6f6">
-        <td width="131" height="30" valign="middle">
+        <td width="20%" height="30" valign="middle">
             <p align="center"><b>기타</b></p>
         </td>
-        <td width="276" valign="middle" class="Padding">
+        <td width="80%" valign="middle" class="Padding">
         	<% for(int i = 0; i<etcs.length; i++) { %>
             	<%=etcs[i] %><br/>
             <% } %>
         </td>
     </tr>
     <tr bgcolor="#f6f6f6">
-        <td width="413" height="236" colspan="2 valign="middle" class="Padding2">
+        <td width="100%" height="236" colspan="2 valign="middle" class="Padding2">
        	    <% for(int i = 0; i<imgList.size(); i++) { %>
             	<p align="center"><img src="<%=imgList.get(i) %>" width="280" height="209" border="0"></p>
             <% } %>
