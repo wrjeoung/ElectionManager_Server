@@ -35,7 +35,7 @@
 	boolean existsPdfAtClient = false;
 	boolean existsPdfAtServer = false;
 	// wrjeoung mac path.
-    // String mSaveFolder = "/Users/wrjeong";
+    //String mSaveFolder = "/Users/wrjeong";
 	// Woori research sever path.
     String mSaveFolder = "/usr/local/server/tomcat/webapps/ElectionManager_server/data";
 	
@@ -224,6 +224,26 @@
 			JSONArray singungu_codeArray = new JSONArray();
 			JSONObject haeng_codeObj = new JSONObject();
 			JSONObject tupyogu_codeObj = new JSONObject();
+			
+			// rjeong 2015.12.12 sat - pdf files download [.
+			String mac_address = (String)jre.get("MACADDRESS");			                                               
+			JSONObject pdfpathObj = new JSONObject();
+			JSONArray pdfpathArray = new JSONArray();
+			PreparedStatement pstmPdfs = null;
+			ResultSet rsPdfs = null;
+			String sqlPdfs = null;
+			
+			sqlPdfs = "SELECT * FROM USERINFO A INNER JOIN ADM_CODE B WHERE PDFPATH IS NOT NULL AND MACADDRESS=?";
+			pstmPdfs = conn.prepareStatement(sqlPdfs);
+			pstmPdfs.setString(1, mac_address);
+			rsPdfs = pstmPdfs.executeQuery();
+			while(rsPdfs.next()) {
+				String pdfpath = rsPdfs.getString("pdfpath");
+				pdfpathArray.add(pdfpath);				
+			}
+			pdfpathObj.put("PDFPATH", pdfpathArray);
+			obj_re.put("PDFPATHARRAYS", pdfpathArray);			
+			// pdf files download ].
 			
 			PreparedStatement pstmt2,pstmt3 = null;
 			ResultSet rs2,rs3 = null;
