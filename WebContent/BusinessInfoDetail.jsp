@@ -111,9 +111,11 @@
 	
 	String prefixPath = "./business_upload/";
 	
-	while(rs.next()){
+	while(rs.next()) {
 		String imgUrl = rs.getString("IMG_URL");
-		imgList.add(prefixPath+imgUrl);
+		if(imgUrl != null && !imgUrl.equals("null")) {
+			imgList.add(prefixPath+imgUrl);
+		}
 	}
 	
 	if(rs!=null) rs.close();
