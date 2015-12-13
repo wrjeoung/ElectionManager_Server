@@ -259,7 +259,7 @@ function init(){
 	f.regGb.value = regGbs;
 	
 	if(regGbs=="Y"){
-		alert("수정");
+		//alert("수정");
 		var bn_seqs = "<%=bn_seq%>";
 		var titles ="<%=title %>";
 		var kinds = "<%=kind %>";
@@ -299,7 +299,7 @@ function init(){
 		//f.img_yn.value = img_yns;
 		
 		var aa = img_urls.split(';');
-		alert(aa.length);
+		//alert(aa.length);
 		
 		var bb = new Array(aa.length);
 		
@@ -308,23 +308,23 @@ function init(){
 			
 			if(i==0){
 				f.uploadFile_Mf0.value = aa[i];
-				alert("uploadFile_Mf0:"+f.uploadFile_Mf0.value);
+				//alert("uploadFile_Mf0:"+f.uploadFile_Mf0.value);
 			}if(i==1){
 				f.uploadFile_Mf1.value = aa[i];
-				alert("uploadFile_Mf1:"+f.uploadFile_Mf1.value);
+				//alert("uploadFile_Mf1:"+f.uploadFile_Mf1.value);
 			}if(i==2){
 				f.uploadFile_Mf2.value = aa[i];
-				alert("uploadFile_Mf2:"+f.uploadFile_Mf2.value);
+				//alert("uploadFile_Mf2:"+f.uploadFile_Mf2.value);
 			}
 			
 					
 		}
 		
-		alert(img_urls);
+		//alert(img_urls);
 		
 	}else{
 		
-		alert("등록");
+		//alert("등록");
 		
 	}
 } 
