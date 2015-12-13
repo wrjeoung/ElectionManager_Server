@@ -192,13 +192,13 @@ public class AddressServlet extends HttpServlet {
 	        	session.setAttribute("classcd", re_udo.getClasscd());
 	        	session.setAttribute("result", re_udo.getResult());
 	        	
-	        	//response.sendRedirect("/ElectionManager_server/OrganList.jsp");
-	        	response.sendRedirect("/Woori/OrganList.jsp");
+	        	response.sendRedirect("/ElectionManager_server/OrganList.jsp");
+	        	//response.sendRedirect("/Woori/OrganList.jsp");
 	        	
 
 	        }else{
-		        //response.sendRedirect("/ElectionManager_server/Login.jsp");
-		        response.sendRedirect("/Woori/Login.jsp");
+		        response.sendRedirect("/ElectionManager_server/Login.jsp");
+		        //response.sendRedirect("/Woori/Login.jsp");
 	        }
 		}
 		else if(mode.equals("business_reg")){
@@ -214,8 +214,8 @@ public class AddressServlet extends HttpServlet {
 		 
 		    // 파일 저장 경로(ex : /home/tour/web/ROOT/upload)
 		    //String savePath = root + "upload";
-		    String savePath = "D:\\Upload\\";
-		    //String savePath = "/usr/local/server/tomcat/webapps/ElectionManager_server/business_upload/";
+		    //String savePath = "D:\\Upload\\";
+		    String savePath = "/usr/local/server/tomcat/webapps/ElectionManager_server/business_upload/";
 		    int arrSize = 3;
 		    // 업로드 파일명
 		    String uploadFile[] = new String[arrSize];
@@ -495,8 +495,8 @@ public class AddressServlet extends HttpServlet {
 		 
 		    // 파일 저장 경로(ex : /home/tour/web/ROOT/upload)
 		    //String savePath = root + "upload";
-		    String savePath = "D:\\Upload\\";
-		    //String savePath = "/usr/local/server/tomcat/webapps/ElectionManager_server/organ_upload/";
+		    //String savePath = "D:\\Upload\\";
+		    String savePath = "/usr/local/server/tomcat/webapps/ElectionManager_server/organ_upload/";
 		    
 		    // 업로드 파일명
 		    String uploadFile = "";
@@ -623,8 +623,8 @@ public class AddressServlet extends HttpServlet {
 			            oldFile.delete();
 			        }
 			        
-			        Organ_Img = "D:\\upload\\"+newFileName;
-			        //Organ_Img = "/usr/local/server/tomcat/webapps/ElectionManager_server/organ_upload/"+newFileName;
+			        //Organ_Img = "D:\\upload\\"+newFileName;
+			        Organ_Img = "/usr/local/server/tomcat/webapps/ElectionManager_server/organ_upload/"+newFileName;
 					
 				}
 				else if(uploadFile==null && Organ_Img != null ){
@@ -660,8 +660,8 @@ public class AddressServlet extends HttpServlet {
 			            oldFile.delete();
 			        }
 			        
-			        //Organ_Img = "/usr/local/server/tomcat/webapps/ElectionManager_server/organ_upload/"+newFileName;
-			        Organ_Img = "D:\\upload\\"+newFileName;
+			        Organ_Img = "/usr/local/server/tomcat/webapps/ElectionManager_server/organ_upload/"+newFileName;
+			        //Organ_Img = "D:\\upload\\"+newFileName;
 				}
 		 
 		        WOrganDAO od = new WOrganDAO();
