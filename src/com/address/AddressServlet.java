@@ -192,13 +192,13 @@ public class AddressServlet extends HttpServlet {
 	        	session.setAttribute("classcd", re_udo.getClasscd());
 	        	session.setAttribute("result", re_udo.getResult());
 	        	
-	        	response.sendRedirect("/ElectionManager_server/OrganList.jsp");
-	        	//response.sendRedirect("/Woori/OrganList.jsp");
+	        	//response.sendRedirect("/ElectionManager_server/OrganList.jsp");
+	        	response.sendRedirect("/Woori/OrganList.jsp");
 	        	
 
 	        }else{
-		        response.sendRedirect("/ElectionManager_server/Login.jsp");
-		        //response.sendRedirect("/Woori/Login.jsp");
+		        //response.sendRedirect("/ElectionManager_server/Login.jsp");
+		        response.sendRedirect("/Woori/Login.jsp");
 	        }
 		}
 		else if(mode.equals("business_reg")){
@@ -214,8 +214,8 @@ public class AddressServlet extends HttpServlet {
 		 
 		    // 파일 저장 경로(ex : /home/tour/web/ROOT/upload)
 		    //String savePath = root + "upload";
-		    //String savePath = "D:\\Upload\\";
-		    String savePath = "/usr/local/server/tomcat/webapps/ElectionManager_server/business_upload/";
+		    String savePath = "D:\\Upload\\";
+		    //String savePath = "/usr/local/server/tomcat/webapps/ElectionManager_server/business_upload/";
 		    int arrSize = 3;
 		    // 업로드 파일명
 		    String uploadFile[] = new String[arrSize];
@@ -225,7 +225,7 @@ public class AddressServlet extends HttpServlet {
 		    
 		    String result = "FAIL";
 		    String new_img_url = "";
-
+		   
 		    int read = 0;
 		    byte[] buf = new byte[1024];
 		    FileInputStream fin = null;
@@ -280,8 +280,9 @@ public class AddressServlet extends HttpServlet {
 		    	}
 		    	
 		    	System.out.println("img_url:" + img_url);
-		    			        
-		        
+		    	
+		    	 int bn_seq = 0;
+
 		        if(regGb.equals("N")){
 		        	
 		        	System.out.println("주요사업 신규등록");
@@ -289,7 +290,7 @@ public class AddressServlet extends HttpServlet {
 					// 실제 저장할 파일명(ex : 20140819151221.zip)
 		        	for(int i=0; i < newFileName.length; i++){
 		        		if(uploadFile[i]!=null){
-		        			newFileName[i] = simDf.format(new Date(currentTime)) +"."+ uploadFile[i].substring(uploadFile[i].lastIndexOf(".")+1);
+		        			newFileName[i] = i +"_" + simDf.format(new Date(currentTime)) +"."+ uploadFile[i].substring(uploadFile[i].lastIndexOf(".")+1);
 		        		}
 		        	}
 		        	
@@ -349,47 +350,106 @@ public class AddressServlet extends HttpServlet {
 			        
 		        }else{
 		        	System.out.println("주요사업 정보 수정");
+
+		        	String bn_seqs = multi.getParameter("bn_seq");
+		        	System.out.println("bn_seq:"+bn_seqs);
 		        	
+		        	if(bn_seqs!=null){
+		        		bn_seq = Integer.parseInt(bn_seqs);
+		        		
+		        	}
+		        	
+			        // 파일업로드 (선택한 파일명)
+			    	for(int i = 0; i < uploadFile.length; i++){
+			    		uploadFile[i] = multi.getFilesystemName("uploadFile"+i+"");
+			    		System.out.println("uploadFile["+i+"]:"+uploadFile[i]);
+			    		/**
+			    		if(uploadFile[i]!=null){
+			    			if(i==0){
+			    				img_url = img_url + uploadFile[i];
+			    			}else{
+			    				img_url = img_url + ";" +uploadFile[i];
+			    			}
+			    		}**/
+			    	}
+			    	
+			    	//System.out.println("img_url:"+img_url);
+		        
 		            String uploadFile_Mf[] = new String[arrSize];
 		            
 		            for(int i=0; i < arrSize; i++){
-		            	
-		            	
+		            	uploadFile_Mf[i] = multi.getParameter("uploadFile_Mf"+i);
+		            	System.out.println("uploadFile_Mf["+i+"]="+uploadFile_Mf[i]);
+
 		            }
-		        			
+		           		        			
 		        	// 실제 저장할 파일명(ex : 20140819151221.zip)
 		        	for(int i=0; i < newFileName.length; i++){
 		        		if(uploadFile[i]!=null){
-		        			newFileName[i] = simDf.format(new Date(currentTime)) +"."+ uploadFile[i].substring(uploadFile[i].lastIndexOf(".")+1);
+		        			newFileName[i] = i +"_" + simDf.format(new Date(currentTime)) +"."+ uploadFile[i].substring(uploadFile[i].lastIndexOf(".")+1);
+			        		if(i==0){
+			        			new_img_url = new_img_url + newFileName[i];
+			        		}else{
+			        			new_img_url = new_img_url + ";" + newFileName[i];
+			        		}
+		        		}else{
+			        		if(i==0){
+			        			new_img_url = new_img_url + uploadFile_Mf[i];
+			        		}else{
+			        			new_img_url = new_img_url + ";" + uploadFile_Mf[i];
+			        		}
 		        		}
+		        		System.out.println("newFileName["+i+"]:"+newFileName[i]);
 		        	}
+		        	
+		        	System.out.println("new_img_url="+new_img_url);
 		        	
 		        	File oldFile[] = new File[arrSize];
 		        	File newFile[] = new File[arrSize];
 		        	
 		        	for(int i=0; i < oldFile.length; i++){
-		        		oldFile[i] = new File(savePath + uploadFile[i]);
-		        		newFile[i] = new File(savePath + newFileName[i]);
+		        		if(uploadFile[i]!=null){
+		        			oldFile[i] = new File(savePath + uploadFile[i]);
+		        			newFile[i] = new File(savePath + newFileName[i]);
+		        		}
+		        		System.out.println("oldFile["+i+"]="+oldFile[i]+",newFile["+i+"]="+newFile[i]);
 		        	}
 		        	
 		        	for(int i =0; i < oldFile.length; i++ ){
-		        		
-		        		if(!oldFile[i].renameTo(newFile[i])){
-		        			buf = new byte[1024];
-				            fin = new FileInputStream(oldFile[i]);
-				            fout = new FileOutputStream(newFile[i]);
-				            read = 0;
-				            while((read=fin.read(buf,0,buf.length))!=-1){
-				                fout.write(buf, 0, read);
-				            }
-				            fin.close();
-				            fout.close();
-				            oldFile[i].delete();
-		        		}		
+		        		System.out.println(i+"번째 파일업로드 준비");
+
+		        		if(oldFile[i]!=null){
+			        		if(!oldFile[i].renameTo(newFile[i])){	
+			        			//새로 선택한 값	&& 기존 선택했던 값
+			        			if(uploadFile[i]!=null && uploadFile_Mf[i] != null){
+	
+				        			System.out.println(i+"번째 파일변경");
+	 				
+					        		buf = new byte[1024];
+							        fin = new FileInputStream(oldFile[i]);
+							        fout = new FileOutputStream(newFile[i]);
+							        read = 0;
+							        while((read=fin.read(buf,0,buf.length))!=-1){
+							        	fout.write(buf, 0, read);
+							        }
+							        fin.close();
+							        fout.close();
+							        oldFile[i].delete();
+							        
+			        			}else{
+			        				System.out.println(i+"번째 파일 변경 없음");
+			        			}
+			        			
+			        		}else{	
+			        		
+	
+		        			}
+		        		}
 		        	}
+		        
 		        	
 		        	BusinessDTO bd = new BusinessDTO();
-		        	
+		        	bd.setBn_seq(bn_seq);
 		    		bd.setTitle(title);
 		    		bd.setKind(kind);
 		    		bd.setGroupcd(groupcd);
@@ -399,128 +459,16 @@ public class AddressServlet extends HttpServlet {
 		    		bd.setEtc(etc);
 		    		bd.setImg_yn("Y");
 		    		bd.setContent(content);
-		    		bd.setImg_url(img_url);
+		    		bd.setImg_url(new_img_url);
 		    		bd.setSummary(summary);
 		        	
 		        	DBProc db = new DBProc();
 		    
-		        	result = db.Inbusiness(bd);
+		        	result = db.upbusiness(bd);
 		        	System.out.println("result:"+result);
 			        System.out.println("-----");
-		        	
+			        		        	
 		        }
-		        
-		        /**
-		        System.out.println("uploadFile_Mf:" + uploadFile_Mf);
-		        
-				if((uploadFile1!=null || uploadFile2!=null || uploadFile3!=null )&& business_img1.equals("")){
-					System.out.println("신규등록");
-					
-					 // 실제 저장할 파일명(ex : 20140819151221.zip)
-			        newFileName = simDf.format(new Date(currentTime)) +"."+ uploadFile.substring(uploadFile.lastIndexOf(".")+1);
-			         
-			        // 업로드된 파일 객체 생성
-			        File oldFile = new File(savePath + uploadFile);
-			 
-			         
-			        // 실제 저장될 파일 객체 생성
-			        File newFile = new File(savePath + newFileName);
-			        
-			        // 파일명 rename
-			        if(!oldFile.renameTo(newFile)){
-			 
-			            // rename이 되지 않을경우 강제로 파일을 복사하고 기존파일은 삭제
-			 
-			            buf = new byte[1024];
-			            fin = new FileInputStream(oldFile);
-			            fout = new FileOutputStream(newFile);
-			            read = 0;
-			            while((read=fin.read(buf,0,buf.length))!=-1){
-			                fout.write(buf, 0, read);
-			            }
-			             
-			            fin.close();
-			            fout.close();
-			            oldFile.delete();
-			        }
-			        
-			        Organ_Img = "D:\\upload\\"+newFileName;
-			        //Organ_Img = "/usr/local/server/tomcat/webapps/ElectionManager_server/organ_upload/"+newFileName;
-					
-				}else if(uploadFile==null && Organ_Img != null ){
-					System.out.println("기존");
-					
-				}else if(uploadFile!=null && Organ_Img != null){
-					System.out.println("변경");
-					 // 실제 저장할 파일명(ex : 20140819151221.zip)
-			        newFileName = simDf.format(new Date(currentTime)) +"."+ uploadFile.substring(uploadFile.lastIndexOf(".")+1);
-			         
-			        // 업로드된 파일 객체 생성
-			        File oldFile = new File(savePath + uploadFile);
-			 
-			         
-			        // 실제 저장될 파일 객체 생성
-			        File newFile = new File(savePath + newFileName);
-			        
-			        // 파일명 rename
-			        if(!oldFile.renameTo(newFile)){
-			 
-			            // rename이 되지 않을경우 강제로 파일을 복사하고 기존파일은 삭제
-			 
-			            buf = new byte[1024];
-			            fin = new FileInputStream(oldFile);
-			            fout = new FileOutputStream(newFile);
-			            read = 0;
-			            while((read=fin.read(buf,0,buf.length))!=-1){
-			                fout.write(buf, 0, read);
-			            }
-			             
-			            fin.close();
-			            fout.close();
-			            oldFile.delete();
-			        }
-			        
-			        //Organ_Img = "/usr/local/server/tomcat/webapps/ElectionManager_server/organ_upload/"+newFileName;
-			        Organ_Img = "D:\\upload\\"+newFileName;
-				}
-		 
-		        WOrganDAO od = new WOrganDAO();
-				od.setOrgan_Gb(Organ_Gb);
-				od.setGroup_Cd(Group_Cd);
-				od.setGroup_Name(Group_Name);
-				od.setOrgan_Name(Organ_Name);
-				od.setOrgan_Add(Organ_Add);
-				od.setOrgan_Img(Organ_Img);
-				od.setOrgan_Date(Organ_Date);
-				od.setOrgan_Mem_Cman(Organ_Mem_Cman);
-				od.setOrgan_Mem_Board(iOrgan_Mem_Board);
-				od.setOrgan_Mem_Cnt(iOrgan_Mem_Cnt);
-				od.setOrgan_Con_Num(Organ_Con_Num);
-				od.setAddr_cox(addr_cox);
-				od.setAddr_coy(addr_coy);
-				od.setSidocode(sidocode);
-				od.setSigungucode(sigungucode);
-				od.setHaengcode(haengcode);
-				od.setAddr_auth(addr_auth);
-		        od.setOrgan_Seq(iOrgan_Seq);
-				
-				DBProc dp = new DBProc();
-				
-				String result = "FAIL";
-				
-				if(regGb.equals("N")){
-					result = dp.InOrgan(od);
-				}else{
-					result = dp.UpOrgan(od);
-				}
-				System.out.println("result:"+result);
-		        
-				request.setAttribute("result", result);
-		        ServletContext sc = getServletContext();
-	        	RequestDispatcher rd = sc.getRequestDispatcher("/OrganList.jsp");
-		        rd.forward(request, response);
-		        
-		 	**/
 		        
 				request.setAttribute("result", result);
 		        ServletContext sc = getServletContext();
@@ -678,10 +626,12 @@ public class AddressServlet extends HttpServlet {
 			        Organ_Img = "D:\\upload\\"+newFileName;
 			        //Organ_Img = "/usr/local/server/tomcat/webapps/ElectionManager_server/organ_upload/"+newFileName;
 					
-				}else if(uploadFile==null && Organ_Img != null ){
+				}
+				else if(uploadFile==null && Organ_Img != null ){
 					System.out.println("기존");
 					
-				}else if(uploadFile!=null && Organ_Img != null){
+				}//새로 선택한 값 && 기존선택되었던값
+				else if(uploadFile!=null && Organ_Img != null){
 					System.out.println("변경");
 					 // 실제 저장할 파일명(ex : 20140819151221.zip)
 			        newFileName = simDf.format(new Date(currentTime)) +"."+ uploadFile.substring(uploadFile.lastIndexOf(".")+1);
@@ -697,7 +647,6 @@ public class AddressServlet extends HttpServlet {
 			        if(!oldFile.renameTo(newFile)){
 			 
 			            // rename이 되지 않을경우 강제로 파일을 복사하고 기존파일은 삭제
-			 
 			            buf = new byte[1024];
 			            fin = new FileInputStream(oldFile);
 			            fout = new FileOutputStream(newFile);

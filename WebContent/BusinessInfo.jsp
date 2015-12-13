@@ -85,6 +85,7 @@
 	String etc = "";
 	String img_url ="";
 	String img_yn = "";
+	int bn_seq = 0;
 	
 	if(bd == null){
 		regGb = "N";
@@ -92,6 +93,7 @@
 	}else{
 		regGb = "Y";
 		
+		bn_seq = bd.getBn_seq(); 
     	title = bd.getTitle();
     	kind = bd.getKind();
     	ct_area_in =bd.getCt_area();
@@ -105,6 +107,7 @@
     	img_url =bd.getImg_url();
     	img_yn = bd.getImg_yn();
     	
+    	System.out.println("bn_seq:"+bn_seq);
     	System.out.println("title:"+title);
     	System.out.println("kind:"+kind);
     	System.out.println("ct_area_in:"+ct_area_in);
@@ -257,6 +260,7 @@ function init(){
 	
 	if(regGbs=="Y"){
 		alert("수정");
+		var bn_seqs = "<%=bn_seq%>";
 		var titles ="<%=title %>";
 		var kinds = "<%=kind %>";
 		var ct_area_ins = "<%=ct_area_in %>";
@@ -280,6 +284,7 @@ function init(){
 		var img_urls = "<%=img_url %>";
 		var img_yns = "<%=img_yn %>";
 		
+		f.bn_seq.value = bn_seqs;
 		f.title.value = titles;
 		f.kind.value = kinds;
 		f.ct_area_in.value = ct_area_ins;
@@ -303,11 +308,15 @@ function init(){
 			
 			if(i==0){
 				f.uploadFile_Mf0.value = aa[i];
+				alert("uploadFile_Mf0:"+f.uploadFile_Mf0.value);
 			}if(i==1){
 				f.uploadFile_Mf1.value = aa[i];
+				alert("uploadFile_Mf1:"+f.uploadFile_Mf1.value);
 			}if(i==2){
 				f.uploadFile_Mf2.value = aa[i];
+				alert("uploadFile_Mf2:"+f.uploadFile_Mf2.value);
 			}
+			
 					
 		}
 		
@@ -857,6 +866,7 @@ function isValidTime(time) {
 							<input type = "hidden" id = "uploadFile_Mf0" name = "uploadFile_Mf0" />
 							<input type = "hidden" id = "uploadFile_Mf1" name = "uploadFile_Mf1" />
 							<input type = "hidden" id = "uploadFile_Mf2" name = "uploadFile_Mf2" />
+							<input type = "hidden" id = "bn_seq" name = "bn_seq"	/>
 							<input type = "hidden" id = "regGb"	name = "regGb"	/>
 
 						</form>

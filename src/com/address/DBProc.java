@@ -119,7 +119,8 @@ public class DBProc {
 			if(img_yn.equals("Y")){
 				
 				sql = " SELECT IMG_URL FROM BUSINESS_IMG "
-					+ " WHERE BN_SEQ = ?";
+					+ " WHERE BN_SEQ = ? " 
+				 	+ " ORDER BY IMG_SEQ ";
 				
 				pstmt = conn.prepareStatement(sql);
 				pstmt.setInt(1, bn_seq);
@@ -336,6 +337,152 @@ public class DBProc {
 		}
 		
 		return od;
+	}
+	
+	public String upbusiness(BusinessDTO bd){
+		
+		System.out.println("Upbusiness");
+		String result = "FAIL";
+		
+		int bn_seq = bd.getBn_seq();
+		String title = bd.getTitle();
+		String kind = bd.getKind();
+		String groupcd = bd.getGroupcd();
+		String ct_area = bd.getCt_area();
+		String progress_process =  bd.getProgress_process();
+		String results = bd.getResult();
+		String etc  = bd.getEtc();
+		String img_yn =  bd.getImg_yn();
+		String content = bd.getContent();
+		int img_seq;
+		String img_url = bd.getImg_url();
+		String summary = bd.getSummary();
+		
+		summary = summary.replaceAll("\r\n", "<br>");
+		kind = kind.replaceAll("\r\n", "<br>");
+		content = content.replaceAll("\r\n", "<br>");
+		progress_process = progress_process.replaceAll("\r\n", "<br>");
+		etc = etc.replaceAll("\r\n", "<br>");
+		results = results.replaceAll("\r\n", "<br>");
+		
+		System.out.println("bn_seq:"+bn_seq);
+		System.out.println("title:"+title);
+		System.out.println("kind:"+kind);
+		System.out.println("groupcd:"+groupcd);
+		System.out.println("ct_area:"+ct_area);
+		System.out.println("progress_process:"+progress_process);
+		System.out.println("results:"+results);
+		System.out.println("etc:"+etc);
+		System.out.println("img_yn:"+img_yn);
+		System.out.println("content:"+content);
+		System.out.println("img_url:"+img_url);
+		System.out.println("summary:"+summary);
+
+		String sql1 = " UPDATE BUSINESS "
+					+ "	SET TITLE = ? "
+					+ "	,KIND = ? "
+					+ "	,CT_AREA= ? "
+					+ "	,SUMMARY= ? "
+					+ "	,CONTENT= ? "
+					+ "	,PROGRESS_PROCESS = ? "
+					+ "	,RESULT = ? "
+					+ "	,ETC = ? "
+					+ "	,IMG_YN = ? "
+					+ "	,GROUPCD =? "
+					+ "	WHERE BN_SEQ = ? ";
+		
+		String sql2 = " DELETE FROM BUSINESS_IMG WHERE BN_SEQ = ?";
+		
+		String sql3 = " INSERT INTO BUSINESS_IMG (BN_SEQ,IMG_URL) VALUES(?,?) ";
+
+		PreparedStatement pstmt = null;
+		Connection conn = null;
+		ResultSet rs = null;
+		
+		try{
+			
+			DBBean dbbean = new DBBean();
+			conn = dbbean.getConnection();
+			conn.setAutoCommit(false);
+			
+			pstmt = conn.prepareStatement(sql1);
+			
+			pstmt.setString(1, title);
+			pstmt.setString(2, kind);
+			pstmt.setString(3, ct_area);
+			pstmt.setString(4, summary);
+			pstmt.setString(5, content);
+			pstmt.setString(6, progress_process);
+			pstmt.setString(7, results);
+			pstmt.setString(8, etc);
+			pstmt.setString(9, img_yn);
+			pstmt.setString(10, groupcd);
+			pstmt.setInt(11, bn_seq);
+			
+			int re1 = pstmt.executeUpdate();
+			
+			if(re1>0){
+				result = "SUCCESS";
+			}else{
+				result = "FAIL";
+			}
+			
+			System.out.println("Update BUSINESS result:"+result);
+			
+			pstmt = conn.prepareStatement(sql2);
+			pstmt.setInt(1, bn_seq);
+			
+			int re2 = pstmt.executeUpdate();
+
+			if(re2>0){
+				result = "SUCCESS";
+			}else{
+				result = "FAIL";
+			}
+			
+			System.out.println("DELETE BUSINESS_IMG result:"+result);
+			
+			//String img = "AAAAA;BBBBB;DDDDD";
+			String sData[] = img_url.split(";"); 
+				
+			int re3 = 0;
+			int rCnt = 0;
+				
+			for(int i=0; i<sData.length; i++){
+				System.out.println("img_url["+i+"]="+ sData[i]);
+				if(sData[i]!=null){
+					pstmt = conn.prepareStatement(sql3);
+					pstmt.setInt(1, bn_seq);
+					pstmt.setString(2, sData[i]);
+					re3 = pstmt.executeUpdate();
+					rCnt = rCnt+re3;
+				}
+			}
+				
+			conn.commit();
+			
+			System.out.println("rCnt:"+rCnt+",sData.length:"+sData.length);
+			if(rCnt==sData.length){
+				result = "SUCCESS";
+			}else{
+				result = "FAIL";
+			}
+		
+		}catch(Exception e){
+			e.printStackTrace();
+			
+		}finally{
+			try {
+				if(pstmt!=null) pstmt.close();
+				if(conn!=null) conn.close();
+				
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			
+		}
+		
+		return result;
 	}
 	
 	public String UpOrgan(WOrganDAO od){
@@ -691,11 +838,13 @@ public class DBProc {
 				
 			for(int i=0; i<sData.length; i++){
 				System.out.println("img_url["+i+"]="+ sData[i]);
-				pstmt = conn.prepareStatement(sql4);
-				pstmt.setInt(1, bn_seq_after);
-				pstmt.setString(2, sData[i]);
-				re2 = pstmt.executeUpdate();
-				rCnt = rCnt+re2;
+				//if(sData[i]!=null){
+					pstmt = conn.prepareStatement(sql4);
+					pstmt.setInt(1, bn_seq_after);
+					pstmt.setString(2, sData[i]);
+					re2 = pstmt.executeUpdate();
+					rCnt = rCnt+re2;
+				//}
 			}
 				
 			conn.commit();
