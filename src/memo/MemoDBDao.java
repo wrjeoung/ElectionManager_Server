@@ -450,7 +450,7 @@ public class MemoDBDao {
 				
 		System.out.println("admCd : "+admCd);
 		System.out.println("offset : "+offset);
-		
+
 		String sql = " SELECT D.*"
 					+" FROM"
 					+" ( SELECT @ROWNUM := @ROWNUM + 1 AS ROWNUM , C.*"
@@ -461,7 +461,7 @@ public class MemoDBDao {
 					+"     LEFT OUTER JOIN BOARD_IMG B on A.MEMO_SEQ = B.MEMO_SEQ"
 				 	+"     WHERE SUBSTRING(ADM_CD,1,7) = SUBSTRING(?,1,7) and SUBSTRING(?,9,2) = '00'"
 				 	+"     OR ADM_CD = ?"
-					+"     OR SUBSTRING(?,6,2) = '00' and SUBSTRING(?,1,5) = SUBSTRING(ADM_CD,1,5) and SUBSTRING(ADM_CD,9,2) != '00' and ADM_CD != ?"
+					+"     OR SUBSTRING(?,6,2) = '00' and SUBSTRING(?,1,5) = SUBSTRING(ADM_CD,1,5) and ADM_CD != ?"
 				 	+"     ORDER BY DATE DESC"
 					+"   ) C,"
 				 	+"   (SELECT @ROWNUM := 0) R"
