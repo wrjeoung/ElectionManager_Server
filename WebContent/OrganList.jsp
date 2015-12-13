@@ -137,13 +137,15 @@ function changeTrColor(trObj, oldColor, newColor){
 	if(classcd.equals("AAA")){
 		sql = " SELECT  A.ORGAN_SEQ, A.ORGAN_ADDR, A.ORGAN_NAME, A.ORGAN_GB, A.ORGAN_DATE, B.GROUPCD, B.GROUPNAME "
 			+ " FROM ORGANINFO A INNER JOIN GROUPINFO B "
-			+ " ON(A.GROUPCD=B.GROUPCD)";
+			+ " ON(A.GROUPCD=B.GROUPCD) "
+			+ " ORDER BY A.ORGAN_SEQ ";
 		pstmt = conn.prepareStatement(sql);
 	}else{
 		sql = " SELECT  A.ORGAN_SEQ, A.ORGAN_ADDR, A.ORGAN_NAME, A.ORGAN_GB, A.ORGAN_DATE, B.GROUPCD, B.GROUPNAME "
 			+ " FROM ORGANINFO A INNER JOIN GROUPINFO B "
 			+ " ON(A.GROUPCD=B.GROUPCD)"
-			+ " WHERE B.GROUPCD=? ";
+			+ " WHERE B.GROUPCD=? "
+			+ " ORDER BY A.ORGAN_SEQ ";
 		pstmt = conn.prepareStatement(sql);
 		pstmt.setString(1,groupcd);
 	}
@@ -194,10 +196,6 @@ function changeTrColor(trObj, oldColor, newColor){
                         <i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
                     </a>
                     <ul class="dropdown-menu dropdown-user">
-                        <li><a href="#"><i class="fa fa-user fa-fw"></i> User Profile</a>
-                        </li>
-                        <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
-                        </li>
                         <li class="divider"></li>
                         <li><a href="Logout.jsp"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
                         </li>

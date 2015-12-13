@@ -45,7 +45,7 @@
 
 function clickTrEvent(trobj){
 
-	alert("clickTrEvent:"+trobj.id);
+	//alert("clickTrEvent:"+trobj.id);
 	
 	var servletUrl = "AddressServlet";
 	var param = "";
@@ -130,7 +130,8 @@ function changeTrColor(trObj, oldColor, newColor){
 	
 	String sql = " SELECT A.USERID, A.USERNM, B.GROUPCD, B.GROUPNAME, A.CLASSCD, A.REGDT "
 		+ " FROM  USERINFO A INNER JOIN GROUPINFO B "
-		+ " ON(A.GROUPCD = B.GROUPCD) ";
+		+ " ON(A.GROUPCD = B.GROUPCD) "
+		+ " ORDER BY A.USERID ";
 		
 	pstmt = conn.prepareStatement(sql);
 	//pstmt.setString(1,"1");	
@@ -174,10 +175,6 @@ function changeTrColor(trObj, oldColor, newColor){
                         <i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
                     </a>
                     <ul class="dropdown-menu dropdown-user">
-                        <li><a href="#"><i class="fa fa-user fa-fw"></i> User Profile</a>
-                        </li>
-                        <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
-                        </li>
                         <li class="divider"></li>
                         <li><a href="Logout.jsp"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
                         </li>
