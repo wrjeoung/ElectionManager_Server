@@ -22,6 +22,51 @@
 <%@ page import="java.security.MessageDigest" %>
 <%@ page import="java.security.NoSuchAlgorithmException" %>
 
+<%!
+	private String md5CheckSum(String fullPath) {
+	    String result=null;
+	    FileInputStream fis=null;
+	    try {
+	        MessageDigest md = MessageDigest.getInstance("MD5");
+	        
+	        fis = new FileInputStream(fullPath);
+	
+	        byte[] dataBytes = new byte[1024];
+	
+	        int nread = 0;
+	        while ((nread = fis.read(dataBytes)) != -1) {
+	            md.update(dataBytes, 0, nread);
+	        };
+	
+	        byte[] mdbytes = md.digest();
+	
+	        //convert the byte to hex format method 1
+	        StringBuffer sb = new StringBuffer();
+	        for (int i = 0; i < mdbytes.length; i++) {
+	            sb.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16).substring(1));
+	        }
+	
+	        //convert the byte to hex format method 2
+	        StringBuffer hexString = new StringBuffer();
+	        for (int i = 0; i < mdbytes.length; i++) {
+	            String hex = Integer.toHexString(0xff & mdbytes[i]);
+	            if (hex.length() == 1) hexString.append('0');
+	            hexString.append(hex);
+	        }
+	        result = hexString.toString();
+	    }catch (FileNotFoundException e) {
+	        e.printStackTrace();
+	    }catch (NoSuchAlgorithmException e) {
+	        e.printStackTrace();
+	    }catch (IOException e) {
+	        e.printStackTrace();
+	    }finally {
+	        if(fis!=null) { try{fis.close();}catch (IOException e){}}
+	    }
+	    return result;
+	}
+%>
+
 <%
 	System.out.println("Call http server");
 	String sQuery = "";
@@ -226,9 +271,17 @@
 			JSONObject tupyogu_codeObj = new JSONObject();
 			
 			// rjeong 2015.12.12 sat - pdf files download [.
-			String mac_address = (String)jre.get("MACADDRESS");			                                               
+			String mac_address = (String)jre.get("MACADDRESS");
+			JSONArray reqPdfFileInfo = (JSONArray)jre.get("FILE_INFO");;
+			int reqPdfFileCount = 0;
+			
+			if(reqPdfFileInfo != null) {
+				reqPdfFileCount = reqPdfFileInfo.size();
+			}
+			
+			
 			JSONObject pdfpathObj = new JSONObject();
-			JSONArray pdfpathArray = new JSONArray();
+			JSONArray pdfInfoArray = new JSONArray();
 			PreparedStatement pstmPdfs = null;
 			ResultSet rsPdfs = null;
 			String sqlPdfs = null;
@@ -238,12 +291,42 @@
 			pstmPdfs.setString(1, mac_address);
 			rsPdfs = pstmPdfs.executeQuery();
 			while(rsPdfs.next()) {
+				JSONObject resPdfFileInfo = new JSONObject();
+				boolean updatePdfFile = false;
 				String pdfpath = rsPdfs.getString("pdfpath");
-				pdfpathArray.add(pdfpath);				
+                int index = pdfpath.lastIndexOf("/");
+                String fileName = pdfpath.substring(index+1);
+				
+				resPdfFileInfo.put("PDFPATH",pdfpath);
+				if(reqPdfFileCount > 0) {
+					for(int i = 0; i < reqPdfFileCount; i++) {
+						JSONObject fileJson = (JSONObject)reqPdfFileInfo.get(i);
+						String reqFileName = (String)fileJson.get("FILE_NAME");
+						
+						if(fileName.equals(reqFileName)) {
+							String clientMd5Sum = (String)fileJson.get("MD5SUM");
+							boolean existsPdfServer = new File(mSaveFolder + "/" + fileName).exists();
+							
+							if(existsPdfServer) {
+								String serverMd5Sum = md5CheckSum(mSaveFolder+"/"+fileName);
+								
+								if(serverMd5Sum != null && !serverMd5Sum.equals(clientMd5Sum)) {
+									updatePdfFile = true;
+								}
+							} 
+						}
+					}
+				} else {
+					updatePdfFile = true;
+				}
+				resPdfFileInfo.put("UPDATE_PDF_FILE",updatePdfFile);
+				pdfInfoArray.add(resPdfFileInfo);				
 			}
-			pdfpathObj.put("PDFPATH", pdfpathArray);
-			obj_re.put("PDFPATHARRAYS", pdfpathArray);			
+			
+			//pdfpathObj.put("PDFINFO", pdfpathArray);
+			obj_re.put("PDFINFOARRAYS", pdfInfoArray);			
 			// pdf files download ].
+			
 			
 			PreparedStatement pstmt2,pstmt3 = null;
 			ResultSet rs2,rs3 = null;
