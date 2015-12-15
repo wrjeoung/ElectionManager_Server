@@ -221,7 +221,7 @@
 			ResultSet rsPdfs = null;
 			String sqlPdfs = null;
 			
-			sqlPdfs = "SELECT * FROM USERINFO A INNER JOIN ADM_CODE B WHERE PDFPATH IS NOT NULL AND MACADDRESS=?";
+			sqlPdfs = "SELECT pdfpath FROM USERINFO A INNER JOIN PDFINFO B WHERE PDFPATH IS NOT NULL AND MACADDRESS=?";
 			pstmPdfs = conn.prepareStatement(sqlPdfs);
 			pstmPdfs.setString(1, mac_address);
 			rsPdfs = pstmPdfs.executeQuery();
