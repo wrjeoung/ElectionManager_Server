@@ -74,11 +74,6 @@
 	ResultSet rs = null;
 	JSONObject obj_re = null;
 	Connection conn = null;
-	String clientMd5sum = null;
-	String serverMd5sum = null;
-	String mFileName = "final.pdf";
-	boolean existsPdfAtClient = false;
-	boolean existsPdfAtServer = false;
 	// wrjeoung mac path.
     //String mSaveFolder = "/Users/wrjeong";
 	// Woori research sever path.
@@ -87,8 +82,6 @@
 	request.setCharacterEncoding("UTF-8");		
 	response.setContentType("text/html;charset=UTF-8");
 	response.setCharacterEncoding("UTF-8");
-	
-
 	
 	try{
 		obj_re = new JSONObject();
@@ -112,65 +105,7 @@
                 
         sQuery = (String) jre.get("TYPE");
         System.out.println("Query:"+sQuery);
-        
-        
-        clientMd5sum = (String) jre.get("MD5SUM");
-        System.out.println("clientMd5sum : "+clientMd5sum);
-        
-        if( jre.get("existsPdfAtclient") != null) {
-        	existsPdfAtClient = (Boolean) jre.get("existsPdfAtclient");
-        }
-        obj_re.put("updatePdfFile", false);
-        existsPdfAtServer = new File(mSaveFolder + "/" + mFileName).exists();
-        System.out.println("existsPdfAtClient : "+existsPdfAtClient);
-        System.out.println("existsPdfAtServer : "+existsPdfAtServer);
-        
-        if(existsPdfAtServer == true
-        		&& existsPdfAtClient == true)
-        {
-	        FileInputStream fis=null;
-	    	MessageDigest md = MessageDigest.getInstance("MD5");
-	        fis = new FileInputStream(mSaveFolder+"/"+mFileName);
-	        
-	        byte[] dataBytes = new byte[1024];
-	     
-	        int nread = 0; 
-	        while ((nread = fis.read(dataBytes)) != -1) {
-	          md.update(dataBytes, 0, nread);
-	        };
-	        byte[] mdbytes = md.digest();
-	     
-	        //convert the byte to hex format method 1
-	        StringBuffer sb = new StringBuffer();
-	        for (int i = 0; i < mdbytes.length; i++) {
-	          sb.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16).substring(1));
-	        }
-	
-	        System.out.println("serverMd5sum 1: " + sb.toString());
-	        
-	        //convert the byte to hex format method 2
-	        StringBuffer hexString = new StringBuffer();
-	    	for (int i=0;i<mdbytes.length;i++) {
-	    		String hex=Integer.toHexString(0xff & mdbytes[i]);
-	    	     	if(hex.length()==1) hexString.append('0');
-	    	     	hexString.append(hex);
-	    	}
-	    	System.out.println("serverMd5sum 2: " + hexString.toString());
-	    	serverMd5sum = hexString.toString();
-	    	if(fis!=null) try{fis.close();}catch(IOException e){};
-	    	
-	        if(clientMd5sum.equals(serverMd5sum)){
-	        	obj_re.put("updatePdfFile", false);
-	        }
-	        else {
-	        	obj_re.put("updatePdfFile", true);
-	        }
-        } else if(existsPdfAtServer == true 
-        		&& existsPdfAtClient == false) {
-        	obj_re.put("updatePdfFile", true);
-        }
-        
-        
+       
 		if(sQuery.equals("JOIN")){
 			String userinf[];
 			JSONArray arr = (JSONArray) jre.get("CONTENTS");
