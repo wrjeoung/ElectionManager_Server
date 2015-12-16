@@ -960,6 +960,25 @@
 				  + " END AS LEVEL, `ADM_CD`,`FAMILY_ONE`,`FAMILY_AVG`,`FAMILY_TWO_OVER`,`MYHOME_RATIO`,`APT_RATIO`,`40M_OVER` FROM ENVINFO "
 				  + " WHERE ADM_CD = ? \n"; 
 			
+			if(!adm_cd.substring(5,7).equals("00")) {
+				sql = sql + " UNION "+sql;
+				
+				pstmt = conn.prepareStatement(sql);
+				pstmt.setString(1, adm_cd1);
+				
+				if(adm_cd2.equals(adm_cd3)) {
+					pstmt.setString(2, adm_cd2);
+				} else {
+					pstmt.setString(2, adm_cd3);
+				}
+				
+			} else {
+				
+				pstmt = conn.prepareStatement(sql);
+				pstmt.setString(1, adm_cd1);
+			}			
+			
+			/*
 			if(!adm_cd2.equals(adm_cd3)){
 				sql = sql + " UNION "+sql;
 				
@@ -973,7 +992,7 @@
 				pstmt.setString(1, adm_cd1);
 				
 			}
-			
+			*/
 			rs = pstmt.executeQuery();
 			
 			FamilyDAO fd = null;
@@ -1430,6 +1449,25 @@
 					  + " END AS LEVEL, `ADM_CD`,`FAMILY_ONE`,`FAMILY_AVG`,`FAMILY_TWO_OVER`,`MYHOME_RATIO`,`APT_RATIO`,`40M_OVER` FROM ENVINFO "
 					  + " WHERE ADM_CD = ? \n"; 
 				
+				if(!adm_cd.substring(5,7).equals("00")) {
+					sql = sql + " UNION "+sql;
+					
+					pstmt = conn.prepareStatement(sql);
+					pstmt.setString(1, adm_cd1);
+					
+					if(adm_cd2.equals(adm_cd3)) {
+						pstmt.setString(2, adm_cd2);
+					} else {
+						pstmt.setString(2, adm_cd3);
+					}
+					
+				} else {
+					
+					pstmt = conn.prepareStatement(sql);
+					pstmt.setString(1, adm_cd1);
+				}	
+								
+				/*
 				if(!adm_cd2.equals(adm_cd3)){
 					sql = sql + " UNION "+sql;
 					
@@ -1443,7 +1481,7 @@
 					pstmt.setString(1, adm_cd1);
 					
 				}
-				
+				*/
 				rs = pstmt.executeQuery();
 				
 				FamilyDAO fd = null;
