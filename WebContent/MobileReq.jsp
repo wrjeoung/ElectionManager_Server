@@ -924,23 +924,6 @@
 				pstmt.setString(1, adm_cd1);
 			}
 			
-			/*
-			
-			if(!adm_cd2.equals(adm_cd3)){
-				sql = sql + " UNION "+sql;
-				
-				pstmt = conn.prepareStatement(sql);
-				pstmt.setString(1, adm_cd1);
-				pstmt.setString(2, adm_cd3);
-				
-			}else{
-				
-				pstmt = conn.prepareStatement(sql);
-				pstmt.setString(1, adm_cd1);
-				
-			}
-			*/
-			
 			//pstmt = null;
 			//rs = null;
 		
@@ -1328,7 +1311,6 @@
 				mapData.put("ADM_CD", adm_cd);
 				mapData.put("COX", cox);
 				mapData.put("COY", coy);
-				obj_re.put("MAPDATA", mapData);
 			}
 
 			if(isPointInPolygon) {
@@ -1397,18 +1379,22 @@
 					 + " FROM  ENVINFO "
 					 + " WHERE ADM_CD = ? \n";
 				
-				if(!adm_cd2.equals(adm_cd3)){
+				if(!adm_cd.substring(5,7).equals("00")) {
 					sql = sql + " UNION "+sql;
 					
 					pstmt = conn.prepareStatement(sql);
 					pstmt.setString(1, adm_cd1);
-					pstmt.setString(2, adm_cd3);
 					
-				}else{
+					if(adm_cd2.equals(adm_cd3)) {
+						pstmt.setString(2, adm_cd2);
+					} else {
+						pstmt.setString(2, adm_cd3);
+					}
+					
+				} else {
 					
 					pstmt = conn.prepareStatement(sql);
 					pstmt.setString(1, adm_cd1);
-					
 				}
 				
 				//pstmt = null;
