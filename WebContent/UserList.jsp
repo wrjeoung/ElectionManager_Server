@@ -213,6 +213,14 @@ function changeTrColor(trObj, oldColor, newColor){
                              <a href="BusinessList.jsp"><i class="fa fa-edit fa-fw"></i>주요사업관리</a>             
                              </li>      
                         <% }else{}%>
+                         <form id = "f" name = "c" method = "post" action = "AddressServlet?mode=pdf_file_reg"  enctype="multipart/form-data" >                       
+                        
+                        	<div class="form-group">
+                                <label>PDF 파일 업로드</label>
+		                         	<input id="business_img0" name = "uploadFile0" type="file">
+                            </div>
+                            <button type="submit" class="btn btn-default">등록</button>
+                        </form>
                     </ul>
                 </div>
                 <!-- /.sidebar-collapse -->

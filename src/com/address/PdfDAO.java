@@ -6,6 +6,13 @@ public class PdfDAO {
 	private String pdf_code;
 	private String adm_cd;
 	private String pdf_etc;
+	private String pdf_path;
+	public String getPdf_path() {
+		return pdf_path;
+	}
+	public void setPdf_path(String pdf_path) {
+		this.pdf_path = pdf_path;
+	}
 	public String getPdf_page() {
 		return pdf_page;
 	}
