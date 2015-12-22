@@ -222,8 +222,16 @@
 			String sqlPdfs = null;
 			
 			sqlPdfs = "SELECT pdfpath FROM USERINFO A INNER JOIN PDFINFO B WHERE PDFPATH IS NOT NULL AND MACADDRESS=?";
-			pstmPdfs = conn.prepareStatement(sqlPdfs);
-			pstmPdfs.setString(1, mac_address);
+			if(classCd != null && classCd.equals("AAA")) {
+				pstmPdfs = conn.prepareStatement(sqlPdfs);
+				pstmPdfs.setString(1, mac_address);
+			} else {
+				sqlPdfs += " AND ADM_CD=?";
+				pstmPdfs = conn.prepareStatement(sqlPdfs);
+				pstmPdfs.setString(1, mac_address);
+				pstmPdfs.setString(2, param1);
+			}
+			
 			rsPdfs = pstmPdfs.executeQuery();
 			while(rsPdfs.next()) {
 				JSONObject resPdfFileInfo = new JSONObject();
