@@ -352,11 +352,9 @@
 			String mac = (String) jre.get("IMEI");
 			//String sql = "select pwd from USERINFO where macaddress=?";
 			
-			String sql = "SELECT A.PWD, B.GROUPCD, B.ADM_CD, C.PDFPATH, A.CLASSCD"
+			String sql = "SELECT A.PWD, B.GROUPCD, B.ADM_CD, A.CLASSCD"
 				+ " FROM USERINFO A INNER JOIN GROUPINFO B "
 				+ " ON(A.GROUPCD=B.GROUPCD) "
-				+ " LEFT OUTER JOIN ADM_CODE C "
-				+ " ON(B.ADM_CD=C.ADM_CD) "
 				+ " WHERE MACADDRESS = ? ";
 			
 			pstmt = conn.prepareStatement(sql);
@@ -366,7 +364,6 @@
 			
 			int iCnt = 0;
 			String pwd = "";
-			String pdfpath = null;
 			String admcd = null;
 			String classcd = null;
 			
@@ -374,12 +371,10 @@
 			while(rs.next()){
 				iCnt++;
 				pwd = rs.getString("PWD");
-				pdfpath = rs.getString("PDFPATH");
 				admcd = rs.getString("ADM_CD");
 				classcd = rs.getString("CLASSCD");
 				
 			}
-			System.out.println("pdfpath : "+pdfpath);
 			System.out.println("admcd : "+admcd);
 			System.out.println("classcd : "+classcd);
 			//iCnt가 0보다 크면 mac 중복 
@@ -389,7 +384,6 @@
 				obj_re.put("ADM_CD",admcd);
 				obj_re.put("CLASSCD",classcd);				
 				obj_re.put("PWD",pwd);
-				obj_re.put("PDFPATH",pdfpath);
 
 			}else{
 				System.out.println("[중복체크]서버에 동일한 mac 없음.:"+mac);
