@@ -721,13 +721,13 @@
 				vd = new VoteDAO();
 				vd.setAdm_cd(rs.getString("ADM_CD"));
 				vd.setLevel(rs.getInt("LEVEL"));
-				vd.setV20th(rs.getFloat("20TH"));
-				vd.setV30th(rs.getFloat("30TH"));
-				vd.setV40th(rs.getFloat("40TH"));
-				vd.setV40th_under(rs.getFloat("40TH_UNDER"));
-				vd.setV50th(rs.getFloat("50TH"));
-				vd.setV50th_over(rs.getFloat("50TH_OVER"));
-				vd.setV60th_over(rs.getFloat("60TH_OVER"));
+				vd.setV20th(Float.parseFloat(String.format("%.1f",rs.getFloat("20TH"))));
+				vd.setV30th(Float.parseFloat(String.format("%.1f",rs.getFloat("30TH"))));
+				vd.setV40th(Float.parseFloat(String.format("%.1f",rs.getFloat("40TH"))));
+				vd.setV40th_under(Float.parseFloat(String.format("%.1f",rs.getFloat("40TH_UNDER"))));
+				vd.setV50th(Float.parseFloat(String.format("%.1f",rs.getFloat("50TH"))));
+				vd.setV50th_over(Float.parseFloat(String.format("%.1f",rs.getFloat("50TH_OVER"))));
+				vd.setV60th_over(Float.parseFloat(String.format("%.1f",rs.getFloat("60TH_OVER"))));
 				//al1.add(vd);
 				al1.add(gson.toJson(vd));
 			}
@@ -1213,13 +1213,13 @@
 					vd = new VoteDAO();
 					vd.setAdm_cd(rs.getString("ADM_CD"));
 					vd.setLevel(rs.getInt("LEVEL"));
-					vd.setV20th(rs.getFloat("20TH"));
-					vd.setV30th(rs.getFloat("30TH"));
-					vd.setV40th(rs.getFloat("40TH"));
-					vd.setV40th_under(rs.getFloat("40TH_UNDER"));
-					vd.setV50th(rs.getFloat("50TH"));
-					vd.setV50th_over(rs.getFloat("50TH_OVER"));
-					vd.setV60th_over(rs.getFloat("60TH_OVER"));
+					vd.setV20th(Float.parseFloat(String.format("%.1f",rs.getFloat("20TH"))));
+					vd.setV30th(Float.parseFloat(String.format("%.1f",rs.getFloat("30TH"))));
+					vd.setV40th(Float.parseFloat(String.format("%.1f",rs.getFloat("40TH"))));
+					vd.setV40th_under(Float.parseFloat(String.format("%.1f",rs.getFloat("40TH_UNDER"))));
+					vd.setV50th(Float.parseFloat(String.format("%.1f",rs.getFloat("50TH"))));
+					vd.setV50th_over(Float.parseFloat(String.format("%.1f",rs.getFloat("50TH_OVER"))));
+					vd.setV60th_over(Float.parseFloat(String.format("%.1f",rs.getFloat("60TH_OVER"))));
 					//al1.add(vd);
 					al1.add(gson.toJson(vd));
 				}
