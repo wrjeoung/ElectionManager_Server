@@ -1527,8 +1527,11 @@
 			pstmt = null;
 			rs = null;
 			
-			String sql = "SELECT DISTINCT BKCODE,BKNAME FROM BUSINESS_KIND A, BUSINESS B" 
-					+" WHERE A.BKCODE = B.KIND OR SUBSTRING(BKCODE,3,1) = '0'";
+			String sql = " SELECT DISTINCT BKCODE,BKNAME FROM BUSINESS_KIND"
+					+" WHERE SUBSTRING(BKCODE,3,1) = '0'"
+					+" UNION SELECT DISTINCT BKCODE,BKNAME FROM BUSINESS_KIND A, BUSINESS B" 
+					+" WHERE A.BKCODE = B.KIND";
+
 			pstmt = conn.prepareStatement(sql);
 			
 			rs = pstmt.executeQuery();
