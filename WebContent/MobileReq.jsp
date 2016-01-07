@@ -917,34 +917,34 @@
 					
 					if(rs.getString("AVG")!=null){
 						ed.setAvg(String.format("%.1f",Float.parseFloat(rs.getString("AVG"))));
-						//System.out.println("setAvg:"+String.format("%.1f",Float.parseFloat(rs.getString("AVG"))));
+						System.out.println("setAvg:"+String.format("%.1f",Float.parseFloat(rs.getString("AVG"))));
 					}else{
-						ed.setAvg(null);
-						//System.out.println("setAvg:"+rs.getString("AVG"));
+						ed.setAvg(rs.getString("AVG"));
+						System.out.println("setAvg:"+rs.getString("AVG"));
 					}
 					
 					if(rs.getString("6TH")!=null){
 						ed.setF6th(String.format("%.1f",Float.parseFloat(rs.getString("6TH"))));
-						//System.out.println("setF6th:"+String.format("%.1f",Float.parseFloat(rs.getString("6TH"))));
+						System.out.println("setF6th:"+String.format("%.1f",Float.parseFloat(rs.getString("6TH"))));
 					}else{
-						ed.setF6th(null);
-						//System.out.println("setF6th:"+rs.getString("6TH"));
+						ed.setF6th(rs.getString("6TH"));
+						System.out.println("setF6th:"+rs.getString("6TH"));
 					}
 					
 					if(rs.getString("19TH")!=null){
 						ed.setF19th(String.format("%.1f",Float.parseFloat(rs.getString("19TH"))));
-						//System.out.println("setF19th:"+String.format("%.1f",Float.parseFloat(rs.getString("19TH"))));
+						System.out.println("setF19th:"+String.format("%.1f",Float.parseFloat(rs.getString("19TH"))));
 					}else{
-						ed.setF19th(null);
-						//System.out.println("setF19th:"+rs.getString("19TH"));
+						ed.setF19th(rs.getString("19TH"));
+						System.out.println("setF19th:"+rs.getString("19TH"));
 					}
 					
 					if(rs.getString("18th_1")!=null){
 						ed.setF18th_1(String.format("%.1f",Float.parseFloat(rs.getString("18th_1"))));
-						//System.out.println("setF18th_1:"+String.format("%.1f",Float.parseFloat(rs.getString("18th_1"))));
+						System.out.println("setF18th_1:"+String.format("%.1f",Float.parseFloat(rs.getString("18th_1"))));
 					}else{
-						ed.setF18th_1(null);
-						//System.out.println("setF18th_1:"+rs.getString("18th_1"));
+						ed.setF18th_1(rs.getString("18th_1"));
+						System.out.println("setF18th_1:"+rs.getString("18th_1"));
 					}
 					
 					al4.add(gson.toJson(ed));
@@ -1447,34 +1447,34 @@
 						
 						if(rs.getString("AVG")!=null){
 							ed.setAvg(String.format("%.1f",Float.parseFloat(rs.getString("AVG"))));
-							//System.out.println("setAvg:"+String.format("%.1f",Float.parseFloat(rs.getString("AVG"))));
+							System.out.println("setAvg:"+String.format("%.1f",Float.parseFloat(rs.getString("AVG"))));
 						}else{
-							ed.setAvg(null);
-							//System.out.println("setAvg:"+rs.getString("AVG"));
+							ed.setAvg(rs.getString("AVG"));
+							System.out.println("setAvg:"+rs.getString("AVG"));
 						}
 						
 						if(rs.getString("6TH")!=null){
 							ed.setF6th(String.format("%.1f",Float.parseFloat(rs.getString("6TH"))));
-							//System.out.println("setF6th:"+String.format("%.1f",Float.parseFloat(rs.getString("6TH"))));
+							System.out.println("setF6th:"+String.format("%.1f",Float.parseFloat(rs.getString("6TH"))));
 						}else{
-							ed.setF6th(null);
-							//System.out.println("setF6th:"+rs.getString("6TH"));
+							ed.setF6th(rs.getString("6TH"));
+							System.out.println("setF6th:"+rs.getString("6TH"));
 						}
 						
 						if(rs.getString("19TH")!=null){
 							ed.setF19th(String.format("%.1f",Float.parseFloat(rs.getString("19TH"))));
-							//System.out.println("setF19th:"+String.format("%.1f",Float.parseFloat(rs.getString("19TH"))));
+							System.out.println("setF19th:"+String.format("%.1f",Float.parseFloat(rs.getString("19TH"))));
 						}else{
-							ed.setF19th(null);
-							//System.out.println("setF19th:"+rs.getString("19TH"));
+							ed.setF19th(rs.getString("19TH"));
+							System.out.println("setF19th:"+rs.getString("19TH"));
 						}
 						
 						if(rs.getString("18th_1")!=null){
 							ed.setF18th_1(String.format("%.1f",Float.parseFloat(rs.getString("18th_1"))));
-							//System.out.println("setF18th_1:"+String.format("%.1f",Float.parseFloat(rs.getString("18th_1"))));
+							System.out.println("setF18th_1:"+String.format("%.1f",Float.parseFloat(rs.getString("18th_1"))));
 						}else{
-							ed.setF18th_1(null);
-							//System.out.println("setF18th_1:"+rs.getString("18th_1"));
+							ed.setF18th_1(rs.getString("18th_1"));
+							System.out.println("setF18th_1:"+rs.getString("18th_1"));
 						}
 						
 						al4.add(gson.toJson(ed));
