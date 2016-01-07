@@ -347,8 +347,8 @@ function AddrSearch(){
 	var param = "";
 	var data = f.organ_addr.value;
 	var servletUrl = "AddressServlet";
-	var consumer_key = "d7b1e5c419cd4e9baebd";
-	var consumer_secret = "7d11a8fddbb5477c89d6";
+	var consumer_key = "f59544edd2be4a4f91dd";
+	var consumer_secret = "86bf4eaf0ad3465dae84";
 	data = consumer_key + ";" + consumer_secret + ";" + data;
 	//alert(data);
 	

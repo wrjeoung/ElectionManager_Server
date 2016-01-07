@@ -31,6 +31,8 @@ import org.json.simple.JSONValue;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import sun.nio.cs.HistoricallyNamedCharset;
+
 import com.oreilly.servlet.MultipartRequest;
 import com.oreilly.servlet.multipart.DefaultFileRenamePolicy;
 
@@ -107,8 +109,8 @@ public class AddressServlet extends HttpServlet {
 			
 			if(mode.equals("tupogu"))
 			{
-				sql = "SELECT DISTINCT 'Á¦' || TO_NUMBER(REPLACE(REPLACE(tupogu, 'Á¦', ''),'ÅõÇ¥±¸', '')) || 'ÅõÇ¥±¸' AS tupogu FROM DATAADDRESS	where haengjoungdong =?"
-						+ "ORDER BY TO_NUMBER(REPLACE(REPLACE(tupogu, 'Á¦', ''),'ÅõÇ¥±¸', '')) asc";
+				sql = "SELECT DISTINCT 'ï¿½ï¿½' || TO_NUMBER(REPLACE(REPLACE(tupogu, 'ï¿½ï¿½', ''),'ï¿½ï¿½Ç¥ï¿½ï¿½', '')) || 'ï¿½ï¿½Ç¥ï¿½ï¿½' AS tupogu FROM DATAADDRESS	where haengjoungdong =?"
+						+ "ORDER BY TO_NUMBER(REPLACE(REPLACE(tupogu, 'ï¿½ï¿½', ''),'ï¿½ï¿½Ç¥ï¿½ï¿½', '')) asc";
 			}
 			else
 			{
@@ -201,26 +203,54 @@ public class AddressServlet extends HttpServlet {
 		        //response.sendRedirect("/Woori/Login.jsp");
 	        }
 		}
+		else if(mode.equals("pdf_file_reg")) {
+			System.out.println("business_reg....");
+			request.setCharacterEncoding("UTF-8");
+			 // 10Mbyte ï¿½ï¿½ï¿½ï¿½
+		    int maxSize  = 1024*1024*50;   
+		    
+		    
+			//String savePath = "D:\\Upload\\";
+			//String savePath = "/Users/wrjeong/workspace/";
+		    String savePath = "/usr/local/server/tomcat/webapps/ElectionManager_server/data/";
+			String uploadFile;
+			String newFileName;
+			
+			MultipartRequest multipartRequest = new MultipartRequest(request, savePath, maxSize, "UTF-8");
+			
+			uploadFile = multipartRequest.getFilesystemName("uploadFile0");
+			
+			System.out.println(savePath+uploadFile);
+			
+			PdfDAO pdfDto = new PdfDAO();
+			pdfDto.setPdf_path(savePath+uploadFile);
+			
+			
+			ServletContext sc = getServletContext();
+        	RequestDispatcher rd = sc.getRequestDispatcher("/OrganList.jsp");
+	        rd.forward(request, response);
+						
+		}
 		else if(mode.equals("business_reg")){
 			System.out.println("business_reg....");
 			
 			request.setCharacterEncoding("UTF-8");
 			 
-		    // 10Mbyte Á¦ÇÑ
+		    // 10Mbyte ï¿½ï¿½ï¿½ï¿½
 		    int maxSize  = 1024*1024*50;        
 		 
-		    // À¥¼­¹ö ÄÁÅ×ÀÌ³Ê °æ·Î
+		    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ì³ï¿½ ï¿½ï¿½ï¿½
 		    String root = request.getSession().getServletContext().getRealPath("/");
 		 
-		    // ÆÄÀÏ ÀúÀå °æ·Î(ex : /home/tour/web/ROOT/upload)
+		    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½(ex : /home/tour/web/ROOT/upload)
 		    //String savePath = root + "upload";
 		    //String savePath = "D:\\Upload\\";
 		    String savePath = "/usr/local/server/tomcat/webapps/ElectionManager_server/business_upload/";
 		    int arrSize = 3;
-		    // ¾÷·Îµå ÆÄÀÏ¸í
+		    // ï¿½ï¿½ï¿½Îµï¿½ ï¿½ï¿½ï¿½Ï¸ï¿½
 		    String uploadFile[] = new String[arrSize];
 		 
-		    // ½ÇÁ¦ ÀúÀåÇÒ ÆÄÀÏ¸í
+		    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï¸ï¿½
 		    String newFileName[] = new String[arrSize];
 		    
 		    String result = "FAIL";
@@ -250,7 +280,7 @@ public class AddressServlet extends HttpServlet {
 		    	String etc = multi.getParameter("etc");
 		    	String img_url = "";
 		    	
-		        //Àü¼Û¹ÞÀº parameterÀÇ ÇÑ±Û±úÁü ¹æÁö
+		        //ï¿½ï¿½Û¹ï¿½ï¿½ï¿½ parameterï¿½ï¿½ ï¿½Ñ±Û±ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		        //String title = multi.getParameter("title");
 		        //title = new String(title.getBytes("8859_1"), "UTF-8");
 				
@@ -265,7 +295,7 @@ public class AddressServlet extends HttpServlet {
 		        System.out.println("groupcd:" + groupcd);
 		        System.out.println("etc:" + etc);
 		        
-		        // ÆÄÀÏ¾÷·Îµå
+		        // ï¿½ï¿½ï¿½Ï¾ï¿½ï¿½Îµï¿½
 		    	for(int i = 0; i < uploadFile.length; i++){
 		    		uploadFile[i] = multi.getFilesystemName("uploadFile"+i+"");
 		    		System.out.println("uploadFile["+i+"]:"+uploadFile[i]);
@@ -285,9 +315,9 @@ public class AddressServlet extends HttpServlet {
 
 		        if(regGb.equals("N")){
 		        	
-		        	System.out.println("ÁÖ¿ä»ç¾÷ ½Å±Ôµî·Ï");
+		        	System.out.println("ï¿½Ö¿ï¿½ï¿½ï¿½ ï¿½Å±Ôµï¿½ï¿½");
 					
-					// ½ÇÁ¦ ÀúÀåÇÒ ÆÄÀÏ¸í(ex : 20140819151221.zip)
+					// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï¸ï¿½(ex : 20140819151221.zip)
 		        	for(int i=0; i < newFileName.length; i++){
 		        		if(uploadFile[i]!=null){
 		        			newFileName[i] = i +"_" + simDf.format(new Date(currentTime)) +"."+ uploadFile[i].substring(uploadFile[i].lastIndexOf(".")+1);
@@ -349,7 +379,7 @@ public class AddressServlet extends HttpServlet {
 			        System.out.println("-----");
 			        
 		        }else{
-		        	System.out.println("ÁÖ¿ä»ç¾÷ Á¤º¸ ¼öÁ¤");
+		        	System.out.println("ï¿½Ö¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½");
 
 		        	String bn_seqs = multi.getParameter("bn_seq");
 		        	System.out.println("bn_seq:"+bn_seqs);
@@ -359,7 +389,7 @@ public class AddressServlet extends HttpServlet {
 		        		
 		        	}
 		        	
-			        // ÆÄÀÏ¾÷·Îµå (¼±ÅÃÇÑ ÆÄÀÏ¸í)
+			        // ï¿½ï¿½ï¿½Ï¾ï¿½ï¿½Îµï¿½ (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï¸ï¿½)
 			    	for(int i = 0; i < uploadFile.length; i++){
 			    		uploadFile[i] = multi.getFilesystemName("uploadFile"+i+"");
 			    		System.out.println("uploadFile["+i+"]:"+uploadFile[i]);
@@ -383,7 +413,7 @@ public class AddressServlet extends HttpServlet {
 
 		            }
 		           		        			
-		        	// ½ÇÁ¦ ÀúÀåÇÒ ÆÄÀÏ¸í(ex : 20140819151221.zip)
+		        	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï¸ï¿½(ex : 20140819151221.zip)
 		        	for(int i=0; i < newFileName.length; i++){
 		        		if(uploadFile[i]!=null){
 		        			newFileName[i] = i +"_" + simDf.format(new Date(currentTime)) +"."+ uploadFile[i].substring(uploadFile[i].lastIndexOf(".")+1);
@@ -416,14 +446,14 @@ public class AddressServlet extends HttpServlet {
 		        	}
 		        	
 		        	for(int i =0; i < oldFile.length; i++ ){
-		        		System.out.println(i+"¹øÂ° ÆÄÀÏ¾÷·Îµå ÁØºñ");
+		        		System.out.println(i+"ï¿½ï¿½Â° ï¿½ï¿½ï¿½Ï¾ï¿½ï¿½Îµï¿½ ï¿½Øºï¿½");
 
 		        		if(oldFile[i]!=null){
 			        		if(!oldFile[i].renameTo(newFile[i])){	
-			        			//»õ·Î ¼±ÅÃÇÑ °ª	&& ±âÁ¸ ¼±ÅÃÇß´ø °ª
+			        			//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½	&& ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ß´ï¿½ ï¿½ï¿½
 			        			if(uploadFile[i]!=null && uploadFile_Mf[i] != null){
 	
-				        			System.out.println(i+"¹øÂ° ÆÄÀÏº¯°æ");
+				        			System.out.println(i+"ï¿½ï¿½Â° ï¿½ï¿½ï¿½Ïºï¿½ï¿½ï¿½");
 	 				
 					        		buf = new byte[1024];
 							        fin = new FileInputStream(oldFile[i]);
@@ -437,7 +467,7 @@ public class AddressServlet extends HttpServlet {
 							        oldFile[i].delete();
 							        
 			        			}else{
-			        				System.out.println(i+"¹øÂ° ÆÄÀÏ º¯°æ ¾øÀ½");
+			        				System.out.println(i+"ï¿½ï¿½Â° ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½");
 			        			}
 			        			
 			        		}else{	
@@ -487,22 +517,22 @@ public class AddressServlet extends HttpServlet {
 			
 			request.setCharacterEncoding("UTF-8");
 			 
-		    // 10Mbyte Á¦ÇÑ
+		    // 10Mbyte ï¿½ï¿½ï¿½ï¿½
 		    int maxSize  = 1024*1024*10;        
 		 
-		    // À¥¼­¹ö ÄÁÅ×ÀÌ³Ê °æ·Î
+		    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ì³ï¿½ ï¿½ï¿½ï¿½
 		    String root = request.getSession().getServletContext().getRealPath("/");
 		 
-		    // ÆÄÀÏ ÀúÀå °æ·Î(ex : /home/tour/web/ROOT/upload)
+		    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½(ex : /home/tour/web/ROOT/upload)
 		    //String savePath = root + "upload";
 		    //String savePath = "D:\\Upload\\";
 		    String savePath = "/usr/local/server/tomcat/webapps/ElectionManager_server/organ_upload/";
 		    
-		    // ¾÷·Îµå ÆÄÀÏ¸í
+		    // ï¿½ï¿½ï¿½Îµï¿½ ï¿½ï¿½ï¿½Ï¸ï¿½
 		    String uploadFile = "";
 		    String uploadFile_Mf = "";
 		 
-		    // ½ÇÁ¦ ÀúÀåÇÒ ÆÄÀÏ¸í
+		    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï¸ï¿½
 		    String newFileName = "";
 		 
 		    int read = 0;
@@ -582,33 +612,33 @@ public class AddressServlet extends HttpServlet {
 				System.out.println("addr_auth:"+addr_auth);
 				System.out.println("Group_Cd:"+Group_Cd);
 				
-		        // Àü¼Û¹ÞÀº parameterÀÇ ÇÑ±Û±úÁü ¹æÁö
+		        // ï¿½ï¿½Û¹ï¿½ï¿½ï¿½ parameterï¿½ï¿½ ï¿½Ñ±Û±ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		        //String title = multi.getParameter("title");
 		        //title = new String(title.getBytes("8859_1"), "UTF-8");
 				
-		        // ÆÄÀÏ¾÷·Îµå
+		        // ï¿½ï¿½ï¿½Ï¾ï¿½ï¿½Îµï¿½
 		        uploadFile = multi.getFilesystemName("uploadFile");
 		        uploadFile_Mf = multi.getFilesystemName("uploadFile_Mf");
 		        System.out.println("uploadFile:" + uploadFile);
 		        System.out.println("uploadFile_Mf:" + uploadFile_Mf);
 		        
 				if(uploadFile!=null && Organ_Img.equals("")){
-					System.out.println("½Å±Ôµî·Ï");
+					System.out.println("ï¿½Å±Ôµï¿½ï¿½");
 					
-					 // ½ÇÁ¦ ÀúÀåÇÒ ÆÄÀÏ¸í(ex : 20140819151221.zip)
+					 // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï¸ï¿½(ex : 20140819151221.zip)
 			        newFileName = simDf.format(new Date(currentTime)) +"."+ uploadFile.substring(uploadFile.lastIndexOf(".")+1);
 			         
-			        // ¾÷·ÎµåµÈ ÆÄÀÏ °´Ã¼ »ý¼º
+			        // ï¿½ï¿½ï¿½Îµï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ ï¿½ï¿½
 			        File oldFile = new File(savePath + uploadFile);
 			 
 			         
-			        // ½ÇÁ¦ ÀúÀåµÉ ÆÄÀÏ °´Ã¼ »ý¼º
+			        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ ï¿½ï¿½
 			        File newFile = new File(savePath + newFileName);
 			        
-			        // ÆÄÀÏ¸í rename
+			        // ï¿½ï¿½ï¿½Ï¸ï¿½ rename
 			        if(!oldFile.renameTo(newFile)){
 			 
-			            // renameÀÌ µÇÁö ¾ÊÀ»°æ¿ì °­Á¦·Î ÆÄÀÏÀ» º¹»çÇÏ°í ±âÁ¸ÆÄÀÏÀº »èÁ¦
+			            // renameï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 			 
 			            buf = new byte[1024];
 			            fin = new FileInputStream(oldFile);
@@ -628,25 +658,25 @@ public class AddressServlet extends HttpServlet {
 					
 				}
 				else if(uploadFile==null && Organ_Img != null ){
-					System.out.println("±âÁ¸");
+					System.out.println("ï¿½ï¿½ï¿½ï¿½");
 					
-				}//»õ·Î ¼±ÅÃÇÑ °ª && ±âÁ¸¼±ÅÃµÇ¾ú´ø°ª
+				}//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ && ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÃµÇ¾ï¿½ï¿½
 				else if(uploadFile!=null && Organ_Img != null){
-					System.out.println("º¯°æ");
-					 // ½ÇÁ¦ ÀúÀåÇÒ ÆÄÀÏ¸í(ex : 20140819151221.zip)
+					System.out.println("ï¿½ï¿½ï¿½ï¿½");
+					 // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï¸ï¿½(ex : 20140819151221.zip)
 			        newFileName = simDf.format(new Date(currentTime)) +"."+ uploadFile.substring(uploadFile.lastIndexOf(".")+1);
 			         
-			        // ¾÷·ÎµåµÈ ÆÄÀÏ °´Ã¼ »ý¼º
+			        // ï¿½ï¿½ï¿½Îµï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ ï¿½ï¿½
 			        File oldFile = new File(savePath + uploadFile);
 			 
 			         
-			        // ½ÇÁ¦ ÀúÀåµÉ ÆÄÀÏ °´Ã¼ »ý¼º
+			        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ ï¿½ï¿½
 			        File newFile = new File(savePath + newFileName);
 			        
-			        // ÆÄÀÏ¸í rename
+			        // ï¿½ï¿½ï¿½Ï¸ï¿½ rename
 			        if(!oldFile.renameTo(newFile)){
 			 
-			            // renameÀÌ µÇÁö ¾ÊÀ»°æ¿ì °­Á¦·Î ÆÄÀÏÀ» º¹»çÇÏ°í ±âÁ¸ÆÄÀÏÀº »èÁ¦
+			            // renameï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 			            buf = new byte[1024];
 			            fin = new FileInputStream(oldFile);
 			            fout = new FileOutputStream(newFile);

@@ -154,11 +154,21 @@
     </tr>
     <tr bgcolor="#f6f6f6">
         <td width="20%" height="30" valign="middle">
-            <p align="center"><b>주요내용</b></p>
+            <p align="center"><b>사업개요</b></p>
         </td>
         <td width="80%" valign="middle" class="Padding">
         	<% for(int i = 0; i<summarys.length; i++) { %>
             	<%=summarys[i] %><br/>
+            <% } %>
+        </td>
+    </tr>    
+    <tr bgcolor="#f6f6f6">
+        <td width="20%" height="30" valign="middle">
+            <p align="center"><b>주요내용</b></p>
+        </td>
+        <td width="80%" valign="middle" class="Padding">
+        	<% for(int i = 0; i<contents.length; i++) { %>
+            	<%=contents[i] %><br/>
             <% } %>
         </td>
     </tr>

@@ -19,8 +19,8 @@ import org.json.simple.JSONValue;
 
 public class GeoUtil {
 	
-	private static final String CONSUMER_KEY = "d7b1e5c419cd4e9baebd";
-	private static final String CONSUMER_SECRET = "7d11a8fddbb5477c89d6";
+	private static final String CONSUMER_KEY = "f59544edd2be4a4f91dd";
+	private static final String CONSUMER_SECRET = "86bf4eaf0ad3465dae84";
 	
 	public static JSONObject getAddressFromPoint(double cox,double coy) {
 		String urlStr;

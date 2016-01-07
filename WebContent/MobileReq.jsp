@@ -22,6 +22,51 @@
 <%@ page import="java.security.MessageDigest" %>
 <%@ page import="java.security.NoSuchAlgorithmException" %>
 
+<%!
+	private String md5CheckSum(String fullPath) {
+	    String result=null;
+	    FileInputStream fis=null;
+	    try {
+	        MessageDigest md = MessageDigest.getInstance("MD5");
+	        
+	        fis = new FileInputStream(fullPath);
+	
+	        byte[] dataBytes = new byte[1024];
+	
+	        int nread = 0;
+	        while ((nread = fis.read(dataBytes)) != -1) {
+	            md.update(dataBytes, 0, nread);
+	        };
+	
+	        byte[] mdbytes = md.digest();
+	
+	        //convert the byte to hex format method 1
+	        StringBuffer sb = new StringBuffer();
+	        for (int i = 0; i < mdbytes.length; i++) {
+	            sb.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16).substring(1));
+	        }
+	
+	        //convert the byte to hex format method 2
+	        StringBuffer hexString = new StringBuffer();
+	        for (int i = 0; i < mdbytes.length; i++) {
+	            String hex = Integer.toHexString(0xff & mdbytes[i]);
+	            if (hex.length() == 1) hexString.append('0');
+	            hexString.append(hex);
+	        }
+	        result = hexString.toString();
+	    }catch (FileNotFoundException e) {
+	        e.printStackTrace();
+	    }catch (NoSuchAlgorithmException e) {
+	        e.printStackTrace();
+	    }catch (IOException e) {
+	        e.printStackTrace();
+	    }finally {
+	        if(fis!=null) { try{fis.close();}catch (IOException e){}}
+	    }
+	    return result;
+	}
+%>
+
 <%
 	System.out.println("Call http server");
 	String sQuery = "";
@@ -29,11 +74,6 @@
 	ResultSet rs = null;
 	JSONObject obj_re = null;
 	Connection conn = null;
-	String clientMd5sum = null;
-	String serverMd5sum = null;
-	String mFileName = "final.pdf";
-	boolean existsPdfAtClient = false;
-	boolean existsPdfAtServer = false;
 	// wrjeoung mac path.
     //String mSaveFolder = "/Users/wrjeong";
 	// Woori research sever path.
@@ -42,8 +82,6 @@
 	request.setCharacterEncoding("UTF-8");		
 	response.setContentType("text/html;charset=UTF-8");
 	response.setCharacterEncoding("UTF-8");
-	
-
 	
 	try{
 		obj_re = new JSONObject();
@@ -67,65 +105,7 @@
                 
         sQuery = (String) jre.get("TYPE");
         System.out.println("Query:"+sQuery);
-        
-        
-        clientMd5sum = (String) jre.get("MD5SUM");
-        System.out.println("clientMd5sum : "+clientMd5sum);
-        
-        if( jre.get("existsPdfAtclient") != null) {
-        	existsPdfAtClient = (Boolean) jre.get("existsPdfAtclient");
-        }
-        obj_re.put("updatePdfFile", false);
-        existsPdfAtServer = new File(mSaveFolder + "/" + mFileName).exists();
-        System.out.println("existsPdfAtClient : "+existsPdfAtClient);
-        System.out.println("existsPdfAtServer : "+existsPdfAtServer);
-        
-        if(existsPdfAtServer == true
-        		&& existsPdfAtClient == true)
-        {
-	        FileInputStream fis=null;
-	    	MessageDigest md = MessageDigest.getInstance("MD5");
-	        fis = new FileInputStream(mSaveFolder+"/"+mFileName);
-	        
-	        byte[] dataBytes = new byte[1024];
-	     
-	        int nread = 0; 
-	        while ((nread = fis.read(dataBytes)) != -1) {
-	          md.update(dataBytes, 0, nread);
-	        };
-	        byte[] mdbytes = md.digest();
-	     
-	        //convert the byte to hex format method 1
-	        StringBuffer sb = new StringBuffer();
-	        for (int i = 0; i < mdbytes.length; i++) {
-	          sb.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16).substring(1));
-	        }
-	
-	        System.out.println("serverMd5sum 1: " + sb.toString());
-	        
-	        //convert the byte to hex format method 2
-	        StringBuffer hexString = new StringBuffer();
-	    	for (int i=0;i<mdbytes.length;i++) {
-	    		String hex=Integer.toHexString(0xff & mdbytes[i]);
-	    	     	if(hex.length()==1) hexString.append('0');
-	    	     	hexString.append(hex);
-	    	}
-	    	System.out.println("serverMd5sum 2: " + hexString.toString());
-	    	serverMd5sum = hexString.toString();
-	    	if(fis!=null) try{fis.close();}catch(IOException e){};
-	    	
-	        if(clientMd5sum.equals(serverMd5sum)){
-	        	obj_re.put("updatePdfFile", false);
-	        }
-	        else {
-	        	obj_re.put("updatePdfFile", true);
-	        }
-        } else if(existsPdfAtServer == true 
-        		&& existsPdfAtClient == false) {
-        	obj_re.put("updatePdfFile", true);
-        }
-        
-        
+       
 		if(sQuery.equals("JOIN")){
 			String userinf[];
 			JSONArray arr = (JSONArray) jre.get("CONTENTS");
@@ -226,24 +206,70 @@
 			JSONObject tupyogu_codeObj = new JSONObject();
 			
 			// rjeong 2015.12.12 sat - pdf files download [.
-			String mac_address = (String)jre.get("MACADDRESS");			                                               
+			String mac_address = (String)jre.get("MACADDRESS");
+			JSONArray reqPdfFileInfo = (JSONArray)jre.get("FILE_INFO");;
+			int reqPdfFileCount = 0;
+			
+			if(reqPdfFileInfo != null) {
+				reqPdfFileCount = reqPdfFileInfo.size();
+			}
+			
+			
 			JSONObject pdfpathObj = new JSONObject();
-			JSONArray pdfpathArray = new JSONArray();
+			JSONArray pdfInfoArray = new JSONArray();
 			PreparedStatement pstmPdfs = null;
 			ResultSet rsPdfs = null;
 			String sqlPdfs = null;
 			
-			sqlPdfs = "SELECT * FROM USERINFO A INNER JOIN ADM_CODE B WHERE PDFPATH IS NOT NULL AND MACADDRESS=?";
-			pstmPdfs = conn.prepareStatement(sqlPdfs);
-			pstmPdfs.setString(1, mac_address);
+			sqlPdfs = "SELECT pdfpath FROM USERINFO A INNER JOIN PDFINFO B WHERE NULLIF(PDFPATH, '') IS NOT NULL AND MACADDRESS=?";
+			if(classCd != null && classCd.equals("AAA")) {
+				pstmPdfs = conn.prepareStatement(sqlPdfs);
+				pstmPdfs.setString(1, mac_address);
+			} else {
+				sqlPdfs += " AND ADM_CD=?";
+				pstmPdfs = conn.prepareStatement(sqlPdfs);
+				pstmPdfs.setString(1, mac_address);
+				pstmPdfs.setString(2, param1);
+			}
+			
 			rsPdfs = pstmPdfs.executeQuery();
 			while(rsPdfs.next()) {
+				JSONObject resPdfFileInfo = new JSONObject();
+				boolean updatePdfFile = false;
 				String pdfpath = rsPdfs.getString("pdfpath");
-				pdfpathArray.add(pdfpath);				
+                int index = pdfpath.lastIndexOf("/");
+                String fileName = pdfpath.substring(index+1);
+				
+				resPdfFileInfo.put("PDFPATH",pdfpath);
+				if(reqPdfFileCount > 0) {
+					for(int i = 0; i < reqPdfFileCount; i++) {
+						JSONObject fileJson = (JSONObject)reqPdfFileInfo.get(i);
+						String reqFileName = (String)fileJson.get("FILE_NAME");
+						
+						if(fileName.equals(reqFileName)) {
+							String clientMd5Sum = (String)fileJson.get("MD5SUM");
+							boolean existsPdfServer = new File(mSaveFolder + "/" + fileName).exists();
+							
+							if(existsPdfServer) {
+								String serverMd5Sum = md5CheckSum(mSaveFolder+"/"+fileName);
+								
+								if(serverMd5Sum != null && !serverMd5Sum.equals(clientMd5Sum)) {
+									updatePdfFile = true;
+								}
+							} 
+						}
+					}
+				} else {
+					updatePdfFile = true;
+				}
+				resPdfFileInfo.put("UPDATE_PDF_FILE",updatePdfFile);
+				pdfInfoArray.add(resPdfFileInfo);				
 			}
-			pdfpathObj.put("PDFPATH", pdfpathArray);
-			obj_re.put("PDFPATHARRAYS", pdfpathArray);			
+			
+			//pdfpathObj.put("PDFINFO", pdfpathArray);
+			obj_re.put("PDFINFOARRAYS", pdfInfoArray);			
 			// pdf files download ].
+			
 			
 			PreparedStatement pstmt2,pstmt3 = null;
 			ResultSet rs2,rs3 = null;
@@ -326,11 +352,9 @@
 			String mac = (String) jre.get("IMEI");
 			//String sql = "select pwd from USERINFO where macaddress=?";
 			
-			String sql = "SELECT A.PWD, B.GROUPCD, B.ADM_CD, C.PDFPATH, A.CLASSCD"
+			String sql = "SELECT A.PWD, B.GROUPCD, B.ADM_CD, A.CLASSCD"
 				+ " FROM USERINFO A INNER JOIN GROUPINFO B "
 				+ " ON(A.GROUPCD=B.GROUPCD) "
-				+ " LEFT OUTER JOIN ADM_CODE C "
-				+ " ON(B.ADM_CD=C.ADM_CD) "
 				+ " WHERE MACADDRESS = ? ";
 			
 			pstmt = conn.prepareStatement(sql);
@@ -340,7 +364,6 @@
 			
 			int iCnt = 0;
 			String pwd = "";
-			String pdfpath = null;
 			String admcd = null;
 			String classcd = null;
 			
@@ -348,12 +371,10 @@
 			while(rs.next()){
 				iCnt++;
 				pwd = rs.getString("PWD");
-				pdfpath = rs.getString("PDFPATH");
 				admcd = rs.getString("ADM_CD");
 				classcd = rs.getString("CLASSCD");
 				
 			}
-			System.out.println("pdfpath : "+pdfpath);
 			System.out.println("admcd : "+admcd);
 			System.out.println("classcd : "+classcd);
 			//iCnt가 0보다 크면 mac 중복 
@@ -363,7 +384,6 @@
 				obj_re.put("ADM_CD",admcd);
 				obj_re.put("CLASSCD",classcd);				
 				obj_re.put("PWD",pwd);
-				obj_re.put("PDFPATH",pdfpath);
 
 			}else{
 				System.out.println("[중복체크]서버에 동일한 mac 없음.:"+mac);
@@ -552,169 +572,7 @@
 			//obj_re.put("ADM_CD",adm_cd_after);
 			//obj_re.put("ORGAN_NAME",organ_name);
 
-		}else if(sQuery.equals("GPS")){
-			System.out.println("GPS");
-			String sigungu = (String)jre.get("SIGUNGU");
-			String sigungutext = (String)jre.get("SIGUNGUTEXT");
-			String doroBubjoung = (String)jre.get("DOROBUBJOUNG");
-			String gunmulBunji = (String)jre.get("GUNMULBUNJI");
-			System.out.println("sigungu : " + sigungu + " sigungutext : " + sigungutext + " doroBubjoung : " + doroBubjoung + " gunmulBunji : " + gunmulBunji);
-			DBBean dbbean = new DBBean();
-			conn = dbbean.getConnection();
-			conn.setAutoCommit(false);
-			pstmt = null;
-			rs = null;
-			
-			String bubjoungdong = "";
-			String bunji_mainnum = "";
-			String sqlTemp  = "select DISTINCT BUBJOUNGDONG,BUNJI_MAINNUM from NEW_ADDRESS where (DOROTEXT = ? AND GUNMUL_MAINNUM = ?) OR (BUBJOUNGDONG = ? AND BUNJI_MAINNUM = ?)"; 
-			//SELECT BUBJOUNGDONG FROM NEW_ADDRESS WHERE (DOROTEXT = '성지로' AND GUNMUL_MAINNUM = 30) OR (BUBJOUNGDONG = '성지로' AND BUNJI_MAINNUM = 30)
-			//doroBubjoung = "성지로";
-			//gunmulBunji = "30";
-			PreparedStatement pstmtTemp = conn.prepareStatement(sqlTemp);
-			pstmtTemp.setString(1, doroBubjoung);
-			pstmtTemp.setInt(2, Integer.parseInt(gunmulBunji));
-			pstmtTemp.setString(3, doroBubjoung);
-			pstmtTemp.setInt(4, Integer.parseInt(gunmulBunji));
-			
-			ResultSet rsTemp = null;
-			rsTemp = pstmtTemp.executeQuery();
-			while(rsTemp.next()) {
-				bubjoungdong = rsTemp.getString(1);
-				bunji_mainnum = String.valueOf(rsTemp.getInt(2));
-			}
-			System.out.println("bubjoungdong : " + bubjoungdong);
-			System.out.println("bunji_mainnum : " + bunji_mainnum);
-			
-			JSONObject resData = new JSONObject();
-			String sql = "select DISTINCT SIGUNGU,HAENGJOUNGDONG,TUPYOGU from DATAADDRESS where BUBJOUNGDONG=? and BUNJI like ?";
-			String haengjoungdong = "";
-			String tupyogu = "";
-			
-			pstmt = conn.prepareStatement(sql);
-			pstmt.setString(1, bubjoungdong);
-			pstmt.setString(2, bunji_mainnum + "%");
-			
-			rs = pstmt.executeQuery();
-			while(rs.next()) {
-				sigungu = rs.getString(1);
-				haengjoungdong = rs.getString(2);
-				tupyogu = rs.getString(3);
-			}
-			
-			if(tupyogu.length() > 0) {
-				obj_re.put("RESULT","SUCCESS");
-				resData.put("SIGUNGU", sigungu);
-				resData.put("HAENGJOUNGDONG", haengjoungdong);
-				resData.put("TUPYOGU", tupyogu);
-				obj_re.put("RESDATA",resData);
-
-			}		
-			else {
-				obj_re.put("RESULT","FAILED");
-			}
-			
-			System.out.println("resData = "+resData.toString()); 
-		}else if(sQuery.equals("GEODATA_TEST")){
-			DBBean dbbean = new DBBean();
-			conn = dbbean.getConnection();
-			conn.setAutoCommit(false);
-			pstmt = null;
-			rs = null;
-			JSONArray jArray = new JSONArray();
-			JSONObject center = new JSONObject();
-			String sidotext = (String)jre.get("SIGUNGUTEXT");
-			String sigungutext = (String)jre.get("HAENGTEXT");
-			String haengtext = (String)jre.get("TUPYOGU_NUM");
-			long haeng_code = 0;
-			double minX = 1938371,minY = 11947124,maxX = 0,maxY = 0;
-			
-			
-			String sqlTemp = "select HAENGCODE from ADM_CODE where SIDOTEXT = ? and SIGUNGUTEXT = ? and HAENGTEXT = ?";
-			String sql = "select ADM_CD from BOUNDARYCOORDINATES where haeng_code=? group by adm_cd";
-			String sql2 = "select COX,COY from BOUNDARYCOORDINATES where ADM_CD=? order by SEQ";
-			
-			PreparedStatement pstmtTemp = conn.prepareStatement(sqlTemp);
-			pstmtTemp.setString(1, sidotext);
-			pstmtTemp.setString(2, sigungutext);
-			pstmtTemp.setString(3, haengtext);
-			
-			ResultSet rsTemp = null;
-			
-			rsTemp = pstmtTemp.executeQuery();
-			
-			while(rsTemp.next()) {
-				haeng_code = rsTemp.getLong(1);
-			}
-			
-			pstmt = conn.prepareStatement(sql);
-			pstmt.setLong(1, haeng_code);
-			
-			PreparedStatement pstmt2 = conn.prepareStatement(sql2);
-			ResultSet rs2 = null;
-					
-			rs = pstmt.executeQuery();
-			while(rs.next()) {
-				String adm_cd = rs.getString(1);
-				
-				JSONObject jo1 = new JSONObject();
-				
-				JSONArray features = new JSONArray();
-				
-				JSONObject jo2 = new JSONObject();
-				jo2.put("type","Feature");
-				
-				JSONObject geometry = new JSONObject();
-				geometry.put("type","Polygon");
-				
-				JSONArray coordinates = new JSONArray();
-				JSONArray posArray = new JSONArray();
-				
-				pstmt2.setString(1, adm_cd);
-				rs2 = pstmt2.executeQuery();
-				pstmt2.clearParameters();
-				while(rs2.next()) {
-					JSONArray pos = new JSONArray();
-					double COX = rs2.getDouble("COX");
-					double COY = rs2.getDouble("COY");
-					pos.add(COX);
-					pos.add(COY);
-					
-					if(minX > COX)
-						minX = COX;
-					
-					if(maxX < COX)
-						maxX = COX;
-
-					if(minY > COY)
-						minY = COY;
-					
-					if(maxY < COY)
-						maxY = COY;
-					
-					posArray.add(pos);
-				}
-				coordinates.add(posArray);
-				geometry.put("coordinates",coordinates);
-				JSONObject properties = new JSONObject();
-				properties.put("Name", "11");
-				properties.put("Description",sigungutext+" "+haengtext);
-				jo2.put("geometry",geometry);
-				jo2.put("properties",properties);
-				features.add(jo2);
-				jo1.put("features",features);
-				jo1.put("type", "FeatureCollection");
-				//System.out.println("jo1 = "+jo1.toJSONString());
-				jArray.add(jo1);
-			}
-			center.put("x", (minX+maxX)/2);
-			center.put("y", (minY+maxY)/2);
-			System.out.println("center_x = "+(minX+maxX)/2);
-			obj_re.put("RESULT","SUCCESS");
-			obj_re.put("GEODATA",jArray);
-			obj_re.put("CENTER", center);
-			
-		}else if(sQuery.equals("AREA_SEARCH") || sQuery.equals("TEST")){
+		}else if(sQuery.equals("AREA_SEARCH")){
 			DBBean dbbean = new DBBean();
 			conn = dbbean.getConnection();
 			conn.setAutoCommit(false);
@@ -863,13 +721,13 @@
 				vd = new VoteDAO();
 				vd.setAdm_cd(rs.getString("ADM_CD"));
 				vd.setLevel(rs.getInt("LEVEL"));
-				vd.setV20th(rs.getFloat("20TH"));
-				vd.setV30th(rs.getFloat("30TH"));
-				vd.setV40th(rs.getFloat("40TH"));
-				vd.setV40th_under(rs.getFloat("40TH_UNDER"));
-				vd.setV50th(rs.getFloat("50TH"));
-				vd.setV50th_over(rs.getFloat("50TH_OVER"));
-				vd.setV60th_over(rs.getFloat("60TH_OVER"));
+				vd.setV20th(Float.parseFloat(String.format("%.1f",rs.getFloat("20TH"))));
+				vd.setV30th(Float.parseFloat(String.format("%.1f",rs.getFloat("30TH"))));
+				vd.setV40th(Float.parseFloat(String.format("%.1f",rs.getFloat("40TH"))));
+				vd.setV40th_under(Float.parseFloat(String.format("%.1f",rs.getFloat("40TH_UNDER"))));
+				vd.setV50th(Float.parseFloat(String.format("%.1f",rs.getFloat("50TH"))));
+				vd.setV50th_over(Float.parseFloat(String.format("%.1f",rs.getFloat("50TH_OVER"))));
+				vd.setV60th_over(Float.parseFloat(String.format("%.1f",rs.getFloat("60TH_OVER"))));
 				//al1.add(vd);
 				al1.add(gson.toJson(vd));
 			}
@@ -888,18 +746,22 @@
 				 + " FROM  ENVINFO "
 				 + " WHERE ADM_CD = ? \n";
 			
-			if(!adm_cd2.equals(adm_cd3)){
+			if(!adm_cd.substring(5,7).equals("00")) {
 				sql = sql + " UNION "+sql;
 				
 				pstmt = conn.prepareStatement(sql);
 				pstmt.setString(1, adm_cd1);
-				pstmt.setString(2, adm_cd3);
 				
-			}else{
+				if(adm_cd2.equals(adm_cd3)) {
+					pstmt.setString(2, adm_cd2);
+				} else {
+					pstmt.setString(2, adm_cd3);
+				}
+				
+			} else {
 				
 				pstmt = conn.prepareStatement(sql);
 				pstmt.setString(1, adm_cd1);
-				
 			}
 			
 			//pstmt = null;
@@ -938,6 +800,25 @@
 				  + " END AS LEVEL, `ADM_CD`,`FAMILY_ONE`,`FAMILY_AVG`,`FAMILY_TWO_OVER`,`MYHOME_RATIO`,`APT_RATIO`,`40M_OVER` FROM ENVINFO "
 				  + " WHERE ADM_CD = ? \n"; 
 			
+			if(!adm_cd.substring(5,7).equals("00")) {
+				sql = sql + " UNION "+sql;
+				
+				pstmt = conn.prepareStatement(sql);
+				pstmt.setString(1, adm_cd1);
+				
+				if(adm_cd2.equals(adm_cd3)) {
+					pstmt.setString(2, adm_cd2);
+				} else {
+					pstmt.setString(2, adm_cd3);
+				}
+				
+			} else {
+				
+				pstmt = conn.prepareStatement(sql);
+				pstmt.setString(1, adm_cd1);
+			}			
+			
+			/*
 			if(!adm_cd2.equals(adm_cd3)){
 				sql = sql + " UNION "+sql;
 				
@@ -951,7 +832,7 @@
 				pstmt.setString(1, adm_cd1);
 				
 			}
-			
+			*/
 			rs = pstmt.executeQuery();
 			
 			FamilyDAO fd = null;
@@ -983,7 +864,7 @@
 				 + " WHEN SUBSTRING(adm_cd, 6, 2) <> '00' AND SUBSTRING(adm_cd, 9, 2) = '00' THEN '2' "
 				 + " ELSE '3' "
 				 + " END AS LEVEL, ADM_CD, SUM(6TH) AS 6TH, SUM(19TH) AS 19TH, SUM(18TH_1) AS 18TH_1, SUM(18TH_2) AS 18TH_2, " 
-				 + " (IFNULL(SUM(6TH), 0) + IFNULL(SUM(19TH), 0) + IFNULL(SUM(18TH_1),0) + IFNULL(SUM(18TH_2),0)) / 4 AS AVG "
+				 + " (IFNULL(SUM(6TH), 0) + IFNULL(SUM(19TH), 0) + IFNULL(SUM(18TH_1),0)) / 3 AS AVG "
 				 + " FROM ( "
 				 + " SELECT ADM_CD, "
 				 + " CASE "
@@ -1016,7 +897,7 @@
 				JSONArray al4 = new JSONArray();	
 				
 				////LEVEL, ADM_CD, SUM(6TH) AS 6TH, SUM(19TH) AS 19TH, SUM(18TH_1) AS 18TH_1, SUM(18TH_2) AS 18TH_2
-				while(rs.next()){
+				/**while(rs.next()){
 					ed = new ElectDao();
 					ed.setLevel(rs.getInt("LEVEL"));
 					ed.setAdm_cd(rs.getString("ADM_CD"));
@@ -1025,6 +906,43 @@
 					ed.setF19th(Float.parseFloat(String.format("%.1f",rs.getFloat("19TH"))));
 					ed.setF18th_1(Float.parseFloat(String.format("%.1f",rs.getFloat("18th_1"))));
 					ed.setF18th_2(Float.parseFloat(String.format("%.1f",rs.getFloat("18TH_2"))));
+					al4.add(gson.toJson(ed));
+				}**/
+				
+				////LEVEL, ADM_CD, SUM(6TH) AS 6TH, SUM(19TH) AS 19TH, SUM(18TH_1) AS 18TH_1, SUM(18TH_2) AS 18TH_2
+				while(rs.next()){
+					ed = new ElectDao();
+					ed.setLevel(rs.getInt("LEVEL"));
+					ed.setAdm_cd(rs.getString("ADM_CD"));
+					
+					if(rs.getString("AVG")!=null){
+						ed.setAvg(Float.parseFloat(String.format("%.1f",rs.getFloat("AVG"))));
+						//System.out.println("setAvg:"+String.format("%.1f",Float.parseFloat(rs.getString("AVG"))));
+					}else{
+						//System.out.println("setAvg:"+rs.getString("AVG"));
+					}
+					
+					if(rs.getString("6TH")!=null){
+						ed.setF6th(Float.parseFloat(String.format("%.1f",rs.getFloat("6TH"))));
+						//System.out.println("setF6th:"+String.format("%.1f",Float.parseFloat(rs.getString("6TH"))));
+					}else{
+						//System.out.println("setF6th:"+rs.getString("6TH"));
+					}
+					
+					if(rs.getString("19TH")!=null){
+						ed.setF19th(Float.parseFloat(String.format("%.1f",rs.getFloat("19TH"))));
+						//System.out.println("setF19th:"+String.format("%.1f",Float.parseFloat(rs.getString("19TH"))));
+					}else{
+						//System.out.println("setF19th:"+rs.getString("19TH"));
+					}
+					
+					if(rs.getString("18th_1")!=null){
+						ed.setF18th_1(Float.parseFloat(String.format("%.1f",rs.getFloat("18th_1"))));
+						//System.out.println("setF18th_1:"+String.format("%.1f",Float.parseFloat(rs.getString("18th_1"))));
+					}else{
+						//System.out.println("setF18th_1:"+rs.getString("18th_1"));
+					}
+					
 					al4.add(gson.toJson(ed));
 				}
 		     
@@ -1114,8 +1032,8 @@
 				
 				obj_re.put("RESULT","SUCCESS");
 		     
-		}else if(sQuery.equals("GPSTEST")) {
-			System.out.println("GPSTEST");
+		}else if(sQuery.equals("GPS")) {
+			System.out.println("GPS");
 			String adm_cd = null;
 			double cox = (Double)jre.get("COX");
 			double coy = (Double)jre.get("COY");
@@ -1289,7 +1207,6 @@
 				mapData.put("ADM_CD", adm_cd);
 				mapData.put("COX", cox);
 				mapData.put("COY", coy);
-				obj_re.put("MAPDATA", mapData);
 			}
 
 			if(isPointInPolygon) {
@@ -1333,13 +1250,13 @@
 					vd = new VoteDAO();
 					vd.setAdm_cd(rs.getString("ADM_CD"));
 					vd.setLevel(rs.getInt("LEVEL"));
-					vd.setV20th(rs.getFloat("20TH"));
-					vd.setV30th(rs.getFloat("30TH"));
-					vd.setV40th(rs.getFloat("40TH"));
-					vd.setV40th_under(rs.getFloat("40TH_UNDER"));
-					vd.setV50th(rs.getFloat("50TH"));
-					vd.setV50th_over(rs.getFloat("50TH_OVER"));
-					vd.setV60th_over(rs.getFloat("60TH_OVER"));
+					vd.setV20th(Float.parseFloat(String.format("%.1f",rs.getFloat("20TH"))));
+					vd.setV30th(Float.parseFloat(String.format("%.1f",rs.getFloat("30TH"))));
+					vd.setV40th(Float.parseFloat(String.format("%.1f",rs.getFloat("40TH"))));
+					vd.setV40th_under(Float.parseFloat(String.format("%.1f",rs.getFloat("40TH_UNDER"))));
+					vd.setV50th(Float.parseFloat(String.format("%.1f",rs.getFloat("50TH"))));
+					vd.setV50th_over(Float.parseFloat(String.format("%.1f",rs.getFloat("50TH_OVER"))));
+					vd.setV60th_over(Float.parseFloat(String.format("%.1f",rs.getFloat("60TH_OVER"))));
 					//al1.add(vd);
 					al1.add(gson.toJson(vd));
 				}
@@ -1358,18 +1275,22 @@
 					 + " FROM  ENVINFO "
 					 + " WHERE ADM_CD = ? \n";
 				
-				if(!adm_cd2.equals(adm_cd3)){
+				if(!adm_cd.substring(5,7).equals("00")) {
 					sql = sql + " UNION "+sql;
 					
 					pstmt = conn.prepareStatement(sql);
 					pstmt.setString(1, adm_cd1);
-					pstmt.setString(2, adm_cd3);
 					
-				}else{
+					if(adm_cd2.equals(adm_cd3)) {
+						pstmt.setString(2, adm_cd2);
+					} else {
+						pstmt.setString(2, adm_cd3);
+					}
+					
+				} else {
 					
 					pstmt = conn.prepareStatement(sql);
 					pstmt.setString(1, adm_cd1);
-					
 				}
 				
 				//pstmt = null;
@@ -1405,6 +1326,25 @@
 					  + " END AS LEVEL, `ADM_CD`,`FAMILY_ONE`,`FAMILY_AVG`,`FAMILY_TWO_OVER`,`MYHOME_RATIO`,`APT_RATIO`,`40M_OVER` FROM ENVINFO "
 					  + " WHERE ADM_CD = ? \n"; 
 				
+				if(!adm_cd.substring(5,7).equals("00")) {
+					sql = sql + " UNION "+sql;
+					
+					pstmt = conn.prepareStatement(sql);
+					pstmt.setString(1, adm_cd1);
+					
+					if(adm_cd2.equals(adm_cd3)) {
+						pstmt.setString(2, adm_cd2);
+					} else {
+						pstmt.setString(2, adm_cd3);
+					}
+					
+				} else {
+					
+					pstmt = conn.prepareStatement(sql);
+					pstmt.setString(1, adm_cd1);
+				}	
+								
+				/*
 				if(!adm_cd2.equals(adm_cd3)){
 					sql = sql + " UNION "+sql;
 					
@@ -1418,7 +1358,7 @@
 					pstmt.setString(1, adm_cd1);
 					
 				}
-				
+				*/
 				rs = pstmt.executeQuery();
 				
 				FamilyDAO fd = null;
@@ -1450,7 +1390,7 @@
 						 + " WHEN SUBSTRING(adm_cd, 6, 2) <> '00' AND SUBSTRING(adm_cd, 9, 2) = '00' THEN '2' "
 						 + " ELSE '3' "
 						 + " END AS LEVEL, ADM_CD, SUM(6TH) AS 6TH, SUM(19TH) AS 19TH, SUM(18TH_1) AS 18TH_1, SUM(18TH_2) AS 18TH_2, " 
-						 + " (IFNULL(SUM(6TH), 0) + IFNULL(SUM(19TH), 0) + IFNULL(SUM(18TH_1),0) + IFNULL(SUM(18TH_2),0)) / 4 AS AVG "
+						 + " (IFNULL(SUM(6TH), 0) + IFNULL(SUM(19TH), 0) + IFNULL(SUM(18TH_1),0)) / 3 AS AVG "
 						 + " FROM ( "
 						 + " SELECT ADM_CD, "
 						 + " CASE "
@@ -1483,7 +1423,7 @@
 					JSONArray al4 = new JSONArray();	
 					
 					////LEVEL, ADM_CD, SUM(6TH) AS 6TH, SUM(19TH) AS 19TH, SUM(18TH_1) AS 18TH_1, SUM(18TH_2) AS 18TH_2
-					while(rs.next()){
+					/**while(rs.next()){
 						ed = new ElectDao();
 						ed.setLevel(rs.getInt("LEVEL"));
 						ed.setAdm_cd(rs.getString("ADM_CD"));
@@ -1492,6 +1432,43 @@
 						ed.setF19th(rs.getFloat("19TH"));
 						ed.setF18th_1(rs.getFloat("18th_1"));
 						ed.setF18th_2(rs.getFloat("18TH_2"));
+						al4.add(gson.toJson(ed));
+					}**/
+					
+					////LEVEL, ADM_CD, SUM(6TH) AS 6TH, SUM(19TH) AS 19TH, SUM(18TH_1) AS 18TH_1, SUM(18TH_2) AS 18TH_2
+					while(rs.next()){
+						ed = new ElectDao();
+						ed.setLevel(rs.getInt("LEVEL"));
+						ed.setAdm_cd(rs.getString("ADM_CD"));
+						
+						if(rs.getString("AVG")!=null){
+							ed.setAvg(Float.parseFloat(String.format("%.1f",rs.getFloat("AVG"))));
+							//System.out.println("setAvg:"+String.format("%.1f",Float.parseFloat(rs.getString("AVG"))));
+						}else{
+							//System.out.println("setAvg:"+rs.getString("AVG"));
+						}
+						
+						if(rs.getString("6TH")!=null){
+							ed.setF6th(Float.parseFloat(String.format("%.1f",rs.getFloat("6TH"))));
+							//System.out.println("setF6th:"+String.format("%.1f",Float.parseFloat(rs.getString("6TH"))));
+						}else{
+							//System.out.println("setF6th:"+rs.getString("6TH"));
+						}
+						
+						if(rs.getString("19TH")!=null){
+							ed.setF19th(Float.parseFloat(String.format("%.1f",rs.getFloat("19TH"))));
+							//System.out.println("setF19th:"+String.format("%.1f",Float.parseFloat(rs.getString("19TH"))));
+						}else{
+							//System.out.println("setF19th:"+rs.getString("19TH"));
+						}
+						
+						if(rs.getString("18th_1")!=null){
+							ed.setF18th_1(Float.parseFloat(String.format("%.1f",rs.getFloat("18th_1"))));
+							//System.out.println("setF18th_1:"+String.format("%.1f",Float.parseFloat(rs.getString("18th_1"))));
+						}else{
+							//System.out.println("setF18th_1:"+rs.getString("18th_1"));
+						}
+						
 						al4.add(gson.toJson(ed));
 					}
 			     
@@ -1624,8 +1601,11 @@
 			pstmt = null;
 			rs = null;
 			
-			String sql = "SELECT DISTINCT BKCODE,BKNAME FROM BUSINESS_KIND A, BUSINESS B" 
-					+" WHERE A.BKCODE = B.KIND OR SUBSTRING(BKCODE,3,1) = '0'";
+			String sql = " SELECT DISTINCT BKCODE,BKNAME FROM BUSINESS_KIND"
+					+" WHERE SUBSTRING(BKCODE,3,1) = '0'"
+					+" UNION SELECT DISTINCT BKCODE,BKNAME FROM BUSINESS_KIND A, BUSINESS B" 
+					+" WHERE A.BKCODE = B.KIND";
+
 			pstmt = conn.prepareStatement(sql);
 			
 			rs = pstmt.executeQuery();
