@@ -1391,7 +1391,7 @@
 					fd.setFamily_two_over(rs.getFloat("FAMILY_TWO_OVER"));
 					fd.setMyhome_ratio(rs.getFloat("MYHOME_RATIO"));
 					fd.setF40m_over(rs.getFloat("40M_OVER"));
-					al3.add(fd);
+					al3.add(gson.toJson(fd));
 				}
 							
 				System.out.println("al3:"+al3.size());
