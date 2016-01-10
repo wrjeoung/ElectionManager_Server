@@ -1327,10 +1327,12 @@
 					sd.setUniv_over(rs.getFloat("UNIV_OVER"));
 					sd.setPop_dnsity(rs.getInt("POP_DENSITY"));
 					sd.setChildhood_alimony(rs.getFloat("CHILDHOOD_ALIMONY"));
-					al2.add(sd);
+					al2.add(gson.toJson(sd));
 				}	
 				
 				System.out.println("al2:"+al2.size());
+				
+				obj_re.put("STATS", al2);
 				
 				System.out.println("FAMILYSEARCH");
 				
