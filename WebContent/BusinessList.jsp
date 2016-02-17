@@ -136,7 +136,7 @@ function changeTrColor(trObj, oldColor, newColor){
 	
 	String sql = "";
 	if(classcd.equals("AAA")){
-		sql = " SELECT A.BN_SEQ, A.TITLE, C.BKNAME, B.GROUPNAME, B.GROUPCD "
+		sql = " SELECT DISTINCT A.BN_SEQ, A.TITLE, C.BKNAME, B.GROUPNAME, B.GROUPCD "
 			+ " FROM BUSINESS A INNER JOIN GROUPINFO B "
 			+ " ON (A.GROUPCD=B.GROUPCD) "
 			+ " INNER JOIN BUSINESS_KIND C "
@@ -145,7 +145,7 @@ function changeTrColor(trObj, oldColor, newColor){
 		pstmt = conn.prepareStatement(sql);
 		
 	}else{
-		sql = " SELECT A.BN_SEQ, A.TITLE, C.BKNAME, B.GROUPNAME, B.GROUPCD "
+		sql = " SELECT DISTINCT A.BN_SEQ, A.TITLE, C.BKNAME, B.GROUPNAME, B.GROUPCD "
 			+ " FROM BUSINESS A INNER JOIN GROUPINFO B "
 			+ " ON (A.GROUPCD=B.GROUPCD) "
 			+ " INNER JOIN BUSINESS_KIND C "
